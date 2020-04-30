@@ -23,13 +23,13 @@ class ScreenFragment : Fragment() {
         Bundle?
     ): View? {
 
-        // Creates the view controlled by the fragment
+
 
         val view = inflater.inflate(R.layout.fragment_movie, container, false)
         val bgImageView = view.findViewById<ImageView>(R.id.bg_img)
 
 
-        // Retrieve and display the movie data from the Bundle
+
         val args = arguments
 
         Picasso.get()
@@ -55,15 +55,14 @@ class ScreenFragment : Fragment() {
 
     companion object {
 
-        // Method for creating new instances of the fragment
+
         fun newInstance(screen: Screen): ScreenFragment {
 
-            // Store the movie data in a Bundle object
+
             val args = Bundle()
             args.putString(ScreenHelper.KEY_BG_URI, screen.bgUri)
 
-            // Create a new MovieFragment and set the Bundle as the arguments
-            // to be retrieved and displayed when the view is created
+
             val fragment = ScreenFragment()
             fragment.arguments = args
             return fragment

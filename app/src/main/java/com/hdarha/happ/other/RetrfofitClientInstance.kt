@@ -11,7 +11,7 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 
 
-private const val BASE_URL = " https://api.mock.org/"
+private const val BASE_URL = "https://api.mock.org/"
 
 class RetrofitClientInstance {
     private var retrofit: Retrofit? = null
