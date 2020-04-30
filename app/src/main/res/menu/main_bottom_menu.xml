@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="HLab"
+        android:id="@+id/bottomNavigationLabId"
+        android:icon="@drawable/ic_home_black_24dp"/>
+
+    <item android:title="History"
+        android:id="@+id/bottomNavigationHistorykMenuId"
+        android:icon="@drawable/ic_history_black_24dp"/>
+    <item android:title="Me"
+        android:id="@+id/bottomNavigationMeMenuId"
+        android:icon="@drawable/ic_person_outline_black_24dp"/>
+
+</menu>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:fitsSystemWindows="false"
+android:orientation="vertical">
+
+  <ImageView
+    android:id="@+id/bg_img"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:adjustViewBounds="false"
+    android:scaleType="fitXY"
+    android:visibility="visible"
+    app:srcCompat="@drawable/bcg2" />
+
+<ImageView
+    android:id="@+id/posterImageView"
+    android:layout_width="wrap_content"
+    android:layout_height="350dp"
+    android:layout_gravity="center|end"
+    android:layout_marginTop="50dp"
+    android:adjustViewBounds="true"
+    android:visibility="gone"
+    tools:srcCompat="@drawable/person" />
+
+<ImageView
+    android:id="@+id/text_img"
+    android:layout_width="350dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="80dp"
+    android:visibility="gone"
+    app:srcCompat="@drawable/txt" />
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/vertical_padding"
+    android:paddingTop="@dimen/horizontal_padding"
+    android:paddingRight="@dimen/vertical_padding"
+    android:paddingBottom="@dimen/horizontal_padding">
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+      <LinearLayout
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="80dp"
+          android:layout_weight="1"
+          android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="A very easy to use process :"
+            android:textColor="@color/colorTitle"
+            android:textSize="@dimen/title_text_size"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/ratingTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorAccent"
+            android:textSize="@dimen/subtitle_text_size"
+            android:visibility="gone" />
+
+      </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/overviewTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center"
+        android:paddingEnd="100dp"
+        android:shadowColor="#000000"
+        android:text="Just lick the generate bnutton, upload a picture slelect voicem ohoto goes in a video comes out"
+        android:textColor="#fea52e"
+        android:textSize="@dimen/body_text_size"
+        android:textStyle="normal"
+        android:visibility="gone" />
+
+  </LinearLayout>
+
+</ScrollView>
+
+
+</FrameLayout>
