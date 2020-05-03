@@ -9,10 +9,7 @@ import android.net.Uri
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
@@ -21,6 +18,8 @@ import com.haseebazeem.sampleGif.GifImageView
 import com.hdarha.happ.R
 import com.hdarha.happ.objects.Voice
 import com.hdarha.happ.other.inflate
+import pl.droidsonroids.gif.GifDrawable
+import pl.droidsonroids.gif.GifImageButton
 import java.util.concurrent.TimeUnit
 
 
@@ -92,10 +91,12 @@ class RecyclerAdapter(
             val timestamp = inflated.findViewById<TextView>(R.id.sound_timestamp_tv)
             val eqImg = inflated.findViewById<GifImageView>(R.id.eq_img)
             val playImg = inflated.findViewById<ImageView>(R.id.play_img)
+            val gifImg = inflated.findViewById<GifImageButton>(R.id.gifImageBtn)
             val cardView = inflated.findViewById<MaterialCardView>(R.id.sound_card)
             val favIcon = inflated.findViewById<MaterialCheckBox>(R.id.fav_icon)
             val selectSoundLayout = inflated.findViewById<LinearLayout>(R.id.SelectSoundLayout)
             favIcon.isChecked = adapterPosition == favId
+
 
 
 
@@ -105,6 +106,7 @@ class RecyclerAdapter(
             val pathStr = sound.location
             val uri: Uri = Uri.parse(pathStr)
 
+            //setup duration
             val mmr = MediaMetadataRetriever()
             mmr.setDataSource(pathStr, HashMap<String, String>())
             val durationStr =
@@ -123,15 +125,10 @@ class RecyclerAdapter(
             if (sound.name != soundId) {
                 title.typeface = Typeface.DEFAULT
                 eqImg.visibility = View.INVISIBLE
-                playImg.visibility = View.VISIBLE
-            } else if (title.typeface.style != Typeface.BOLD) {
-                Log.d("TEST", "Visibility1")
-                title.typeface = Typeface.DEFAULT_BOLD
-                eqImg.visibility = View.VISIBLE
                 playImg.visibility = View.INVISIBLE
-
             }
 
+            //setup player
            val mPlayer = MediaPlayer()
             mPlayer.setAudioAttributes(
                 AudioAttributes.Builder()
@@ -141,20 +138,47 @@ class RecyclerAdapter(
 
             mPlayer.setDataSource(pathStr)
             mPlayer.prepareAsync()
-
-
-            playImg.setOnClickListener {
-                //play
-                mPlayer.start()
-                execClick(adapterPosition,title,eqImg,playImg,view)
+            gifImg.setImageResource(R.drawable.icon)
+            val mGifDrawable = gifImg.drawable as GifDrawable
+            mGifDrawable.stop()
+            gifImg.setOnClickListener {
+                if (mGifDrawable.isRunning) {
+                    mPlayer.stop()
+                    mGifDrawable.reset()
+                    mGifDrawable.stop()
+                    mGifDrawable.seekTo(0)
+                } else {
+                    mPlayer.start()
+                    mGifDrawable.start()
+                }
             }
+            mPlayer.setOnCompletionListener {
+                //mGifDrawable.reset();
+                mGifDrawable.stop();
+                mGifDrawable.seekTo(0)
+            }
+//
+//            playImg.setOnClickListener {
+//                //play
+//
+//                execClick(adapterPosition,title,eqImg,playImg,view,mPlayer)
+//            }
+//            eqImg.setOnClickListener {
+//                //pause
+//                mPlayer.stop()
+//                execClick(adapterPosition,title,eqImg,playImg,view,mPlayer)
+//            }
+
             eqImg.setOnClickListener {
-                //pause
-                mPlayer.stop()
-                execClick(adapterPosition,title,eqImg,playImg,view)
+                if (mPlayer.isPlaying) {
+                    eqImg.setGifImageResource(R.drawable.eq)
+                    mPlayer.start()
+                } else {
+                    eqImg.setGifImageResource(R.drawable.play)
+                    mPlayer.stop()
+                }
             }
-
-            mPlayer.setOnCompletionListener { execClick(adapterPosition,title,eqImg,playImg,view) }
+           // mPlayer.setOnCompletionListener { execClick(adapterPosition,title,eqImg,playImg,view, mPlayer) }
 
 
 
@@ -184,7 +208,7 @@ class RecyclerAdapter(
 //            private val PHOTO_KEY = "PHOTO"
 //        }
     }
-    fun execClick(adapterPosition:Int,title:TextView,eqImg:GifImageView,playImg:ImageView,view:View) {
+    fun execClick(adapterPosition:Int,title:TextView,eqImg:GifImageView,playImg:ImageView,view:View,mPlayer:MediaPlayer) {
         val soundId1 = sounds[adapterPosition].name
         if (soundId == soundId1) {
             Toast.makeText(view.context, "Its same", Toast.LENGTH_SHORT).show()
@@ -195,6 +219,11 @@ class RecyclerAdapter(
             soundId = ""
             selectSound("")
         } else {
+            Log.d("TEST", "Visibility1")
+            title.typeface = Typeface.DEFAULT_BOLD
+            eqImg.visibility = View.VISIBLE
+            playImg.visibility = View.INVISIBLE
+            mPlayer.start()
             selectSound(soundId1)
             notifyDataSetChanged()
         }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -37,8 +38,8 @@
                 android:padding="10dp">
 
                 <FrameLayout
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:layout_weight="0">
 
                     <ImageView
@@ -48,8 +49,16 @@
                         android:layout_weight="0"
                         android:background="#CACAC6"
                         android:padding="12dp"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         app:srcCompat="@drawable/play" />
+
+                    <pl.droidsonroids.gif.GifImageButton
+                        android:id="@+id/gifImageBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/white"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/icon" />
 
                     <com.haseebazeem.sampleGif.GifImageView
                         android:id="@+id/eq_img"
