@@ -148,6 +148,7 @@ class RecyclerAdapter(
                     mGifDrawable.stop()
                     mGifDrawable.seekTo(0)
                 } else {
+
                     mPlayer.start()
                     mGifDrawable.start()
                 }
