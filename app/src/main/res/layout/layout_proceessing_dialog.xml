@@ -29,7 +29,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:padding="20dp"
-        android:text="Processing video..." />
+        android:text="Processing Video..." />
 
     <Button
         android:id="@+id/cancel_btn_dialog"

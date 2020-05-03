@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -120,6 +121,14 @@ class HistoryFragment : Fragment() {
             ContextCompat.getColor(this.context!!,
                 R.color.colorPrimary
             )
+
+
+        this.activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        this.activity?.window?.statusBarColor = ContextCompat.getColor(this.context!!, R.color.colorTitle)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            this.activity?.window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        };
+
 
     }
 }

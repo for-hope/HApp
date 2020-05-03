@@ -13,41 +13,6 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-<!--            <RelativeLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="0dp"-->
-
-<!--                android:layout_weight="1"-->
-<!--                tools:context=".MainActivity">-->
-
-<!--                <androidx.viewpager2.widget.ViewPager2-->
-<!--                    android:id="@+id/view_pager"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:background="#FFFFFF"-->
-<!--                    android:backgroundTint="#FFFFFF" />-->
-
-<!--                <LinearLayout-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:orientation="vertical">-->
-
-<!--                    <include-->
-<!--                        android:id="@+id/HolderViewPager"-->
-<!--                        layout="@layout/view_viewpager_main" />-->
-
-<!--                    <include-->
-<!--                        android:id="@+id/HolderButtons"-->
-<!--                        layout="@layout/view_buttons_bar_main" />-->
-
-<!--                </LinearLayout>-->
-
-<!--                <include-->
-<!--                    android:id="@+id/HolderTopBar"-->
-<!--                    layout="@layout/view_top_layout_main" />-->
-
-<!--            </RelativeLayout>-->
-
 
             <FrameLayout
                 android:id="@+id/frg_container"

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#3D3E42"
+    android:background="@color/dracula_album_popup_bg"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
@@ -11,15 +11,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0"
-        android:background="#323439"
+        android:background="@color/dracula_primary"
         android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
+        android:theme="@style/SoundLibraryTheme"
         app:titleTextColor="@android:color/white" />
+
+    <FrameLayout
+        android:id="@+id/pbLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0">
+
+        <ProgressBar
+            android:id="@+id/voicesPB"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </FrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_sounds"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="20dp"
-        android:layout_weight="1" />
+        android:layout_weight="0"
+        android:padding="8dp"
+        android:visibility="visible" />
 </LinearLayout>

@@ -11,22 +11,22 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.Window
+import android.view.*
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.hdarha.happ.R
 import com.hdarha.happ.fragments.BottomSheet
 import com.hdarha.happ.fragments.OnDialogComplete
+import com.hdarha.happ.objects.OKResponse
 import com.hdarha.happ.other.RetrofitClientInstance
 import com.yalantis.ucrop.UCrop
 import jp.wasabeef.blurry.Blurry
@@ -51,9 +51,11 @@ class ImageDisplayActivity : AppCompatActivity(),
     private var imgUri: String? = null
     private var originalImage: String? = null
     private var isSoundSelected = false
+    private var audioId: String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_display)
+
 
         mPhotoDraweeView = findViewById(R.id.photo_drawee_view)
 
@@ -63,6 +65,13 @@ class ImageDisplayActivity : AppCompatActivity(),
         supportActionBar?.title = "Edit Photo"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
+
+
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.statusBarColor = ContextCompat.getColor(this, R.color.colorTitle)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        };
 
         val bottomSheet = BottomSheet(this)
         imgUri = intent.getStringExtra("imgUri")
@@ -110,7 +119,7 @@ class ImageDisplayActivity : AppCompatActivity(),
         fab.setOnClickListener {
             if (isSoundSelected) {
                 Blurry.with(this).radius(10).sampling(2).onto(rootView_img_display)
-                showDialog("Processing video...")
+                //showDialog("Processing video...")
                 startUpload()
             } else {
                 Toast.makeText(this, "Select a voice first.", Toast.LENGTH_SHORT).show()
@@ -129,12 +138,17 @@ class ImageDisplayActivity : AppCompatActivity(),
         return true
     }
 
-    private fun showDialog(title: String) {
+    private fun makeDialog(): Dialog {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(false)
         dialog.setContentView(R.layout.layout_proceessing_dialog)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        return dialog
+    }
+
+    private fun showDialog(title: String, dialog: Dialog) {
+
         //dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
 
         val imgView = dialog.findViewById<ImageView>(R.id.dialog_img)
@@ -146,41 +160,76 @@ class ImageDisplayActivity : AppCompatActivity(),
         pb.isIndeterminate = true
         pb.scaleY = 3f
         val noBtn = dialog.findViewById(R.id.cancel_btn_dialog) as Button
-        yesBtn.setOnClickListener {
-            val intent = Intent(this, VideoPlayerActivity::class.java)
-            startActivity(intent)
-        }
+
         noBtn.setOnClickListener {
             dialog.dismiss()
             Blurry.delete(rootView_img_display)
         }
 
-        Handler().postDelayed(
-            {
-                if (originalImage != null && originalImage != "") {
-                    savePictures(originalImage!!)
-                }
-                // This method will be executed once the timer is over
-                body.text = "Processing Complete"
-                body.typeface = Typeface.DEFAULT_BOLD
-                body.setCompoundDrawablesWithIntrinsicBounds(
-                    0,
-                    0,
-                    R.drawable.ic_check_circle_black_24dp,
-                    0
-                )
-                pb.visibility = View.INVISIBLE
-                noBtn.visibility = View.GONE
-                yesBtn.visibility = View.VISIBLE
-
-
-            },
-            1000 // value in milliseconds
-        )
+//        Handler().postDelayed(
+//            {
+//
+//
+//
+//            },
+//            1000 // value in milliseconds
+//        )
 
         dialog.show()
     }
 
+    private fun finishDialog(dialog: Dialog, url: String?) {
+        val body = dialog.findViewById(R.id.dialog_body) as TextView
+        val yesBtn = dialog.findViewById(R.id.accept_btn_dialog) as Button
+        val pb = dialog.findViewById<ProgressBar>(R.id.dialog_pb)
+        val noBtn = dialog.findViewById(R.id.cancel_btn_dialog) as Button
+        if (originalImage != null && originalImage != "") {
+            savePictures(originalImage!!)
+        }
+
+        body.text = "Processing Complete"
+        body.typeface = Typeface.DEFAULT_BOLD
+        body.setCompoundDrawablesWithIntrinsicBounds(
+            0,
+            0,
+            R.drawable.ic_check_circle_black_24dp,
+            0
+        )
+        pb.visibility = View.INVISIBLE
+        noBtn.visibility = View.GONE
+        yesBtn.visibility = View.VISIBLE
+
+        yesBtn.setOnClickListener {
+            val intent = Intent(this, VideoPlayerActivity::class.java)
+            intent.putExtra("url", url)
+            startActivity(intent)
+        }
+    }
+
+    private fun errDialog(dialog: Dialog, err: String) {
+        val body = dialog.findViewById(R.id.dialog_body) as TextView
+        val yesBtn = dialog.findViewById(R.id.accept_btn_dialog) as Button
+        val pb = dialog.findViewById<ProgressBar>(R.id.dialog_pb)
+        val noBtn = dialog.findViewById(R.id.cancel_btn_dialog) as Button
+
+        body.text = "Error occured \n Reason : $err"
+
+        body.typeface = Typeface.DEFAULT_BOLD
+        body.setCompoundDrawablesWithIntrinsicBounds(
+            0,
+            0,
+            R.drawable.ic_error_black_24dp,
+            0
+        )
+        pb.visibility = View.INVISIBLE
+        noBtn.visibility = View.GONE
+        yesBtn.visibility = View.VISIBLE
+
+        yesBtn.text = "Try again"
+        yesBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -266,7 +315,7 @@ class ImageDisplayActivity : AppCompatActivity(),
         animator.start()
     }
 
-    override fun onComplete(value: String?) {
+    override fun onComplete(value: String?, key: String) {
         isSoundSelected = true
         Log.d("Interface", value)
         first_text.text = value
@@ -274,6 +323,7 @@ class ImageDisplayActivity : AppCompatActivity(),
         val cd = ColorDrawable(Color.parseColor("#6D2DEC29"))
         first_text.background = cd
         sec_text.background = cd
+        audioId = key
     }
 
     private fun savePictures(imgUri: String) {
@@ -306,6 +356,7 @@ class ImageDisplayActivity : AppCompatActivity(),
 
 
     }
+
     fun getPath(uri: Uri?): String? {
         val projection =
             arrayOf<String>(MediaStore.Images.Media.DATA)
@@ -315,46 +366,76 @@ class ImageDisplayActivity : AppCompatActivity(),
         cursor.moveToFirst()
         return cursor.getString(columnIndex)
     }
+
     private fun startUpload() {
+        val dialog: Dialog = makeDialog()
+        showDialog("Processing Video...", dialog)
         val retrofitClient = RetrofitClientInstance()
-        val service: RetrofitClientInstance.ImageService = retrofitClient.retrofitInstance!!.create(RetrofitClientInstance.ImageService::class.java)
+        val service: RetrofitClientInstance.ImageService =
+            retrofitClient.retrofitInstance!!.create(RetrofitClientInstance.ImageService::class.java)
 
         val inputStream = this.contentResolver.openInputStream(Uri.parse(imgUri))
         val imgFile = File(getPath(Uri.parse(imgUri)))
+        //val imgFile = File("/storage/emulated/0/DCIM/Facebook/FB_IMG_1588431186364.jpg")
 
-        val requestBodyFile: RequestBody = RequestBody.create(MediaType.parse("image/*"), imgFile)
+        if (imgFile.exists()) {
+            Log.d("REQUEST", "OK ${imgFile.toString()}")
+        } else {
+            Log.d("REQUEST_ERR", "OK ${imgFile.toString()}")
+        }
+        //val requestBodyFile: RequestBody = RequestBody.create(MediaType.parse("image/*"), imgFile)
+        val requestBodyFile: RequestBody =
+            RequestBody.create(MediaType.parse("multipart/form-data"), imgFile)
 
         val part: MultipartBody.Part =
-            MultipartBody.Part.createFormData("image", imgFile.name, requestBodyFile)
+            MultipartBody.Part.createFormData("img", imgFile.name, requestBodyFile)
 
-        val audio_id = RequestBody.create(MediaType.parse("text/plain"), "1")
-
-
+        val audioId = RequestBody.create(MediaType.parse("text/plain"), this.audioId)
 
 
-
-//make sync call
-
-
-
-
-        val uploadBundle: Call<ResponseBody?> = service.uploadImage(part,audio_id)!!
+        val uploadBundle: Call<ResponseBody?> = service.uploadImage(part, audioId)!!
 
         uploadBundle.enqueue(object : Callback<ResponseBody?> {
             override fun onResponse(
                 call: Call<ResponseBody?>?,
                 response: Response<ResponseBody?>
             ) {
-                val gson = Gson()
-                Log.d("RESPONSE","OK ${response}")
+                val mJson = response.body()?.string()
+                Log.d("RESPONSE", "OK ${response.body()?.string()}")
+                Log.d("RESPONSE", "OK ${response.body()}")
+                Log.d("RESPONSE", "OK ${mJson}")
+                Log.d("RESPONSE", "OK ${response.errorBody()?.string()}")
+                if (response.message() == "OK") {
+                    val gson: Gson = Gson()
+                    val json = response.body()?.string()
+                    Log.d("ImageActJson", "The json is $mJson")
+                    val resp = gson.fromJson(mJson, OKResponse::class.java)
+                    if (resp != null) {
+                        if (resp.status == "success") {
+                            finishDialog(dialog, resp.url)
+                        } else {
+                            Toast.makeText(this@ImageDisplayActivity,"Error",Toast.LENGTH_SHORT).show()
+                            errDialog(dialog, "error")
+                        }
+                    } else {
+                        Toast.makeText(this@ImageDisplayActivity,"Error",Toast.LENGTH_SHORT).show()
+                        Log.e("ImageAct", "Err")
+                    }
+                } else {
+                    Toast.makeText(this@ImageDisplayActivity,"Error",Toast.LENGTH_SHORT).show()
+                }
+
+
             }
 
             override fun onFailure(call: Call<ResponseBody?>?, t: Throwable?) {
-                Log.d("RESPONSE"," NOT OK $t")
+                finishDialog(dialog, "wwww")
+                Log.d("RESPONSE", " NOT OK $t")
+                Toast.makeText(this@ImageDisplayActivity,"Error",Toast.LENGTH_SHORT).show()
             }
         })
 
-        //Log.d("Response_API","${response.body()}")
+
     }
 
 

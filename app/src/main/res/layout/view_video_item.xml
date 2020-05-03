@@ -82,7 +82,7 @@
                         android:drawablePadding="2dp"
                         android:gravity="center"
                         android:text="Video downloaded."
-                        android:textColor="#D32F2F"
+                        android:textColor="@color/colorPrimary"
                         android:textSize="14sp" />
 
                     <ImageView

@@ -19,7 +19,6 @@ import com.hdarha.happ.activities.ImageDisplayActivity
 import com.hdarha.happ.activities.MyVideosActivity
 import com.hdarha.happ.activities.SoundLibraryActivity
 import com.hdarha.happ.adapters.ScreensPagerAdapter
-import com.hdarha.happ.objects.Card
 import com.hdarha.happ.other.ScreenHelper
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
@@ -34,13 +33,8 @@ import com.zhihu.matisse.engine.impl.GlideEngine
 import com.zhihu.matisse.internal.entity.CaptureStrategy
 import kotlinx.android.synthetic.main.view_buttons_bar_main.*
 import kotlinx.android.synthetic.main.view_top_layout_main.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.GET
 
 private const val REQUEST_CODE_CHOOSE = 1
 class HomeFragment : Fragment() {
@@ -179,34 +173,34 @@ class HomeFragment : Fragment() {
 
         val service: GitHubService = retrofit.create(GitHubService::class.java)
 
-        val repos: Call<Card>? = service.listRepos()
+        //val repos: Call<Card>? = service.listRepos()
 
 
-        repos?.enqueue(object : Callback<Card> {
-            override fun onResponse(
-                call: Call<Card>?,
-                response: Response<Card>
-            ) {
-                Log.d("RetroFit_Nice", response.body()?.data!![0].desc)
-                Toast.makeText(
-                    context,
-                    "Something went right",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            override fun onFailure(
-                call: Call<Card>?,
-                t: Throwable?
-            ) {
-                Log.d("RetroFit",t.toString())
-                Toast.makeText(
-                    context,
-                    "Something went wrong...Please try later!",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        })
+//        repos?.enqueue(object : Callback<Card> {
+//            override fun onResponse(
+//                call: Call<Card>?,
+//                response: Response<Card>
+//            ) {
+//                Log.d("RetroFit_Nice", response.body()?.data!![0].desc)
+//                Toast.makeText(
+//                    context,
+//                    "Something went right",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//
+//            override fun onFailure(
+//                call: Call<Card>?,
+//                t: Throwable?
+//            ) {
+//                Log.d("RetroFit",t.toString())
+//                Toast.makeText(
+//                    context,
+//                    "Something went wrong...Please try later!",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//        })
 
         //Log.d("RETROFIT_API",repos)
 
@@ -215,8 +209,8 @@ class HomeFragment : Fragment() {
 
     interface GitHubService {
 
-        @GET("/api/v7/cardinfo.php?name=Raigeki")
+        //@GET("/api/v7/cardinfo.php?name=Raigeki")
 
-        fun listRepos(): Call<Card>?
+        //fun listRepos(): Call<Card>?
     }
 }

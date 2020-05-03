@@ -2,13 +2,17 @@ package com.hdarha.happ.activities
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import android.widget.MediaController
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.hdarha.happ.R
 import kotlinx.android.synthetic.main.activity_video_player.*
 
@@ -23,8 +27,12 @@ class VideoPlayerActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
-
-        val videoPath = "android.resource://" + packageName+ "/" + R.raw.vid
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.statusBarColor = ContextCompat.getColor(this, R.color.colorTitle)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        };
+        val videoPath =  intent.getStringExtra("url")
         val uri = Uri.parse(videoPath)
         videoView.setVideoURI(uri)
 

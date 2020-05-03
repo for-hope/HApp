@@ -19,7 +19,7 @@
                 android:layout_gravity="bottom|center_horizontal"
                 android:layout_marginBottom="30dp"
                 android:src="@drawable/ic_check_white_24dp"
-                app:backgroundTint="#D32F2F"
+                app:backgroundTint="@color/colorPrimary"
                 app:rippleColor="@android:color/white"
                 app:tint="#FFFFFF" />
 

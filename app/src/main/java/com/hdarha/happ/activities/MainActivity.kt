@@ -14,6 +14,9 @@ import com.hdarha.happ.fragments.HistoryFragment
 import com.hdarha.happ.fragments.HomeFragment
 import com.hdarha.happ.fragments.ProfileFragment
 import kotlinx.android.synthetic.main.activity_main.*
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
 class MainActivity : AppCompatActivity() {
@@ -61,6 +64,8 @@ class MainActivity : AppCompatActivity() {
             }
 
         } )
+
+
 
 
 

@@ -38,13 +38,13 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:paddingBottom="8dp"
-            app:dotsColor="#00BCD4"
+            app:dotsColor="@color/colorAccent"
             app:dotsCornerRadius="8dp"
             app:dotsSize="10dp"
             app:dotsSpacing="4dp"
             app:dotsWidthFactor="2.5"
             app:progressMode="true"
-            app:selectedDotColor="#2196F3" />
+            app:selectedDotColor="@color/colorAccentLight" />
     </RelativeLayout>
 
     <FrameLayout

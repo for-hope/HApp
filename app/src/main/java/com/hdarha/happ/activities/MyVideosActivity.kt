@@ -6,10 +6,14 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hdarha.happ.R
 import com.hdarha.happ.adapters.VideosAdapter
@@ -40,6 +44,11 @@ class MyVideosActivity : AppCompatActivity() {
         val linearLayoutManager = LinearLayoutManager(this)
         val adapter = VideosAdapter(setupVideoList(),this)
 
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.statusBarColor = ContextCompat.getColor(this, R.color.colorTitle)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        };
 
 
         recyclerview_videos.layoutManager = linearLayoutManager

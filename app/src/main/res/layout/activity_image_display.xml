@@ -81,7 +81,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_brush_white_24dp"
-            app:backgroundTint="#D32F2F"
+            app:backgroundTint="@color/colorPrimary"
             app:layout_anchor="@id/bottom_bar"
             app:rippleColor="@android:color/white"
             app:tint="#FFFFFF" />

@@ -3,10 +3,11 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
-
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorSecondary">@color/colorAccentLight</item>
+
     </style>
 
     <style name="ShapeAppearanceOverlay.MyApp.Button.Circle" parent="">
@@ -18,7 +19,7 @@
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 
-    <style name="CustomTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="CustomTheme" parent="AppTheme">
 <!--        <item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:statusBarColor">#00000000</item>
@@ -45,5 +46,10 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="SoundLibraryTheme" parent="ThemeOverlay.MaterialComponents.ActionBar">
+        <item name="colorControlNormal">@android:color/white</item>
+
     </style>
 </resources>
