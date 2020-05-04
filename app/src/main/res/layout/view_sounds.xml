@@ -25,7 +25,7 @@
             android:id="@+id/sound_card"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
+            android:layout_margin="1dp"
             android:layout_weight="1"
             android:clickable="true"
             android:focusable="true">
@@ -38,8 +38,8 @@
                 android:padding="10dp">
 
                 <FrameLayout
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:layout_weight="0">
 
                     <ImageView
@@ -124,7 +124,7 @@
     <View
         android:id="@+id/divider2"
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="1dp"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:background="#FFFFFF" />

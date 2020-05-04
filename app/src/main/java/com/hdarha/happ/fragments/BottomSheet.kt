@@ -1,6 +1,7 @@
 package com.hdarha.happ.fragments
 
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.res.Resources
 import android.os.Bundle
@@ -20,7 +21,9 @@ import com.hdarha.happ.adapters.RecyclerAdapter
 import com.hdarha.happ.databinding.LayoutBottomSheetBinding
 import com.hdarha.happ.objects.Sound
 import com.hdarha.happ.objects.Voice
+import com.hdarha.happ.other.OnVoiceCallBack
 import com.hdarha.happ.other.RetrofitClientInstance
+import com.hdarha.happ.other.checkCache
 import kotlinx.android.synthetic.main.activity_sound_library.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -28,7 +31,7 @@ import retrofit2.Response
 
 
 class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
-    RecyclerAdapter.OnItemClick {
+    RecyclerAdapter.OnItemClick,OnVoiceCallBack {
     var bottomSheetBehavior: BottomSheetBehavior<*>? = null
     var bi: LayoutBottomSheetBinding? = null
     var selectedSound = ""
@@ -37,7 +40,6 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
     private lateinit var adapter: RecyclerAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
     private var soundsList = mutableListOf<Voice>()
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
         val bottomSheet =
@@ -58,7 +60,7 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
             BottomSheetBehavior.from(view.parent as View)
         val recyclerView = view!!.findViewById<RecyclerView>(R.id.rec_view)
         recyclerView.visibility = View.GONE
-        getSounds(view)
+        checkCache(this.activity as Activity, this)
 
         //setting Peek at the 16:9 ratio keyline of its parent.
         bottomSheetBehavior!!.peekHeight = BottomSheetBehavior.PEEK_HEIGHT_AUTO
@@ -97,7 +99,8 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
         //aap bar edit button clicked
         bi!!.rndBtn.setOnClickListener {
             val rndSound = soundsList.random()
-            mCallback.onComplete(rndSound.caption, rndSound.name)
+            val position = soundsList.indexOf(rndSound)
+            mCallback.onComplete(rndSound, position)
             dismiss()
         }
 
@@ -131,33 +134,33 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
         view.layoutParams = params
     }
 
-    private fun getSounds(view:View){
-        val retrofitClient = RetrofitClientInstance()
-        val service: RetrofitClientInstance.VoiceService = retrofitClient.retrofitInstance!!.create(
-            RetrofitClientInstance.VoiceService::class.java)
-
-        val voices = service.listVoices()
-
-        voices?.enqueue(object : Callback<List<Voice>> {
-
-            override fun onResponse(call: Call<List<Voice>>, response: Response<List<Voice>>) {
-                Log.d("SoundsList",response.body()!![0].caption)
-                val mVoices = response.body()
-                voicesLoaded(ArrayList(mVoices!!),view)
-            }
-            override fun onFailure(call: Call<List<Voice>>, t: Throwable) {
-                Log.d("SoundsList", t.localizedMessage?.toString()!!)
-                Toast.makeText(
-                    context,
-                    "Something went wrong...Please try later!",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-
-
-        })
-    }
+//    private fun getSounds(view:View){
+//        val retrofitClient = RetrofitClientInstance()
+//        val service: RetrofitClientInstance.VoiceService = retrofitClient.retrofitInstance!!.create(
+//            RetrofitClientInstance.VoiceService::class.java)
+//
+//        val voices = service.listVoices()
+//
+//        voices?.enqueue(object : Callback<List<Voice>> {
+//
+//            override fun onResponse(call: Call<List<Voice>>, response: Response<List<Voice>>) {
+//                Log.d("SoundsList",response.body()!![0].caption)
+//                val mVoices = response.body()
+//                voicesLoaded(ArrayList(mVoices!!),view)
+//            }
+//            override fun onFailure(call: Call<List<Voice>>, t: Throwable) {
+//                Log.d("SoundsList", t.localizedMessage?.toString()!!)
+//                Toast.makeText(
+//                    context,
+//                    "Something went wrong...Please try later!",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//
+//
+//
+//        })
+//    }
 
     private fun voicesLoaded(voices : ArrayList<Voice>,v: View) {
         val recyclerView = v.findViewById<RecyclerView>(R.id.rec_view)
@@ -182,8 +185,8 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
             return array.getDimension(0, 0f).toInt()
         }
 
-    override fun onClick(value: String?, key:String) {
-        Toast.makeText(this.context, value, Toast.LENGTH_SHORT).show()
+    override fun onClick(value: Voice?, key:Int) {
+        //Toast.makeText(this.context, value.caption, Toast.LENGTH_SHORT).show()
         if (bottomSheetBehavior!!.state != BottomSheetBehavior.STATE_EXPANDED) {
             dismiss()
             mCallback.onComplete(value, key)
@@ -199,9 +202,21 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
 
     }
 
+    override fun onVoicesRetrieved(voices: ArrayList<Voice>, isCache: Boolean) {
+        val v = mView!!
+        val recyclerView = v.findViewById<RecyclerView>(R.id.rec_view)
+        recyclerView.visibility = View.VISIBLE
+        val linearLayoutManager = LinearLayoutManager(context)
+        val adapter = RecyclerAdapter(context!!, voices,true,this)
+        recyclerView.layoutManager = linearLayoutManager
+        recyclerView.adapter = adapter
+        soundsList = voices.toMutableList()
+        adapter.notifyItemInserted(voices.size - 1)
+    }
+
 
 }
 
 interface OnDialogComplete {
-    fun onComplete(value: String?, key: String)
+    fun onComplete(value: Voice?, key: Int)
 }

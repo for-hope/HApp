@@ -22,7 +22,12 @@ import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifImageButton
 import java.util.concurrent.TimeUnit
 
-
+private var isPlaying: Boolean = false
+private var mediaPlayers: ArrayList<MediaPlayer> = arrayListOf()
+private var mPlayer: MediaPlayer = MediaPlayer()
+private var audioPlaying = -1
+private var titleReset:TextView? = null
+private var gifDrawableReset:GifDrawable? = null
 class RecyclerAdapter(
     context: Context,
     private val sounds: ArrayList<Voice>,
@@ -59,7 +64,7 @@ class RecyclerAdapter(
 
 
     interface OnItemClick {
-        fun onClick(value: String?, key: String)
+        fun onClick(value: Voice?, key: Int)
     }
 
 
@@ -67,9 +72,12 @@ class RecyclerAdapter(
         //2
         private var view: View = v
         private var sound: Voice? = null
+        //private var mPlayer:MediaPlayer = mp
 
         //3
         init {
+
+
             v.setOnClickListener(this)
         }
 
@@ -82,6 +90,11 @@ class RecyclerAdapter(
 
         }
 
+        fun resetLayout() {
+            titleReset?.typeface = Typeface.DEFAULT
+            gifDrawableReset?.stop();
+            gifDrawableReset?.seekTo(0)
+        }
         fun bindPhoto(sound: Voice, sId: String) {
             var soundId = sId
             this.sound = sound
@@ -95,8 +108,8 @@ class RecyclerAdapter(
             val cardView = inflated.findViewById<MaterialCardView>(R.id.sound_card)
             val favIcon = inflated.findViewById<MaterialCheckBox>(R.id.fav_icon)
             val selectSoundLayout = inflated.findViewById<LinearLayout>(R.id.SelectSoundLayout)
-            favIcon.isChecked = adapterPosition == favId
-
+            //favIcon.isChecked = adapterPosition == favId
+            favIcon.isChecked = sound.isFav
 
 
 
@@ -107,20 +120,17 @@ class RecyclerAdapter(
             val uri: Uri = Uri.parse(pathStr)
 
             //setup duration
-            val mmr = MediaMetadataRetriever()
-            mmr.setDataSource(pathStr, HashMap<String, String>())
-            val durationStr =
-                mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-            val timeInMillisec = durationStr.toLong()
+
+            val timeInMillisec = sound.duration
 
             val mins = TimeUnit.MILLISECONDS.toMinutes(timeInMillisec).toInt()
             val secs = TimeUnit.MILLISECONDS.toSeconds(timeInMillisec).toInt()
 
-            val dur = "${String.format("%02d",mins)}:${String.format("%02d",secs)}"
+            val dur = "${String.format("%02d", mins)}:${String.format("%02d", secs)}"
 
             timestamp.text = dur
 
-            mmr.release()
+
 
             if (sound.name != soundId) {
                 title.typeface = Typeface.DEFAULT
@@ -129,76 +139,68 @@ class RecyclerAdapter(
             }
 
             //setup player
-           val mPlayer = MediaPlayer()
-            mPlayer.setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            )
+            //val mPlayer = MediaPlayer()
 
-            mPlayer.setDataSource(pathStr)
-            mPlayer.prepareAsync()
+
             gifImg.setImageResource(R.drawable.icon)
             val mGifDrawable = gifImg.drawable as GifDrawable
             mGifDrawable.stop()
+
+
             gifImg.setOnClickListener {
+                if (audioPlaying != adapterPosition){
+                    //mPlayer.release()
+                    if (mPlayer.isPlaying) {
+                    resetLayout()
+                    }
+                    mPlayer.reset()
+                    mPlayer.setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build()
+                    )
+                    mPlayer.setDataSource(pathStr)
+                    mPlayer.prepare()
+                    Log.e("TPRE","AGAIN")
+                    audioPlaying = adapterPosition
+
+
+                }
                 if (mGifDrawable.isRunning) {
-                    mPlayer.stop()
-                    mGifDrawable.reset()
-                    mGifDrawable.stop()
+                    mPlayer.seekTo(mPlayer.duration-1)
+
+                } else {
+
+                    if (!mPlayer.isPlaying) {
+                        title.typeface = Typeface.DEFAULT_BOLD
+                        mPlayer.start()
+                        titleReset = title
+                        gifDrawableReset = mGifDrawable
+                        isPlaying = true
+                        mGifDrawable.start()
+                    }
+                }
+                mPlayer.setOnCompletionListener {
+                    //mGifDrawable.reset();
+                    Log.e("AdapterPostionCalled","$adapterPosition")
+                    isPlaying = false
+                    title.typeface = Typeface.DEFAULT
+                    mGifDrawable.stop();
                     mGifDrawable.seekTo(0)
-                } else {
-                    //comment
-                    mPlayer.start()
-                    mGifDrawable.start()
+                    audioPlaying = -1
                 }
+
             }
-            mPlayer.setOnCompletionListener {
-                //mGifDrawable.reset();
-                mGifDrawable.stop();
-                mGifDrawable.seekTo(0)
-            }
-//
-//            playImg.setOnClickListener {
-//                //play
-//
-//                execClick(adapterPosition,title,eqImg,playImg,view,mPlayer)
-//            }
-//            eqImg.setOnClickListener {
-//                //pause
-//                mPlayer.stop()
-//                execClick(adapterPosition,title,eqImg,playImg,view,mPlayer)
-//            }
-
-            eqImg.setOnClickListener {
-                if (mPlayer.isPlaying) {
-                    eqImg.setGifImageResource(R.drawable.eq)
-                    mPlayer.start()
-                } else {
-                    eqImg.setGifImageResource(R.drawable.play)
-                    mPlayer.stop()
-                }
-            }
-           // mPlayer.setOnCompletionListener { execClick(adapterPosition,title,eqImg,playImg,view, mPlayer) }
 
 
-
-
-            cardView.setOnClickListener { selectSoundLayout.background = ContextCompat.getDrawable(view.context,R.color.materialLightBlue)
+            cardView.setOnClickListener {
+                selectSoundLayout.background =
+                    ContextCompat.getDrawable(view.context, R.color.materialLightBlue)
             }
 
             favIcon.setOnClickListener {
                 Log.d("Checked", "$adapterPosition")
-                if (favId != -1) {
-                    favId = adapterPosition
-                    this.view.post {
-                        Log.d("POST", "Notfied")
-                        notifyDataSetChanged()
-                    }
-                } else {
-                    favId = adapterPosition
-                }
-                mCallback!!.onClick(sounds[adapterPosition].caption,sounds[adapterPosition].name)
+                mCallback!!.onClick(sounds[adapterPosition], adapterPosition)
             }
 
         }
@@ -209,25 +211,6 @@ class RecyclerAdapter(
 //            private val PHOTO_KEY = "PHOTO"
 //        }
     }
-    fun execClick(adapterPosition:Int,title:TextView,eqImg:GifImageView,playImg:ImageView,view:View,mPlayer:MediaPlayer) {
-        val soundId1 = sounds[adapterPosition].name
-        if (soundId == soundId1) {
-            Toast.makeText(view.context, "Its same", Toast.LENGTH_SHORT).show()
-            title.typeface = Typeface.DEFAULT
 
-            eqImg.visibility = View.INVISIBLE
-            playImg.visibility = View.VISIBLE
-            soundId = ""
-            selectSound("")
-        } else {
-            Log.d("TEST", "Visibility1")
-            title.typeface = Typeface.DEFAULT_BOLD
-            eqImg.visibility = View.VISIBLE
-            playImg.visibility = View.INVISIBLE
-            mPlayer.start()
-            selectSound(soundId1)
-            notifyDataSetChanged()
-        }
-    }
 }
 

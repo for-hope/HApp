@@ -1,5 +1,8 @@
 package com.hdarha.happ.activities
 
+import android.content.Context
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -7,17 +10,27 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
 import com.hdarha.happ.R
 import com.hdarha.happ.adapters.RecyclerAdapter
-import com.hdarha.happ.objects.Sound
 import com.hdarha.happ.objects.Voice
+import com.hdarha.happ.other.OnVoiceCallBack
 import com.hdarha.happ.other.RetrofitClientInstance
+import com.hdarha.happ.other.checkCache
+import com.hdarha.happ.other.saveToCache
 import kotlinx.android.synthetic.main.activity_sound_library.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class SoundLibraryActivity : AppCompatActivity(),RecyclerAdapter.OnItemClick{
+
+
+class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, OnVoiceCallBack {
+    private var voicesList: ArrayList<Voice>? = arrayListOf()
+    private var voicesFavList: ArrayList<Voice>? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sound_library)
@@ -31,118 +44,66 @@ class SoundLibraryActivity : AppCompatActivity(),RecyclerAdapter.OnItemClick{
         voicesPB.visibility = View.VISIBLE
         pbLayout.visibility = View.VISIBLE
         recyclerview_sounds.visibility = View.GONE
-        getSounds()
 
-
-//        val linearLayoutManager = LinearLayoutManager(this)
-//        val soundsList = initSounds()
-//        val adapter = RecyclerAdapter(this,soundsList,true,this)
-//        recyclerview_sounds.layoutManager = linearLayoutManager
-//        recyclerview_sounds.adapter = adapter
-//        adapter.notifyItemInserted(soundsList.size - 1)
-//        getSounds()
 
     }
 
-
-    private fun getSounds(){
-        val retrofitClient = RetrofitClientInstance()
-        val service: RetrofitClientInstance.VoiceService = retrofitClient.retrofitInstance!!.create(
-            RetrofitClientInstance.VoiceService::class.java)
-
-        val voices = service.listVoices()
-
-        voices?.enqueue(object : Callback<List<Voice>>{
-
-            override fun onResponse(call: Call<List<Voice>>, response: Response<List<Voice>>) {
-                Log.d("SoundsList",response.body()!![0].caption)
-                val mVoices = response.body()
-                voicesLoaded(ArrayList(mVoices!!))
-            }
-            override fun onFailure(call: Call<List<Voice>>, t: Throwable) {
-                Log.d("SoundsList", t.localizedMessage?.toString()!!)
-                Toast.makeText(
-                    this@SoundLibraryActivity,
-                    "Something went wrong...Please try later!",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-
-
-        })
+    override fun onResume() {
+        super.onResume()
+        checkCache(this,this)
     }
 
-    private fun voicesLoaded(voices : ArrayList<Voice>) {
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
+
+
+    override fun onClick(value: Voice?, key: Int) {
+        Log.d("ListUnSorted", voicesList!!.toString())
+        var mVoice: Voice;
+        if (voicesList != null) run {
+            voicesList!![key].isFav = !voicesList!![key].isFav
+
+            GlobalScope.launch {
+                runOnUiThread {
+
+                    voicesList!!.sortByDescending { it.isFav }
+                    //voicesList!!.sortWith(Comparator { t, t2 -> t.isFav.compareTo(t2.isFav) })
+                    //voicesList!!.reverse()
+                    Log.d("ListSorted", voicesList!!.toString())
+                    val adapter = RecyclerAdapter(
+                        this@SoundLibraryActivity,
+                        voicesList!!,
+                        true,
+                        this@SoundLibraryActivity
+                    )
+                    recyclerview_sounds.adapter = adapter
+                    adapter.notifyDataSetChanged()
+                    voicesList!!.forEach {
+                        Log.d("VOICE",it.caption)
+                    }
+                    saveToCache(voicesList!!,this@SoundLibraryActivity)
+                }
+            }
+        }
+    }
+
+    override fun onVoicesRetrieved(voices: ArrayList<Voice>, isCache: Boolean) {
+        if (isCache) {
+            saveToCache(voices,this)
+        }
+        this.voicesList = voices
         voicesPB.visibility = View.GONE
         pbLayout.visibility = View.GONE
         recyclerview_sounds.visibility = View.VISIBLE
         val linearLayoutManager = LinearLayoutManager(this)
-        val adapter = RecyclerAdapter(this, voices,true,this)
+        val adapter = RecyclerAdapter(this, voices, true, this)
         recyclerview_sounds.layoutManager = linearLayoutManager
         recyclerview_sounds.adapter = adapter
         adapter.notifyItemInserted(voices.size - 1)
-
     }
 
-    private fun initSounds() : ArrayList<Sound> {
-        val soundsList: ArrayList<Sound> = arrayListOf()
-            val s1 = Sound(
-                1,
-                "Meme number one",
-                "memer1",
-                "2:00",
-                "www.google.com"
-            )
-            val s2 = Sound(
-                2,
-                "Meme number two",
-                "memer2",
-                "5:00",
-                "www.google.com"
-            )
-            val s3 = Sound(
-                3,
-                "Meme number three",
-                "memer3",
-                "1:00",
-                "www.google.com"
-            )
-            val s4 = Sound(
-                4,
-                "Meme number one",
-                "memer5",
-                "2:00",
-                "www.google.com"
-            )
-            val s5 = Sound(
-                5,
-                "Meme number two",
-                "meme02",
-                "5:00",
-                "www.google.com"
-            )
-            val s6 = Sound(
-                6,
-                "Meme number three",
-                "memer8",
-                "1:00",
-                "www.google.com"
-            )
-
-            soundsList.add(s1)
-            soundsList.add(s2)
-            soundsList.add(s3)
-            soundsList.add(s4)
-            soundsList.add(s5)
-            soundsList.add(s6)
-
-        return soundsList
-
-    }
-
-    override fun onClick(value: String?, key:String) {
-        Toast.makeText(this,"Hey",Toast.LENGTH_SHORT).show()
-    }
 
 }

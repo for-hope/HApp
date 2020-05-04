@@ -20,6 +20,10 @@ public class Voice {
     @Expose
     private List<String> tags = null;
 
+    private boolean fav = false;
+
+    private long duration = 0;
+
     /**
      * No args constructor for use in serialization
      *
@@ -41,6 +45,8 @@ public class Voice {
         this.location = location;
         this.tags = tags;
     }
+
+
 
     public String getCaption() {
         return caption;
@@ -74,4 +80,19 @@ public class Voice {
         this.tags = tags;
     }
 
+    public boolean isFav() {
+        return fav;
+    }
+
+    public void setFav(boolean fav) {
+        this.fav = fav;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
 }

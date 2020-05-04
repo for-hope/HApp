@@ -27,6 +27,7 @@ import com.hdarha.happ.R
 import com.hdarha.happ.fragments.BottomSheet
 import com.hdarha.happ.fragments.OnDialogComplete
 import com.hdarha.happ.objects.OKResponse
+import com.hdarha.happ.objects.Voice
 import com.hdarha.happ.other.RetrofitClientInstance
 import com.yalantis.ucrop.UCrop
 import jp.wasabeef.blurry.Blurry
@@ -315,15 +316,15 @@ class ImageDisplayActivity : AppCompatActivity(),
         animator.start()
     }
 
-    override fun onComplete(value: String?, key: String) {
+    override fun onComplete(value: Voice?, key: Int) {
         isSoundSelected = true
-        Log.d("Interface", value)
-        first_text.text = value
-        sec_text.text = value
+        Log.d("Interface", value?.caption!!)
+        first_text.text = value.caption!!
+        sec_text.text = value.caption!!
         val cd = ColorDrawable(Color.parseColor("#6D2DEC29"))
         first_text.background = cd
         sec_text.background = cd
-        audioId = key
+        audioId = value.name
     }
 
     private fun savePictures(imgUri: String) {
