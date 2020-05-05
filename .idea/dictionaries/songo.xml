@@ -2,6 +2,9 @@
   <dictionary name="songo">
     <words>
       <w>drawee</w>
+      <w>fileprovider</w>
+      <w>happ</w>
+      <w>hdarha</w>
     </words>
   </dictionary>
 </component>

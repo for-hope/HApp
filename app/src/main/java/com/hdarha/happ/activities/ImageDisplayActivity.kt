@@ -6,7 +6,6 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.database.Cursor
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -22,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.hdarha.happ.R
 import com.hdarha.happ.fragments.BottomSheet
 import com.hdarha.happ.fragments.OnDialogComplete
@@ -32,6 +30,8 @@ import com.hdarha.happ.other.RetrofitClientInstance
 import com.yalantis.ucrop.UCrop
 import jp.wasabeef.blurry.Blurry
 import kotlinx.android.synthetic.main.activity_image_display.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.relex.photodraweeview.PhotoDraweeView
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -50,7 +50,7 @@ class ImageDisplayActivity : AppCompatActivity(),
     private var mTopToolbar: Toolbar? = null
     private var mPhotoDraweeView: PhotoDraweeView? = null
     private var imgUri: String? = null
-    private var originalImage: String? = null
+    private var ogImage: String? = null
     private var isSoundSelected = false
     private var audioId: String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,7 +76,7 @@ class ImageDisplayActivity : AppCompatActivity(),
 
         val bottomSheet = BottomSheet(this)
         imgUri = intent.getStringExtra("imgUri")
-
+        ogImage = imgUri
         bottom_bar.replaceMenu(R.menu.bottom_menu)
         bottom_bar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
@@ -106,6 +106,7 @@ class ImageDisplayActivity : AppCompatActivity(),
             if (!dir.exists()) {
                 success = dir.mkdirs()
             }
+            //TODO
             if (success) {
                 val f = File("/storage/emulated/0/Pictures/happ/cropped$rnds.jpg")
                 val dest: Uri =
@@ -184,8 +185,10 @@ class ImageDisplayActivity : AppCompatActivity(),
         val yesBtn = dialog.findViewById(R.id.accept_btn_dialog) as Button
         val pb = dialog.findViewById<ProgressBar>(R.id.dialog_pb)
         val noBtn = dialog.findViewById(R.id.cancel_btn_dialog) as Button
-        if (originalImage != null && originalImage != "") {
-            savePictures(originalImage!!)
+        if (ogImage != null && ogImage != "") {
+            savePictures(ogImage!!)
+        } else {
+            Log.d("IMAGE",ogImage+"OGIMAGE")
         }
 
         body.text = "Processing Complete"
@@ -277,7 +280,8 @@ class ImageDisplayActivity : AppCompatActivity(),
             Log.d("gotRes", resultUri.toString())
 
             deleteCache(resultUri!!.path.toString())
-            originalImage = imgUri
+            ogImage = imgUri
+
             imgUri = resultUri.path.toString()
             mPhotoDraweeView!!.setPhotoUri(resultUri, this)
 
@@ -328,44 +332,51 @@ class ImageDisplayActivity : AppCompatActivity(),
     }
 
     private fun savePictures(imgUri: String) {
+        GlobalScope.launch {
+            Log.d("ImageDisplayActivity","SAVING PHOTO")
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE)
+            val currentDate = sdf.format(Date())
+            Log.d("CurrentDate", currentDate)
+            val prefValue = "GalleryPref"
+            val keyValue = "PhotoDates"
 
-        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE)
-        val currentDate = sdf.format(Date())
-        Log.d("CurrentDate", currentDate)
-        val prefValue = "GalleryPref"
-        val keyValue = "PhotoDates"
-
-        val sharedPref: SharedPreferences =
-            this.getSharedPreferences(prefValue, Context.MODE_PRIVATE)
-        val editor: SharedPreferences.Editor = sharedPref.edit()
+            val sharedPref: SharedPreferences =
+                this@ImageDisplayActivity.getSharedPreferences(prefValue, Context.MODE_PRIVATE)
+            val editor: SharedPreferences.Editor = sharedPref.edit()
 
 
-        var photoDatesList: MutableSet<String>? = sharedPref.getStringSet(keyValue, null)
+            var photoDatesList: MutableSet<String>? = sharedPref.getStringSet(keyValue, null)
 
-        if (photoDatesList == null) {
-            photoDatesList = mutableSetOf()
+            if (photoDatesList == null) {
+                photoDatesList = mutableSetOf()
+            }
+            photoDatesList.add(currentDate)
+            Log.d("ImageDisplayActivity","PHOTO SAVED")
+            editor.putStringSet(keyValue, photoDatesList)
+            var photosList: MutableSet<String>? = sharedPref.getStringSet(currentDate, null)
+            if (photosList == null) {
+                photosList = mutableSetOf()
+            }
+            photosList.add(imgUri)
+            editor.putStringSet(currentDate, photosList)
+            editor.apply()
         }
-        photoDatesList.add(currentDate)
-        editor.putStringSet(keyValue, photoDatesList)
-        var photosList: MutableSet<String>? = sharedPref.getStringSet(currentDate, null)
-        if (photosList == null) {
-            photosList = mutableSetOf()
-        }
-        photosList.add(imgUri)
-        editor.putStringSet(currentDate, photosList)
-        editor.apply()
+
 
 
     }
 
     fun getPath(uri: Uri?): String? {
         val projection =
-            arrayOf<String>(MediaStore.Images.Media.DATA)
-        val cursor: Cursor = managedQuery(uri, projection, null, null, null)
-        startManagingCursor(cursor)
-        val columnIndex: Int = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            arrayOf(MediaStore.Images.Media.DATA)
+        val cursor =
+            contentResolver.query(uri!!, projection, null, null, null)
+                ?: return null
+        val column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
         cursor.moveToFirst()
-        return cursor.getString(columnIndex)
+        val s = cursor.getString(column_index)
+        cursor.close()
+        return s
     }
 
     private fun startUpload() {
@@ -409,7 +420,7 @@ class ImageDisplayActivity : AppCompatActivity(),
                 if (response.message() == "OK") {
                     val gson: Gson = Gson()
                     val json = response.body()?.string()
-                    Log.d("ImageActJson", "The json is $mJson")
+
                     val resp = gson.fromJson(mJson, OKResponse::class.java)
                     if (resp != null) {
                         if (resp.status == "success") {

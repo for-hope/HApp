@@ -45,6 +45,7 @@ class HistoryFragment : Fragment() {
                 R.color.colorPrimary
             )
         )
+
         mSwipeToRefresh.setColorSchemeColors(Color.WHITE)
 
         val mRecyclerAdapter: RecyclerView = view!!.findViewById(R.id.imgItemsRecyclerView)
@@ -54,6 +55,7 @@ class HistoryFragment : Fragment() {
         /////////
 
         val photoDatesList = getPhotoDatesList()
+
         //val photosCheckList:ArrayList<String> = arrayListOf()
         for(date in photoDatesList) {
             val drawablesList: ArrayList<String> = ArrayList(getPhotosList(date))
@@ -88,6 +90,7 @@ class HistoryFragment : Fragment() {
         }
 
         for (photo in photosList) {
+            Log.d("PHOTO",photosList.size.toString())
             if (photosCheckList.contains(photo)) {
                 photosList.remove(photo)
             } else {

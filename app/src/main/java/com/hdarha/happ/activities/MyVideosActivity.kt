@@ -1,13 +1,16 @@
 package com.hdarha.happ.activities
 
+import HVideo
 import android.Manifest
 import android.app.Activity
+import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -17,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hdarha.happ.R
 import com.hdarha.happ.adapters.VideosAdapter
+import com.hdarha.happ.objects.Upload
 import com.hdarha.happ.objects.VideoItem
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
@@ -42,7 +46,7 @@ class MyVideosActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         val linearLayoutManager = LinearLayoutManager(this)
-        val adapter = VideosAdapter(setupVideoList(),this)
+        val adapter = VideosAdapter(ArrayList(getVideoList()),this)
 
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.statusBarColor = ContextCompat.getColor(this, R.color.colorTitle)
@@ -54,7 +58,7 @@ class MyVideosActivity : AppCompatActivity() {
         recyclerview_videos.layoutManager = linearLayoutManager
         recyclerview_videos.adapter = adapter
         adapter.notifyDataSetChanged()
-
+        getVideoList()
 
         fab.setOnClickListener {
             permissionCheckGallery()
@@ -62,34 +66,69 @@ class MyVideosActivity : AppCompatActivity() {
 
     }
 
-    private fun setupVideoList() : ArrayList<VideoItem>{
-        val videoPath = "android.resource://" + packageName+ "/" + R.raw.vid
-        val mVideosList: ArrayList<VideoItem> = arrayListOf()
-        val mMMR = MediaMetadataRetriever()
-        mMMR.setDataSource(this, Uri.parse(videoPath))
-        val bmp = mMMR.frameAtTime
+   private fun getVideoList() : MutableList<HVideo> {
+       val videoList = mutableListOf<HVideo>()
+       val projection = arrayOf(
+           MediaStore.Video.Media._ID,
+           MediaStore.Video.Media.DISPLAY_NAME,
+           MediaStore.Video.Media.DURATION,
+           MediaStore.Video.Media.DATE_ADDED
+       )
+       val selection = "${MediaStore.Video.Media.DISPLAY_NAME} LIKE ?"
+       //val selectionArgs = arrayOf("%FolderName%")
+       val selectionArgs = arrayOf("%HApp_%")
+       val sortOrder = "${MediaStore.Video.Media.DISPLAY_NAME} ASC"
 
-        val retriever = MediaMetadataRetriever()
 
-        retriever.setDataSource(this, Uri.parse(videoPath))
-        val time =
-            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-        val timeInMillisec = time.toLong()
-        retriever.release()
-        val mins = TimeUnit.MILLISECONDS.toMinutes(timeInMillisec).toInt()
-        val secs = TimeUnit.MILLISECONDS.toSeconds(timeInMillisec).toInt()
-        val dur = "${String.format("%02d",mins)}:${String.format("%02d",secs)}"
-        for (x in 0..9) {
-            val title = "Title $x"
-            val date = " 0$x Apr"
-            val dur = dur
-            val img = bmp
-            val video =  VideoItem(title,date,dur,img,1)
-            mVideosList.add(video)
-        }
+       val query = contentResolver.query(
+           MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+           projection,
+           selection,
+           selectionArgs,
+           sortOrder
+       )
 
-        return mVideosList
 
+       query?.use { cursor ->
+           // Cache column indices.
+           val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
+           val nameColumn =
+               cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
+           val durationColumn =
+               cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
+           val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)
+
+
+           while (cursor.moveToNext()) {
+               // Get values of columns for a given video.
+               val id = cursor.getLong(idColumn)
+               val name = cursor.getString(nameColumn)
+               val duration = cursor.getInt(durationColumn)
+               val dateAdded = cursor.getLong(dateAddedColumn)
+               val contentUri: Uri = ContentUris.withAppendedId(
+                   MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                   id
+               )
+
+               val mMMR = MediaMetadataRetriever()
+               mMMR.setDataSource(this, contentUri)
+               val bmp = mMMR.frameAtTime
+               val time = mMMR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+               val timeInMillis = time.toLong()
+               mMMR.release()
+               // Stores column values and the contentUri in a local object
+               // that represents the media file.
+               videoList += HVideo(contentUri, name, timeInMillis, dateAdded*1000,bmp)
+           }
+       }
+
+
+    return videoList
+
+    }
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 
     private fun showGallery() {

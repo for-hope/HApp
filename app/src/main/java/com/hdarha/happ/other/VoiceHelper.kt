@@ -5,13 +5,9 @@ import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
-import android.view.View
 import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
-import com.hdarha.happ.adapters.RecyclerAdapter
 import com.hdarha.happ.objects.Voice
-import kotlinx.android.synthetic.main.activity_sound_library.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -19,13 +15,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
- fun retrieveFromCache(activity : Activity,listener: OnVoiceCallBack) {
+fun retrieveFromCache(activity: Activity, listener: OnVoiceCallBack) {
     val voicesList = arrayListOf<Voice>()
     val gson = Gson()
     val mPrefs = activity.getSharedPreferences("voice", Context.MODE_PRIVATE)
     var jsonList = mutableSetOf<String>()
     jsonList = mPrefs.getStringSet("jsonList", jsonList)!!
-    jsonList.forEach {  Log.d("VOICE_SEt2",it) }
     if (jsonList.isNotEmpty()) {
         GlobalScope.launch {
             delay(1000L)
@@ -34,10 +29,10 @@ import retrofit2.Response
                 for (jsonObject in jsonList) {
                     val voice: Voice = gson.fromJson(jsonObject, Voice::class.java)
 
-                    voicesList!!.add(voice)
+                    voicesList.add(voice)
                 }
-                voicesList!!.sortByDescending { it.isFav }
-                listener.onVoicesRetrieved(voicesList!!, false)
+                voicesList.sortByDescending { it.isFav }
+                listener.onVoicesRetrieved(voicesList, false)
             }
         }
 
@@ -46,7 +41,7 @@ import retrofit2.Response
 
 }
 
- fun saveToCache(voices: ArrayList<Voice>,activity: Activity) {
+fun saveToCache(voices: ArrayList<Voice>, activity: Activity) {
     GlobalScope.launch {
         Log.d("SoundLibrary", "Saving Cache")
         val gson = Gson()
@@ -56,7 +51,7 @@ import retrofit2.Response
 
         for (voice in voices) {
             val jsonString = gson.toJson(voice)
-            Log.d("VOICE_CACHING",voice.caption)
+            Log.d("VOICE_CACHING", voice.caption)
             jsonArrayList.add(jsonString)
         }
         val set = jsonArrayList.toSet()
@@ -70,23 +65,23 @@ import retrofit2.Response
 
 }
 
- fun checkCache(activity: Activity,listener:OnVoiceCallBack) {
+fun checkCache(activity: Activity, listener: OnVoiceCallBack) {
     Log.d("SoundLibrary", "Checking Cache")
     val mPrefs = activity.getSharedPreferences("voice", Context.MODE_PRIVATE)
 
     val isCached = mPrefs.getBoolean("isCached", false)
     if (!isCached) {
         Log.d("SoundLibrary", "Cache not detected")
-        getSounds(activity,listener)
+        getSounds(activity, listener)
     } else {
-        retrieveFromCache(activity,listener)
+        retrieveFromCache(activity, listener)
         Log.d("SoundLibrary", "Cache detected")
     }
     //editor.putBoolean("voice_cache",true)
 }
 
 
- fun getSounds(activity: Activity,listener: OnVoiceCallBack) {
+fun getSounds(activity: Activity, listener: OnVoiceCallBack) {
     val retrofitClient = RetrofitClientInstance()
     val service: RetrofitClientInstance.VoiceService = retrofitClient.retrofitInstance!!.create(
         RetrofitClientInstance.VoiceService::class.java
@@ -99,7 +94,7 @@ import retrofit2.Response
         override fun onResponse(call: Call<List<Voice>>, response: Response<List<Voice>>) {
             Log.d("SoundsList", response.body()!![0].caption)
             val mVoices = response.body()
-            getMetaData(ArrayList(mVoices!!),listener)
+            getMetaData(ArrayList(mVoices!!), listener)
 
         }
 
@@ -116,11 +111,11 @@ import retrofit2.Response
     })
 }
 
- fun getMetaData(voices: ArrayList<Voice>,listener: OnVoiceCallBack) {
+fun getMetaData(voices: ArrayList<Voice>, listener: OnVoiceCallBack) {
 
     for ((index, voice) in voices.withIndex()) {
         val pathStr = voice.location
-        val uri: Uri = Uri.parse(pathStr)
+
 
         //setup duration
         val mmr = MediaMetadataRetriever()
@@ -131,12 +126,12 @@ import retrofit2.Response
         voices[index].duration = timeInMillisec
         mmr.release()
     }
-     listener.onVoicesRetrieved(voices,true)
+    listener.onVoicesRetrieved(voices, true)
     //TODO voicesLoaded(voices, true)
 
 }
 
 interface OnVoiceCallBack {
-    fun onVoicesRetrieved(voices:ArrayList<Voice>,isCache:Boolean)
+    fun onVoicesRetrieved(voices: ArrayList<Voice>, isCache: Boolean)
 }
 

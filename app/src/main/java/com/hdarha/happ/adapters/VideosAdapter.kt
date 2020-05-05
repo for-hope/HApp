@@ -1,6 +1,8 @@
 package com.hdarha.happ.adapters
 
+import HVideo
 import android.app.Activity
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -10,8 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hdarha.happ.R
 import com.hdarha.happ.objects.VideoItem
 import com.hdarha.happ.other.inflate
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
-class VideosAdapter(private val videos:ArrayList<VideoItem>,private val activity:Activity) : RecyclerView.Adapter<VideosAdapter.VideoHolder>() {
+class VideosAdapter(private val videos:ArrayList<HVideo>,private val activity:Activity) : RecyclerView.Adapter<VideosAdapter.VideoHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoHolder {
         val inflatedView = parent.inflate(R.layout.view_video_item, false)
@@ -31,7 +37,7 @@ class VideosAdapter(private val videos:ArrayList<VideoItem>,private val activity
 
     inner class VideoHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickListener {
         private var view: View = v
-        private var video: VideoItem? = null
+        private var video: HVideo? = null
 
         //3
         init {
@@ -42,7 +48,7 @@ class VideosAdapter(private val videos:ArrayList<VideoItem>,private val activity
 
         }
 
-        fun bindItem(video: VideoItem, activity: Activity) {
+        fun bindItem(video: HVideo, activity: Activity) {
             this.video = video
             val inflated = view
 
@@ -51,10 +57,19 @@ class VideosAdapter(private val videos:ArrayList<VideoItem>,private val activity
             val timeTextView = inflated.findViewById<TextView>(R.id.video_timestamp)
             val thumbnailImageView =  inflated.findViewById<ImageView>(R.id.video_thumbnail)
             val deleteButton = inflated.findViewById<ImageView>(R.id.video_delete)
+            val sdf = SimpleDateFormat("dd MMM", Locale.getDefault())
+            val c = Calendar.getInstance()
+            c.timeInMillis = video.dateAdded
+            val date = sdf.format(c.time)
+            dateTextView.text = date
+            Log.d("TIME IN MILLIS",video.dateAdded.toString())
+            titleTextView.text = video.name.replace("HApp_Video_","")
 
-            dateTextView.text = video.date
-            titleTextView.text = video.title
-            timeTextView.text = video.duration
+            val timeInMillisec = video.duration.toLong()
+            val mins = TimeUnit.MILLISECONDS.toMinutes(timeInMillisec).toInt()
+            val secs = TimeUnit.MILLISECONDS.toSeconds(timeInMillisec).toInt()
+            val dur = "${String.format("%02d",mins)}:${String.format("%02d",secs)}"
+            timeTextView.text = dur
             thumbnailImageView.setImageBitmap(video.thumbnail)
             deleteButton.setOnClickListener { Toast.makeText(activity,"Video deleted",Toast.LENGTH_SHORT).show() }
 

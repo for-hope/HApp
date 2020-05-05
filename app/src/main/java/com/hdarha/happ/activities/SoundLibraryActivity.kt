@@ -1,36 +1,33 @@
 package com.hdarha.happ.activities
 
+import android.Manifest
+import android.app.DownloadManager
 import android.content.Context
-import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.os.StrictMode
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.gson.Gson
 import com.hdarha.happ.R
 import com.hdarha.happ.adapters.RecyclerAdapter
 import com.hdarha.happ.objects.Voice
 import com.hdarha.happ.other.OnVoiceCallBack
-import com.hdarha.happ.other.RetrofitClientInstance
 import com.hdarha.happ.other.checkCache
 import com.hdarha.happ.other.saveToCache
 import kotlinx.android.synthetic.main.activity_sound_library.*
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import java.io.File
 
 
 
 class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, OnVoiceCallBack {
-    private var voicesList: ArrayList<Voice>? = arrayListOf()
-    private var voicesFavList: ArrayList<Voice>? = null
+    private var voicesList: ArrayList<Voice> = arrayListOf()
+    private var downloadChecker = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sound_library)
@@ -48,6 +45,40 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
 
     }
 
+    private fun downloader() {
+
+        GlobalScope.launch {
+            val policy =
+                StrictMode.ThreadPolicy.Builder().permitAll().build()
+            StrictMode.setThreadPolicy(policy)
+            if (downloadChecker) {
+                for (voice in voicesList) {
+
+                    //val cacheFile = File(getExternalFilesDir("voices"),voice.name+".m4a")
+
+                    val cacheFile = File(externalCacheDir,"voices"+File.separator+voice.name+".m4a")
+                    if (!cacheFile.exists()) {
+
+                        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                        val uri: Uri = Uri.parse(voice.location)
+
+                        val request = DownloadManager.Request(uri)
+                        request.setTitle(voice.caption)
+                        request.setDescription("Downloading")
+                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                        request.setNotificationVisibility(0)
+                        Log.d("DownloadManager","Saving to ${cacheFile}")
+                        request.setDestinationUri(Uri.fromFile(cacheFile))
+                        Log.d("DownloadManager","Saved to ${Uri.fromFile(cacheFile)}")
+                        downloadManager.enqueue(request)
+
+                    }
+                }
+                downloadChecker = false
+            }
+
+        }
+    }
     override fun onResume() {
         super.onResume()
         checkCache(this,this)
@@ -61,30 +92,30 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
 
 
     override fun onClick(value: Voice?, key: Int) {
-        Log.d("ListUnSorted", voicesList!!.toString())
-        var mVoice: Voice;
-        if (voicesList != null) run {
-            voicesList!![key].isFav = !voicesList!![key].isFav
+        Log.d("ListUnSorted", voicesList.toString())
+
+        run {
+            voicesList[key].isFav = !voicesList[key].isFav
 
             GlobalScope.launch {
                 runOnUiThread {
 
-                    voicesList!!.sortByDescending { it.isFav }
+                    voicesList.sortByDescending { it.isFav }
                     //voicesList!!.sortWith(Comparator { t, t2 -> t.isFav.compareTo(t2.isFav) })
                     //voicesList!!.reverse()
-                    Log.d("ListSorted", voicesList!!.toString())
+                    Log.d("ListSorted", voicesList.toString())
                     val adapter = RecyclerAdapter(
                         this@SoundLibraryActivity,
-                        voicesList!!,
+                        voicesList,
                         true,
                         this@SoundLibraryActivity
                     )
                     recyclerview_sounds.adapter = adapter
                     adapter.notifyDataSetChanged()
-                    voicesList!!.forEach {
+                    voicesList.forEach {
                         Log.d("VOICE",it.caption)
                     }
-                    saveToCache(voicesList!!,this@SoundLibraryActivity)
+                    saveToCache(voicesList,this@SoundLibraryActivity)
                 }
             }
         }
@@ -93,6 +124,8 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
     override fun onVoicesRetrieved(voices: ArrayList<Voice>, isCache: Boolean) {
         if (isCache) {
             saveToCache(voices,this)
+            Log.d("DownloadManager","about to start")
+            downloader()
         }
         this.voicesList = voices
         voicesPB.visibility = View.GONE

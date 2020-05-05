@@ -28,10 +28,28 @@
             app:rippleColor="@android:color/white"
             app:tint = "@null"
             app:backgroundTint="@color/colorAccent" />
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerview_videos"
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerview_videos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+            <View
+                android:id="@+id/view2"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0" />
+
+        </LinearLayout>
+
     </FrameLayout>
 
 </LinearLayout>

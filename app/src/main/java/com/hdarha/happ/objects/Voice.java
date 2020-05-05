@@ -24,6 +24,8 @@ public class Voice {
 
     private long duration = 0;
 
+
+
     /**
      * No args constructor for use in serialization
      *
