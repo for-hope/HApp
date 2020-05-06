@@ -1,11 +1,10 @@
 package com.hdarha.happ.activities
 
-import android.Manifest
 import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
+import android.os.Handler
 import android.os.StrictMode
 import android.util.Log
 import android.view.View
@@ -21,8 +20,8 @@ import com.hdarha.happ.other.saveToCache
 import kotlinx.android.synthetic.main.activity_sound_library.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import uz.jamshid.library.IGRefreshLayout
 import java.io.File
-
 
 
 class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, OnVoiceCallBack {
@@ -41,7 +40,12 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
         voicesPB.visibility = View.VISIBLE
         pbLayout.visibility = View.VISIBLE
         recyclerview_sounds.visibility = View.GONE
-
+        val swipe = findViewById<IGRefreshLayout>(R.id.soundsRefresh)
+        swipe.setRefreshListener {
+            Handler().postDelayed({
+                swipe.setRefreshing(false)
+            }, 3000)
+        }
 
     }
 
@@ -56,20 +60,22 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
 
                     //val cacheFile = File(getExternalFilesDir("voices"),voice.name+".m4a")
 
-                    val cacheFile = File(externalCacheDir,"voices"+File.separator+voice.name+".m4a")
+                    val cacheFile =
+                        File(externalCacheDir, "voices" + File.separator + voice.name + ".m4a")
                     if (!cacheFile.exists()) {
 
-                        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                        val downloadManager =
+                            getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
                         val uri: Uri = Uri.parse(voice.location)
 
                         val request = DownloadManager.Request(uri)
                         request.setTitle(voice.caption)
                         request.setDescription("Downloading")
-                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                        request.setNotificationVisibility(0)
-                        Log.d("DownloadManager","Saving to ${cacheFile}")
+                        //request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
+                        Log.d("DownloadManager", "Saving to $cacheFile")
                         request.setDestinationUri(Uri.fromFile(cacheFile))
-                        Log.d("DownloadManager","Saved to ${Uri.fromFile(cacheFile)}")
+                        Log.d("DownloadManager", "Saved to ${Uri.fromFile(cacheFile)}")
                         downloadManager.enqueue(request)
 
                     }
@@ -79,16 +85,16 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
 
         }
     }
+
     override fun onResume() {
         super.onResume()
-        checkCache(this,this)
+        checkCache(this, this)
     }
 
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
     }
-
 
 
     override fun onClick(value: Voice?, key: Int) {
@@ -113,9 +119,9 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
                     recyclerview_sounds.adapter = adapter
                     adapter.notifyDataSetChanged()
                     voicesList.forEach {
-                        Log.d("VOICE",it.caption)
+                        Log.d("VOICE", it.caption)
                     }
-                    saveToCache(voicesList,this@SoundLibraryActivity)
+                    saveToCache(voicesList, this@SoundLibraryActivity)
                 }
             }
         }
@@ -123,8 +129,8 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
 
     override fun onVoicesRetrieved(voices: ArrayList<Voice>, isCache: Boolean) {
         if (isCache) {
-            saveToCache(voices,this)
-            Log.d("DownloadManager","about to start")
+            saveToCache(voices, this)
+            Log.d("DownloadManager", "about to start")
             downloader()
         }
         this.voicesList = voices

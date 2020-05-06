@@ -14,9 +14,6 @@ import com.hdarha.happ.fragments.HistoryFragment
 import com.hdarha.happ.fragments.HomeFragment
 import com.hdarha.happ.fragments.ProfileFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,34 +25,39 @@ class MainActivity : AppCompatActivity() {
         initActivity()
         if (savedInstanceState == null) {
             val fragment = HomeFragment()
-            supportFragmentManager.beginTransaction().replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
                 .commit()
         }
 
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(object : BottomNavigationView.OnNavigationItemSelectedListener {
+        bottomNavigationView.setOnNavigationItemSelectedListener(object :
+            BottomNavigationView.OnNavigationItemSelectedListener {
             override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
                     R.id.bottomNavigationLabId -> {
-                        Log.d("Main","CLICKED")
+                        Log.d("Main", "CLICKED")
                         val fragment = HomeFragment()
-                        supportFragmentManager.beginTransaction().replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
                             .commit()
                         return true
                     }
                     R.id.bottomNavigationHistorykMenuId -> {
-                        Log.d("Main","CLICKED11")
+                        Log.d("Main", "CLICKED11")
                         val fragment =
                             HistoryFragment()
-                        supportFragmentManager.beginTransaction().replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
                             .commit()
                         return true
                     }
                     R.id.bottomNavigationMeMenuId -> {
-                        Log.d("Main","CLICKED12")
+                        Log.d("Main", "CLICKED12")
                         val fragment =
                             ProfileFragment()
-                        supportFragmentManager.beginTransaction().replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
                             .commit()
                         return true
                     }
@@ -63,30 +65,20 @@ class MainActivity : AppCompatActivity() {
                 return false
             }
 
-        } )
-
-
-
-
-
-
+        })
 
 
     }
 
 
-
-
-
-
-
-    private fun  initActivity() {
+    private fun initActivity() {
 
         //init Fresco image holder.
         Fresco.initialize(this)
         //make status bar transparent
         //showCustomUI()
-        bi = DataBindingUtil.setContentView(this,
+        bi = DataBindingUtil.setContentView(
+            this,
             R.layout.activity_main
         )
     }

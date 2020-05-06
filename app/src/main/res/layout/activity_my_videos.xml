@@ -29,26 +29,51 @@
             app:tint = "@null"
             app:backgroundTint="@color/colorAccent" />
 
-        <LinearLayout
+
+        <uz.jamshid.library.IGRefreshLayout
+            android:id="@+id/swipe"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            app:customBar="false"
+            app:offsetTop="120">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerview_videos"
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0">
-
-            </androidx.recyclerview.widget.RecyclerView>
-
-            <View
-                android:id="@+id/view2"
-                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="0" />
+                android:fillViewport="true">
 
-        </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerview_videos"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never">
+
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                    <View
+                        android:id="@+id/extraSpaceView"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_weight="0" />
+
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </uz.jamshid.library.IGRefreshLayout>
+
+
+        <ProgressBar
+            android:id="@+id/progressBarMyVideos"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
 
     </FrameLayout>
 

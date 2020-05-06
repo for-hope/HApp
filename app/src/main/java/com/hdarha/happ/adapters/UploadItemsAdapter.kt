@@ -5,17 +5,15 @@ import android.text.format.DateUtils
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridView
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hdarha.happ.R
+import com.hdarha.happ.objects.Upload
 import com.hdarha.happ.other.Utility.calculateNoOfColumns
 import com.hdarha.happ.other.inflate
-import com.hdarha.happ.objects.Upload
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class UploadItemsAdapter(private val uploads: ArrayList<Upload>, private val activity: Activity) :
@@ -42,7 +40,7 @@ class UploadItemsAdapter(private val uploads: ArrayList<Upload>, private val act
         private var view: View = v
         private var upload: Upload? = null
 
-        //3
+
         init {
             v.setOnClickListener(this)
         }
@@ -56,7 +54,6 @@ class UploadItemsAdapter(private val uploads: ArrayList<Upload>, private val act
             val inflated = view
 
             val dateTextView = inflated.findViewById<TextView>(R.id.dateTextView)
-            val mGridView = inflated.findViewById<GridView>(R.id.imgGridView)
             val mRecyclerView = inflated.findViewById<RecyclerView>(R.id.imgGridViewRec)
             val adapter = GalleryAdapter(
                 upload.imgDrawableList,
@@ -68,19 +65,17 @@ class UploadItemsAdapter(private val uploads: ArrayList<Upload>, private val act
             mRecyclerView.layoutManager = gridViewManager
             mRecyclerView.adapter = adapter
             adapter.notifyDataSetChanged()
-            Log.d("UploadAdapter",upload.imgDrawableList.toString())
+            Log.d("UploadAdapter", upload.imgDrawableList.toString())
 
             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE)
             val parsedDate = formatter.parse(upload.date)
             val displaySdf = SimpleDateFormat("dd MMM", Locale.getDefault())
             var dateStr = displaySdf.format(parsedDate!!)
 
-            if(DateUtils.isToday(parsedDate.time)){
+            if (DateUtils.isToday(parsedDate.time)) {
                 dateStr = "Today"
             }
             dateTextView.text = dateStr
-            //val adapter = ImgItemsAdapter(upload.imgDrawableList, activity)
-            //mGridView.adapter = adapter
         }
     }
 }

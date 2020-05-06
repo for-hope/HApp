@@ -6,10 +6,12 @@ import android.app.Activity
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.graphics.Color
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -20,23 +22,26 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hdarha.happ.R
 import com.hdarha.happ.adapters.VideosAdapter
-import com.hdarha.happ.objects.Upload
-import com.hdarha.happ.objects.VideoItem
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
+import com.yalantis.ucrop.util.FileUtils.getPath
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.engine.impl.GlideEngine
 import com.zhihu.matisse.internal.entity.CaptureStrategy
 import kotlinx.android.synthetic.main.activity_my_videos.*
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import uz.jamshid.library.IGRefreshLayout
+import java.io.File
 
-const val REQUEST_CODE_CHOOSE = 1
+
 class MyVideosActivity : AppCompatActivity() {
+    private val REQUEST_CODE_CHOOSE = 1
     val context = this
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,87 +50,106 @@ class MyVideosActivity : AppCompatActivity() {
         supportActionBar?.title = "My Videos"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        val linearLayoutManager = LinearLayoutManager(this)
-        val adapter = VideosAdapter(ArrayList(getVideoList()),this)
+
 
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.statusBarColor = ContextCompat.getColor(this, R.color.colorTitle)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-        };
-
-
-        recyclerview_videos.layoutManager = linearLayoutManager
-        recyclerview_videos.adapter = adapter
-        adapter.notifyDataSetChanged()
-        getVideoList()
+        }
 
         fab.setOnClickListener {
             permissionCheckGallery()
         }
 
-    }
+        progressBarMyVideos.isIndeterminate = true
+        progressBarMyVideos.visibility = View.VISIBLE
+        val swipe = findViewById<IGRefreshLayout>(R.id.swipe)
+        swipe.setRefreshListener {
+            Handler().postDelayed({
+                swipe.setRefreshing(false)
+            }, 3000)
+        }
 
-   private fun getVideoList() : MutableList<HVideo> {
-       val videoList = mutableListOf<HVideo>()
-       val projection = arrayOf(
-           MediaStore.Video.Media._ID,
-           MediaStore.Video.Media.DISPLAY_NAME,
-           MediaStore.Video.Media.DURATION,
-           MediaStore.Video.Media.DATE_ADDED
-       )
-       val selection = "${MediaStore.Video.Media.DISPLAY_NAME} LIKE ?"
-       //val selectionArgs = arrayOf("%FolderName%")
-       val selectionArgs = arrayOf("%HApp_%")
-       val sortOrder = "${MediaStore.Video.Media.DISPLAY_NAME} ASC"
-
-
-       val query = contentResolver.query(
-           MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-           projection,
-           selection,
-           selectionArgs,
-           sortOrder
-       )
-
-
-       query?.use { cursor ->
-           // Cache column indices.
-           val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
-           val nameColumn =
-               cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
-           val durationColumn =
-               cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
-           val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)
-
-
-           while (cursor.moveToNext()) {
-               // Get values of columns for a given video.
-               val id = cursor.getLong(idColumn)
-               val name = cursor.getString(nameColumn)
-               val duration = cursor.getInt(durationColumn)
-               val dateAdded = cursor.getLong(dateAddedColumn)
-               val contentUri: Uri = ContentUris.withAppendedId(
-                   MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                   id
-               )
-
-               val mMMR = MediaMetadataRetriever()
-               mMMR.setDataSource(this, contentUri)
-               val bmp = mMMR.frameAtTime
-               val time = mMMR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-               val timeInMillis = time.toLong()
-               mMMR.release()
-               // Stores column values and the contentUri in a local object
-               // that represents the media file.
-               videoList += HVideo(contentUri, name, timeInMillis, dateAdded*1000,bmp)
-           }
-       }
-
-
-    return videoList
+        getVideoList()
 
     }
+
+    private fun setAdapter(videos: MutableList<HVideo>) {
+        val linearLayoutManager = LinearLayoutManager(this)
+        val adapter = VideosAdapter(ArrayList(videos), this)
+        recyclerview_videos.layoutManager = linearLayoutManager
+        recyclerview_videos.adapter = adapter
+        progressBarMyVideos.visibility = View.GONE
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun getVideoList() {
+        GlobalScope.launch {
+            val videoList = mutableListOf<HVideo>()
+            val projection = arrayOf(
+                MediaStore.Video.Media._ID,
+                MediaStore.Video.Media.DISPLAY_NAME,
+                MediaStore.Video.Media.DATE_ADDED
+            )
+            val selection = "${MediaStore.Video.Media.DISPLAY_NAME} LIKE ?"
+            //val selectionArgs = arrayOf("%FolderName%")
+            val selectionArgs = arrayOf("%HApp_%")
+            val sortOrder = "${MediaStore.Video.Media.DISPLAY_NAME} ASC"
+
+
+            val query = contentResolver.query(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder
+            )
+
+
+            query?.use { cursor ->
+                // Cache column indices.
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
+                val nameColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
+
+                val dateAddedColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)
+
+
+                while (cursor.moveToNext()) {
+                    // Get values of columns for a given video.
+                    val id = cursor.getLong(idColumn)
+                    val name = cursor.getString(nameColumn)
+
+                    val dateAdded = cursor.getLong(dateAddedColumn)
+                    val contentUri: Uri = ContentUris.withAppendedId(
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                        id
+                    )
+
+                    val mMMR = MediaMetadataRetriever()
+                    if (File(getPath(this@MyVideosActivity,contentUri)!!).exists()) {
+                    mMMR.setDataSource(this@MyVideosActivity, contentUri)
+                    val bmp = mMMR.frameAtTime
+                    val time = mMMR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                    val timeInMillis = time.toLong()
+                    mMMR.release()
+                    // Stores column values and the contentUri in a local object
+                    // that represents the media file.
+                    videoList += HVideo(contentUri, name, timeInMillis, dateAdded * 1000, bmp)
+                    }
+                }
+            }
+            videoList.reverse()
+            runOnUiThread { setAdapter(videoList) }
+
+
+        }
+
+    }
+
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
@@ -196,8 +220,8 @@ class MyVideosActivity : AppCompatActivity() {
             startActivity(intent)
 
 
-        } else if (requestCode == REQUEST_CODE_CHOOSE){
-            Log.e("OnActivityResult","Error happened")
+        } else if (requestCode == REQUEST_CODE_CHOOSE) {
+            Log.e("OnActivityResult", "Error happened")
         }
     }
 }

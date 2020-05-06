@@ -30,11 +30,23 @@
             android:layout_gravity="center" />
     </FrameLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview_sounds"
+    <uz.jamshid.library.IGRefreshLayout
+        android:id="@+id/soundsRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0"
-        android:padding="8dp"
-        android:visibility="visible" />
+        android:background="@color/dracula_album_popup_bg"
+        android:backgroundTint="@color/dracula_primary_dark"
+        app:customBar="false"
+        app:offsetTop="120">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview_sounds"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0"
+            android:background="@color/dracula_album_popup_bg"
+            android:overScrollMode="never"
+            android:padding="8dp"
+            android:visibility="visible" />
+    </uz.jamshid.library.IGRefreshLayout>
 </LinearLayout>

@@ -11,7 +11,9 @@ public class OKResponse {
     @SerializedName("url")
     @Expose
     private String url;
-
+    @SerializedName("reason")
+    @Expose
+    private String reason;
     /**
      * No args constructor for use in serialization
      *
@@ -46,4 +48,11 @@ public class OKResponse {
         this.url = url;
     }
 
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
 }

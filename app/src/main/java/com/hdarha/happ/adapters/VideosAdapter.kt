@@ -2,7 +2,10 @@ package com.hdarha.happ.adapters
 
 import HVideo
 import android.app.Activity
-import android.util.Log
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
+import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -10,12 +13,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.hdarha.happ.R
-import com.hdarha.happ.objects.VideoItem
 import com.hdarha.happ.other.inflate
+import com.yalantis.ucrop.util.FileUtils.getPath
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
+
 
 class VideosAdapter(private val videos:ArrayList<HVideo>,private val activity:Activity) : RecyclerView.Adapter<VideosAdapter.VideoHolder>() {
 
@@ -62,17 +66,42 @@ class VideosAdapter(private val videos:ArrayList<HVideo>,private val activity:Ac
             c.timeInMillis = video.dateAdded
             val date = sdf.format(c.time)
             dateTextView.text = date
-            Log.d("TIME IN MILLIS",video.dateAdded.toString())
+
             titleTextView.text = video.name.replace("HApp_Video_","")
 
-            val timeInMillisec = video.duration.toLong()
-            val mins = TimeUnit.MILLISECONDS.toMinutes(timeInMillisec).toInt()
-            val secs = TimeUnit.MILLISECONDS.toSeconds(timeInMillisec).toInt()
+            val timeInMillis = video.duration
+            val mins = TimeUnit.MILLISECONDS.toMinutes(timeInMillis).toInt()
+            val secs = TimeUnit.MILLISECONDS.toSeconds(timeInMillis).toInt()
             val dur = "${String.format("%02d",mins)}:${String.format("%02d",secs)}"
             timeTextView.text = dur
             thumbnailImageView.setImageBitmap(video.thumbnail)
-            deleteButton.setOnClickListener { Toast.makeText(activity,"Video deleted",Toast.LENGTH_SHORT).show() }
+
+            deleteButton.setOnClickListener { confirmationDialog(video.uri) }
 
         }
+        private fun confirmationDialog(fileUri: Uri){
+            AlertDialog.Builder(activity)
+                .setTitle("Delete Video")
+                .setMessage("Are you sure you want to delete this video?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes) { _, _ ->
+                  deleteVideo(fileUri)
+                }
+                .setNegativeButton(android.R.string.no, null)
+                .show()
+        }
+        private fun deleteVideo(fileUri:Uri) {
+            val f = File(getPath(activity,fileUri)!!)
+            val deleted= f.delete()
+            if (deleted){
+            Toast.makeText(activity,"Video deleted.",Toast.LENGTH_SHORT).show()
+                videos.removeAt(adapterPosition)
+                notifyItemRemoved(adapterPosition)
+                notifyDataSetChanged()
+            } else {
+                Toast.makeText(activity,"Video not deleted.",Toast.LENGTH_SHORT).show()
+            }
+        }
+
     }
 }

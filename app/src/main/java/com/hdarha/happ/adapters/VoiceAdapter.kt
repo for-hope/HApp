@@ -25,7 +25,6 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 private var isPlaying: Boolean = false
-
 private var mPlayer: MediaPlayer = MediaPlayer()
 private var audioPlaying = -1
 private var titleReset: TextView? = null

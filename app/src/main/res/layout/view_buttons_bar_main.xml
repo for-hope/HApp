@@ -29,8 +29,9 @@
             android:insetBottom="0dp"
             android:padding="0dp"
             app:backgroundTint="#0288D1"
-            app:icon="@drawable/video"
+            app:icon="@drawable/ic_mouth"
             app:iconGravity="textStart"
+            app:iconPadding="0dp"
             app:iconSize="50dp"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle" />
 
@@ -66,7 +67,7 @@
             android:insetRight="0dp"
             android:insetBottom="0dp"
             android:padding="0dp"
-            app:icon="@drawable/upload"
+            app:icon="@drawable/ic_file"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="50dp"
@@ -80,7 +81,7 @@
             android:gravity="center"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:text="My Uploads"
+            android:text="My Videos"
             android:textColor="@android:color/black" />
     </LinearLayout>
 

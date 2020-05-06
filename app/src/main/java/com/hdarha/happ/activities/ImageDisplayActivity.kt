@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.hdarha.happ.R
 import com.hdarha.happ.fragments.BottomSheet
 import com.hdarha.happ.fragments.OnDialogComplete
@@ -28,6 +29,7 @@ import com.hdarha.happ.objects.OKResponse
 import com.hdarha.happ.objects.Voice
 import com.hdarha.happ.other.RetrofitClientInstance
 import com.yalantis.ucrop.UCrop
+import com.yalantis.ucrop.util.FileUtils.getPath
 import jp.wasabeef.blurry.Blurry
 import kotlinx.android.synthetic.main.activity_image_display.*
 import kotlinx.coroutines.GlobalScope
@@ -41,8 +43,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.lang.reflect.Type
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class ImageDisplayActivity : AppCompatActivity(),
@@ -120,7 +124,7 @@ class ImageDisplayActivity : AppCompatActivity(),
 
         fab.setOnClickListener {
             if (isSoundSelected) {
-                Blurry.with(this).radius(10).sampling(2).onto(rootView_img_display)
+                Blurry.with(this).radius(10).sampling(2).onto(rootView_img_display.rootView as ViewGroup)
                 //showDialog("Processing video...")
                 startUpload()
             } else {
@@ -165,7 +169,7 @@ class ImageDisplayActivity : AppCompatActivity(),
 
         noBtn.setOnClickListener {
             dialog.dismiss()
-            Blurry.delete(rootView_img_display)
+            Blurry.delete(rootView_img_display.rootView as ViewGroup)
         }
 
 //        Handler().postDelayed(
@@ -188,7 +192,7 @@ class ImageDisplayActivity : AppCompatActivity(),
         if (ogImage != null && ogImage != "") {
             savePictures(ogImage!!)
         } else {
-            Log.d("IMAGE",ogImage+"OGIMAGE")
+            Log.d("IMAGE", ogImage + "OGIMAGE")
         }
 
         body.text = "Processing Complete"
@@ -207,16 +211,20 @@ class ImageDisplayActivity : AppCompatActivity(),
             val intent = Intent(this, VideoPlayerActivity::class.java)
             intent.putExtra("url", url)
             startActivity(intent)
+            finish()
         }
     }
 
     private fun errDialog(dialog: Dialog, err: String) {
         val body = dialog.findViewById(R.id.dialog_body) as TextView
+        val errText = dialog.findViewById(R.id.reasonTextView) as TextView
         val yesBtn = dialog.findViewById(R.id.accept_btn_dialog) as Button
         val pb = dialog.findViewById<ProgressBar>(R.id.dialog_pb)
         val noBtn = dialog.findViewById(R.id.cancel_btn_dialog) as Button
 
-        body.text = "Error occured \n Reason : $err"
+        body.text = "Error occured"
+        errText.text = "Reason : $err"
+        errText.visibility = View.VISIBLE
 
         body.typeface = Typeface.DEFAULT_BOLD
         body.setCompoundDrawablesWithIntrinsicBounds(
@@ -232,6 +240,7 @@ class ImageDisplayActivity : AppCompatActivity(),
         yesBtn.text = "Try again"
         yesBtn.setOnClickListener {
             dialog.dismiss()
+            Blurry.delete(rootView_img_display.rootView as ViewGroup)
         }
     }
 
@@ -333,51 +342,29 @@ class ImageDisplayActivity : AppCompatActivity(),
 
     private fun savePictures(imgUri: String) {
         GlobalScope.launch {
-            Log.d("ImageDisplayActivity","SAVING PHOTO")
             val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE)
             val currentDate = sdf.format(Date())
-            Log.d("CurrentDate", currentDate)
-            val prefValue = "GalleryPref"
-            val keyValue = "PhotoDates"
-
-            val sharedPref: SharedPreferences =
+            val prefValue = "history"
+            val keyValue = "map"
+            val gson = Gson()
+            val sharedPreferences =
                 this@ImageDisplayActivity.getSharedPreferences(prefValue, Context.MODE_PRIVATE)
-            val editor: SharedPreferences.Editor = sharedPref.edit()
-
-
-            var photoDatesList: MutableSet<String>? = sharedPref.getStringSet(keyValue, null)
-
-            if (photoDatesList == null) {
-                photoDatesList = mutableSetOf()
+            val editor = sharedPreferences.edit()
+            val hashString = sharedPreferences.getString(keyValue, "")
+            val type: Type = object : TypeToken<HashMap<String, String>>() {}.type
+            var storedHashMap: HashMap<String, String> = hashMapOf()
+            if (hashString != "") {
+                storedHashMap = gson.fromJson(hashString, type) as HashMap<String, String>
             }
-            photoDatesList.add(currentDate)
-            Log.d("ImageDisplayActivity","PHOTO SAVED")
-            editor.putStringSet(keyValue, photoDatesList)
-            var photosList: MutableSet<String>? = sharedPref.getStringSet(currentDate, null)
-            if (photosList == null) {
-                photosList = mutableSetOf()
-            }
-            photosList.add(imgUri)
-            editor.putStringSet(currentDate, photosList)
+            storedHashMap[imgUri] = currentDate
+            val hashStringToSave = gson.toJson(storedHashMap)
+            editor.putString(keyValue, hashStringToSave)
             editor.apply()
         }
-
-
-
     }
 
-    fun getPath(uri: Uri?): String? {
-        val projection =
-            arrayOf(MediaStore.Images.Media.DATA)
-        val cursor =
-            contentResolver.query(uri!!, projection, null, null, null)
-                ?: return null
-        val column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        cursor.moveToFirst()
-        val s = cursor.getString(column_index)
-        cursor.close()
-        return s
-    }
+
+
 
     private fun startUpload() {
         val dialog: Dialog = makeDialog()
@@ -387,7 +374,7 @@ class ImageDisplayActivity : AppCompatActivity(),
             retrofitClient.retrofitInstance!!.create(RetrofitClientInstance.ImageService::class.java)
 
         val inputStream = this.contentResolver.openInputStream(Uri.parse(imgUri))
-        val imgFile = File(getPath(Uri.parse(imgUri)))
+        val imgFile = File(getPath(this,Uri.parse(imgUri)))
         //val imgFile = File("/storage/emulated/0/DCIM/Facebook/FB_IMG_1588431186364.jpg")
 
         if (imgFile.exists()) {
@@ -417,24 +404,36 @@ class ImageDisplayActivity : AppCompatActivity(),
                 Log.d("RESPONSE", "OK ${response.body()}")
                 Log.d("RESPONSE", "OK ${mJson}")
                 Log.d("RESPONSE", "OK ${response.errorBody()?.string()}")
+
                 if (response.message() == "OK") {
                     val gson: Gson = Gson()
                     val json = response.body()?.string()
-
                     val resp = gson.fromJson(mJson, OKResponse::class.java)
                     if (resp != null) {
                         if (resp.status == "success") {
                             finishDialog(dialog, resp.url)
                         } else {
-                            Toast.makeText(this@ImageDisplayActivity,"Error",Toast.LENGTH_SHORT).show()
-                            errDialog(dialog, "error")
+                            Toast.makeText(
+                                this@ImageDisplayActivity,
+                                "An error occurred.",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                            errDialog(dialog, resp.reason)
                         }
                     } else {
-                        Toast.makeText(this@ImageDisplayActivity,"Error",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@ImageDisplayActivity,
+                            "An error occurred.",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
                         Log.e("ImageAct", "Err")
+                        errDialog(dialog, "Server error try again later")
                     }
                 } else {
-                    Toast.makeText(this@ImageDisplayActivity,"Error",Toast.LENGTH_SHORT).show()
+                    errDialog(dialog, "Application error check your connection and try again.")
+                    Toast.makeText(this@ImageDisplayActivity, "Error", Toast.LENGTH_SHORT).show()
                 }
 
 
@@ -443,7 +442,7 @@ class ImageDisplayActivity : AppCompatActivity(),
             override fun onFailure(call: Call<ResponseBody?>?, t: Throwable?) {
                 finishDialog(dialog, "wwww")
                 Log.d("RESPONSE", " NOT OK $t")
-                Toast.makeText(this@ImageDisplayActivity,"Error",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ImageDisplayActivity, "Error", Toast.LENGTH_SHORT).show()
             }
         })
 
