@@ -6,8 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil.setContentView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,29 +15,20 @@ import com.hdarha.happ.R
 import com.hdarha.happ.adapters.SettingsAdapter
 import com.hdarha.happ.objects.SettingItem
 
-
-class ProfileFragment : Fragment(){
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.fragment_profile, container, false)
-
+class ContentFragment : Fragment(){
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_content, container, false)
+    }
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        showCustomUI()
-
-
-
+        activity as AppCompatActivity
 
         val profileRecyclerView = view!!.findViewById<RecyclerView>(R.id.profile_recyclerview)
         val linearLayoutManager = LinearLayoutManager(context)
-
-
-
-
-
-
-
-
-
 
 
 
@@ -52,16 +42,7 @@ class ProfileFragment : Fragment(){
         profileRecyclerView.isNestedScrollingEnabled = false
         adapter.notifyDataSetChanged()
     }
-    private fun showCustomUI() {
-        val decorView = activity?.window?.decorView
-        decorView?.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-        activity?.window?.statusBarColor =
-            ContextCompat.getColor(this.context!!,
-                R.color.colorTransparent
-            )
-    }
+
     private fun getSettingsList():ArrayList<SettingItem> {
         val mArrayList = arrayListOf<SettingItem>()
 

@@ -15,9 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.hdarha.happ.R
-import com.hdarha.happ.activities.ImageDisplayActivity
-import com.hdarha.happ.activities.MyVideosActivity
-import com.hdarha.happ.activities.SoundLibraryActivity
+import com.hdarha.happ.activities.*
 import com.hdarha.happ.adapters.ScreensPagerAdapter
 import com.hdarha.happ.other.ScreenHelper
 import com.karumi.dexter.Dexter
@@ -31,16 +29,22 @@ import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.engine.impl.GlideEngine
 import com.zhihu.matisse.internal.entity.CaptureStrategy
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.view_buttons_bar_main.*
 import kotlinx.android.synthetic.main.view_top_layout_main.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 private const val REQUEST_CODE_CHOOSE = 1
+
 class HomeFragment : Fragment() {
 
     private lateinit var pagerAdapter: ScreensPagerAdapter
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? =
         inflater.inflate(R.layout.fragment_home, container, false)
 
 
@@ -79,7 +83,13 @@ class HomeFragment : Fragment() {
         }
 
         profile_image.setOnClickListener {
-            startUpload()
+
+//            val url = "http://hdarha.herokuapp.com/public/3Lrm8gUBg0T1.mp4"
+//            val intent = Intent(this.context, VideoPlayerActivity::class.java)
+//            intent.putExtra("url", url)
+
+            val intent = Intent(this.context,EmptyActivity::class.java)
+            startActivity(intent)
         }
 
 
@@ -140,10 +150,12 @@ class HomeFragment : Fragment() {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
         activity?.window?.statusBarColor =
-            ContextCompat.getColor(this.context!!,
+            ContextCompat.getColor(
+                this.context!!,
                 R.color.colorTransparent
             )
     }
+
     override fun onActivityResult(
         requestCode: Int,
         resultCode: Int,
@@ -160,8 +172,8 @@ class HomeFragment : Fragment() {
             startActivity(intent)
 
 
-        } else if (requestCode == REQUEST_CODE_CHOOSE){
-            Log.e("OnActivityResult","Error happened")
+        } else if (requestCode == REQUEST_CODE_CHOOSE) {
+            Log.e("OnActivityResult", "Error happened")
         }
     }
 

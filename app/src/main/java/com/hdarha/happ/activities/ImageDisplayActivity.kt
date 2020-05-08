@@ -5,14 +5,12 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.view.animation.LinearInterpolator
@@ -46,7 +44,6 @@ import java.io.File
 import java.lang.reflect.Type
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashMap
 
 
 class ImageDisplayActivity : AppCompatActivity(),
@@ -57,6 +54,7 @@ class ImageDisplayActivity : AppCompatActivity(),
     private var ogImage: String? = null
     private var isSoundSelected = false
     private var audioId: String = ""
+    private var isCropped:Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_display)
@@ -80,7 +78,9 @@ class ImageDisplayActivity : AppCompatActivity(),
 
         val bottomSheet = BottomSheet(this)
         imgUri = intent.getStringExtra("imgUri")
+        if (!isCropped) {
         ogImage = imgUri
+        }
         bottom_bar.replaceMenu(R.menu.bottom_menu)
         bottom_bar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
@@ -115,7 +115,15 @@ class ImageDisplayActivity : AppCompatActivity(),
                 val f = File("/storage/emulated/0/Pictures/happ/cropped$rnds.jpg")
                 val dest: Uri =
                     Uri.fromFile(f)
-                cropImage(Uri.parse(imgUri), dest)
+                Log.d("IMG","OG = ${ogImage.toString()}")
+                Log.d("IMG","IMGURI = ${imgUri.toString()}")
+
+                if (ogImage != null && ogImage != "") {
+                    cropImage(Uri.parse(ogImage), dest)
+                } else {
+                    cropImage(Uri.parse(imgUri), dest)
+                }
+
             } else {
                 Toast.makeText(this, "Error creating image directory.", Toast.LENGTH_SHORT).show()
             }
@@ -124,7 +132,8 @@ class ImageDisplayActivity : AppCompatActivity(),
 
         fab.setOnClickListener {
             if (isSoundSelected) {
-                Blurry.with(this).radius(10).sampling(2).onto(rootView_img_display.rootView as ViewGroup)
+                Blurry.with(this).radius(10).sampling(2)
+                    .onto(rootView_img_display.rootView as ViewGroup)
                 //showDialog("Processing video...")
                 startUpload()
             } else {
@@ -289,7 +298,9 @@ class ImageDisplayActivity : AppCompatActivity(),
             Log.d("gotRes", resultUri.toString())
 
             deleteCache(resultUri!!.path.toString())
+            if (!isCropped) {
             ogImage = imgUri
+            }
 
             imgUri = resultUri.path.toString()
             mPhotoDraweeView!!.setPhotoUri(resultUri, this)
@@ -306,6 +317,7 @@ class ImageDisplayActivity : AppCompatActivity(),
     }
 
     private fun cropImage(src: Uri, dest: Uri) {
+        isCropped = true
         Log.e("OnActivityResult011 ", src.toString())
         UCrop.of(src, dest)
             .start(this)
@@ -364,8 +376,6 @@ class ImageDisplayActivity : AppCompatActivity(),
     }
 
 
-
-
     private fun startUpload() {
         val dialog: Dialog = makeDialog()
         showDialog("Processing Video...", dialog)
@@ -374,7 +384,7 @@ class ImageDisplayActivity : AppCompatActivity(),
             retrofitClient.retrofitInstance!!.create(RetrofitClientInstance.ImageService::class.java)
 
         val inputStream = this.contentResolver.openInputStream(Uri.parse(imgUri))
-        val imgFile = File(getPath(this,Uri.parse(imgUri)))
+        val imgFile = File(getPath(this, Uri.parse(imgUri)))
         //val imgFile = File("/storage/emulated/0/DCIM/Facebook/FB_IMG_1588431186364.jpg")
 
         if (imgFile.exists()) {

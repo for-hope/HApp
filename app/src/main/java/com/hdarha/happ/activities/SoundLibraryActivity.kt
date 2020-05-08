@@ -4,7 +4,6 @@ import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.os.StrictMode
 import android.util.Log
 import android.view.View
@@ -20,13 +19,13 @@ import com.hdarha.happ.other.saveToCache
 import kotlinx.android.synthetic.main.activity_sound_library.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import uz.jamshid.library.IGRefreshLayout
 import java.io.File
 
 
 class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, OnVoiceCallBack {
     private var voicesList: ArrayList<Voice> = arrayListOf()
     private var downloadChecker = true
+    private var mAdapter: RecyclerAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sound_library)
@@ -40,13 +39,30 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
         voicesPB.visibility = View.VISIBLE
         pbLayout.visibility = View.VISIBLE
         recyclerview_sounds.visibility = View.GONE
-        val swipe = findViewById<IGRefreshLayout>(R.id.soundsRefresh)
-        swipe.setRefreshListener {
-            Handler().postDelayed({
-                swipe.setRefreshing(false)
-            }, 3000)
+
+        soundsRefresh.setRefreshListener {
+
+            checkCache(this, this)
+
         }
 
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+    }
+
+    override fun onDestroy() {
+        if (mAdapter != null) {
+        mAdapter?.onDestroy()
+        }
+        super.onDestroy()
+    }
+
+    override fun onPause() {
+        mAdapter?.onDestroy()
+        super.onPause()
     }
 
     private fun downloader() {
@@ -116,6 +132,7 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
                         true,
                         this@SoundLibraryActivity
                     )
+
                     recyclerview_sounds.adapter = adapter
                     adapter.notifyDataSetChanged()
                     voicesList.forEach {
@@ -141,7 +158,9 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
         val adapter = RecyclerAdapter(this, voices, true, this)
         recyclerview_sounds.layoutManager = linearLayoutManager
         recyclerview_sounds.adapter = adapter
+        mAdapter = adapter
         adapter.notifyItemInserted(voices.size - 1)
+        soundsRefresh.setRefreshing(false)
     }
 
 

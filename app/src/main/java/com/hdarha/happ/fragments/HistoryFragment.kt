@@ -3,18 +3,17 @@ package com.hdarha.happ.fragments
 
 import android.app.Activity
 import android.content.Context
-import android.content.SharedPreferences
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.hdarha.happ.R
@@ -27,7 +26,6 @@ import java.lang.reflect.Type
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 
 class HistoryFragment : Fragment() {
@@ -51,6 +49,7 @@ class HistoryFragment : Fragment() {
 
         historyProgressBar.isIndeterminate = true
         historyProgressBar.visibility = View.VISIBLE
+        EmptyHistoryLayout.visibility = View.GONE
         setupRecyclerView()
 
         swipeToRefresh.setRefreshListener {
@@ -58,6 +57,7 @@ class HistoryFragment : Fragment() {
         }
 
     }
+
 
     private fun setupRecyclerView() {
 
@@ -93,6 +93,10 @@ class HistoryFragment : Fragment() {
                 mRecyclerAdapter.adapter = adapter
                 mRecyclerAdapter.visibility = View.VISIBLE
                 adapter.notifyDataSetChanged()
+
+                if (uploadsList.isEmpty()) {
+                    EmptyHistoryLayout.visibility = View.VISIBLE
+                }
                 historyProgressBar.visibility = View.GONE
                 swipeToRefresh.setRefreshing(false)
             }
@@ -137,42 +141,6 @@ class HistoryFragment : Fragment() {
         return storedHashMap
     }
 
-
-    private fun getPhotosList(date: String): MutableSet<String> {
-        val prefValue = "GalleryPref"
-        val sharedPref: SharedPreferences =
-            activity!!.getSharedPreferences(prefValue, Context.MODE_PRIVATE)
-        Log.d("DATE", date)
-        var photosList: MutableSet<String>? = sharedPref.getStringSet(date, null)
-        if (photosList == null) {
-            photosList = mutableSetOf()
-        }
-
-        for (photo in photosList) {
-            Log.d("PHOTO", photosList.size.toString())
-            if (photosCheckList.contains(photo)) {
-                photosList.remove(photo)
-            } else {
-                Log.d("History", photo)
-                photosCheckList.add(photo)
-            }
-        }
-
-        return photosList
-    }
-
-    private fun getPhotoDatesList(): MutableSet<String> {
-        val prefValue = "GalleryPref"
-        val keyValue = "PhotoDates"
-        val sharedPref: SharedPreferences =
-            activity!!.getSharedPreferences(prefValue, Context.MODE_PRIVATE)
-        var photoDatesList: MutableSet<String>? = sharedPref.getStringSet(keyValue, null)
-        if (photoDatesList == null) {
-            photoDatesList = mutableSetOf()
-        }
-        photoDatesList = photoDatesList.reversed().toMutableSet()
-        return photoDatesList
-    }
 
     private fun showCustomUI() {
 

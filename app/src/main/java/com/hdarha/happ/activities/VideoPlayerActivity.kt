@@ -1,12 +1,13 @@
 package com.hdarha.happ.activities
 
 import HVideo
+import android.app.Dialog
 import android.app.DownloadManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
@@ -14,10 +15,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.StrictMode
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
+import android.view.*
+import android.widget.ImageView
 import android.widget.MediaController
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -30,8 +29,6 @@ import kotlinx.android.synthetic.main.activity_video_player.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
-import java.net.URL
-import java.net.URLConnection
 
 
 class VideoPlayerActivity : AppCompatActivity() {
@@ -62,25 +59,53 @@ class VideoPlayerActivity : AppCompatActivity() {
         mediaController.setAnchorView(videoView)
         videoView.start()
 
-        bottomAppBarVA.setNavigationOnClickListener {
-            Toast.makeText(
-                this,
-                "Start Act",
-                Toast.LENGTH_LONG
-            ).show()
+        shareBtn.setOnClickListener {
+
         }
 
         //registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
     }
 
+    private fun makeDialog(): Dialog {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.layout_share_dialog)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setCancelable(true)
+
+        val window: Window = dialog.window!!
+        val wlp = window.attributes
+        wlp.gravity = Gravity.BOTTOM
+        wlp.windowAnimations = R.style.Animation_Design_BottomSheetDialog
+        wlp.dimAmount = 0.8f
+        //wlp.flags = wlp.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND.inv()
+        window.attributes = wlp
+        return dialog
+    }
+
+    private fun showDialog(dialog: Dialog, imgPath:String) {
+
+        //dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        val imgView = dialog.findViewById<ImageView>(R.id.shareImageView)
+        val mMMR = MediaMetadataRetriever()
+        Log.d("PATH",imgPath)
+        mMMR.setDataSource(
+            imgPath,
+            HashMap<String, String>()
+        )
+        val bmp = mMMR.frameAtTime
+        imgView.setImageBitmap(bmp)
+        dialog.show()
+        mMMR.release()
+    }
 //    override fun onDestroy() {
 //        super.onDestroy()
 //        unregisterReceiver(onDownloadComplete);
 //    }
 
     override fun onSupportNavigateUp(): Boolean {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+       showConfirmationDialog()
         return super.onSupportNavigateUp()
     }
 
@@ -107,10 +132,6 @@ class VideoPlayerActivity : AppCompatActivity() {
                 ).show()
             }
             return true
-        } else if (id == R.id.action_cancel_video) {
-            showConfirmationDialog()
-
-            return true
         }
         return super.onOptionsItemSelected(item)
     }
@@ -118,11 +139,12 @@ class VideoPlayerActivity : AppCompatActivity() {
     private fun showConfirmationDialog() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
 
-        builder.setTitle("Cancel")
-        builder.setMessage("Are you sure you want to cancel without saving?")
+        builder.setTitle("Discard")
+        builder.setMessage("Are you sure you want to exit without saving?")
 
-        builder.setPositiveButton("YES") { dialog, which -> // Do nothing but close the dialog
-            dialog.dismiss()
+        builder.setPositiveButton("Discard") { dialog, which -> // Do nothing but close the dialog
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
 
         builder.setNegativeButton("NO") { dialog, which -> // Do nothing
@@ -181,39 +203,42 @@ class VideoPlayerActivity : AppCompatActivity() {
                 retriever.release()
 
                 val timeInMillisec = time.toLong()
+                this@VideoPlayerActivity.runOnUiThread { showDialog(makeDialog(),videoPath) }
 
                 ///
                 ///
-                val gson = Gson()
-                val listOfVideos = mutableListOf<HVideo>()
-                var listOfJsonVideos =
-                    sharedPreferences.getStringSet("videosList", mutableSetOf<String>())
 
-                listOfJsonVideos?.forEach {
-                    val video: HVideo = gson.fromJson(it, HVideo::class.java)
-                    listOfVideos.add(video)
-                }
-
-
-
-                val video = HVideo(uri, videoName, timeInMillisec, 0,bmp!!)
-                var b = true
-                listOfJsonVideos = mutableSetOf()
-                for ((index, v) in listOfVideos.withIndex()) {
-                    if (video.name == v.name) {
-                        listOfVideos[index] = video
-                        b = false
-                    }
-                    val json = gson.toJson(v, HVideo::class.java)
-                    listOfJsonVideos.add(json)
-                }
-                if (b) {
-                    listOfVideos.add(video)
-                    val json = gson.toJson(video, HVideo::class.java)
-                    listOfJsonVideos.add(json)
-                }
-
-                sharedPreferences.edit { putStringSet("videosList", listOfJsonVideos) }
+//                val gson = Gson()
+//                val listOfVideos = mutableListOf<HVideo>()
+//                var listOfJsonVideos =
+//                    sharedPreferences.getStringSet("videosList", mutableSetOf<String>())
+//
+//                listOfJsonVideos?.forEach {
+//                    Log.e("ERR",it.toString())
+//                    val video: HVideo = gson.fromJson(it, HVideo::class.java)
+//                    listOfVideos.add(video)
+//                }
+//
+//
+//
+//                val video = HVideo(uri, videoName, timeInMillisec, 0,bmp!!)
+//                var b = true
+//                listOfJsonVideos = mutableSetOf()
+//                for ((index, v) in listOfVideos.withIndex()) {
+//                    if (video.name == v.name) {
+//                        listOfVideos[index] = video
+//                        b = false
+//                    }
+//                    val json = gson.toJson(v, HVideo::class.java)
+//                    listOfJsonVideos.add(json)
+//                }
+//                if (b) {
+//                    listOfVideos.add(video)
+//                    val json = gson.toJson(video, HVideo::class.java)
+//                    listOfJsonVideos.add(json)
+//                }
+//
+//                sharedPreferences.edit { putStringSet("videosList", listOfJsonVideos) }
 
             }
         }

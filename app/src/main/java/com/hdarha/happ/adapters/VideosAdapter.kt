@@ -83,8 +83,7 @@ class VideosAdapter(private val videos:ArrayList<HVideo>,private val activity:Ac
             AlertDialog.Builder(activity)
                 .setTitle("Delete Video")
                 .setMessage("Are you sure you want to delete this video?")
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.yes) { _, _ ->
+                .setPositiveButton("Delete") { _, _ ->
                   deleteVideo(fileUri)
                 }
                 .setNegativeButton(android.R.string.no, null)

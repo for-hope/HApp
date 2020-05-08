@@ -64,11 +64,10 @@ class MyVideosActivity : AppCompatActivity() {
 
         progressBarMyVideos.isIndeterminate = true
         progressBarMyVideos.visibility = View.VISIBLE
-        val swipe = findViewById<IGRefreshLayout>(R.id.swipe)
         swipe.setRefreshListener {
-            Handler().postDelayed({
-                swipe.setRefreshing(false)
-            }, 3000)
+                getVideoList()
+
+
         }
 
         getVideoList()
@@ -76,6 +75,7 @@ class MyVideosActivity : AppCompatActivity() {
     }
 
     private fun setAdapter(videos: MutableList<HVideo>) {
+        swipe.setRefreshing(false)
         val linearLayoutManager = LinearLayoutManager(this)
         val adapter = VideosAdapter(ArrayList(videos), this)
         recyclerview_videos.layoutManager = linearLayoutManager

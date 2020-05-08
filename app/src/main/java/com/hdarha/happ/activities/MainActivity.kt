@@ -3,20 +3,21 @@ package com.hdarha.happ.activities
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.FragmentContainer
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.hdarha.happ.R
 import com.hdarha.happ.adapters.ScreensPagerAdapter
 import com.hdarha.happ.databinding.ActivityMainBinding
-import com.hdarha.happ.fragments.HistoryFragment
-import com.hdarha.happ.fragments.HomeFragment
-import com.hdarha.happ.fragments.ProfileFragment
+import com.hdarha.happ.fragments.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity :  AppCompatActivity() {
     var bi: ActivityMainBinding? = null
     private lateinit var pagerAdapter: ScreensPagerAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +30,6 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
                 .commit()
         }
-
 
         bottomNavigationView.setOnNavigationItemSelectedListener(object :
             BottomNavigationView.OnNavigationItemSelectedListener {
@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
                         return true
                     }
                     R.id.bottomNavigationHistorykMenuId -> {
+
                         Log.d("Main", "CLICKED11")
                         val fragment =
                             HistoryFragment()
@@ -55,10 +56,11 @@ class MainActivity : AppCompatActivity() {
                     R.id.bottomNavigationMeMenuId -> {
                         Log.d("Main", "CLICKED12")
                         val fragment =
-                            ProfileFragment()
+                            SettingsFragment()
                         supportFragmentManager.beginTransaction()
                             .replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
                             .commit()
+
                         return true
                     }
                 }

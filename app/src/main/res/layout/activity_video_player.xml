@@ -44,8 +44,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:backgroundTint="@android:color/white"
-            app:navigationIcon="@drawable/ic_share_black_24dp" />
+            android:backgroundTint="@android:color/white" />
+
+        <Button
+            android:id="@+id/shareBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Share"
+            app:icon="@drawable/ic_share_black_24dp"
+            app:iconPadding="8dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -22,14 +22,16 @@ import com.hdarha.happ.other.inflate
 import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifImageButton
 import java.io.File
+import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 private var isPlaying: Boolean = false
-private var mPlayer: MediaPlayer = MediaPlayer()
+private var mPlayer: MediaPlayer? = null
 private var audioPlaying = -1
 private var titleReset: TextView? = null
 private var gifDrawableReset: GifDrawable? = null
-private var selectedSound:Int = -1
+private var selectedSound: Int = -1
+
 class RecyclerAdapter(
     context: Context,
     private val sounds: ArrayList<Voice>,
@@ -59,6 +61,24 @@ class RecyclerAdapter(
         holder.bindPhoto(itemPhoto, soundId)
     }
 
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        mPlayer?.stop()
+        mPlayer?.release()
+    }
+
+
+
+    fun onDestroy() {
+        try{
+            mPlayer?.reset()
+            mPlayer?.release()
+            mPlayer = null
+        } catch (e:Exception) {
+            e.printStackTrace()
+        }
+
+    }
     private fun selectSound(soundId: String) {
         this.soundId = soundId
 
@@ -79,8 +99,12 @@ class RecyclerAdapter(
 
         //3
         init {
-
-
+            mPlayer = MediaPlayer()
+            mPlayer?.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            )
             v.setOnClickListener(this)
         }
 
@@ -115,8 +139,6 @@ class RecyclerAdapter(
             //favIcon.isChecked = adapterPosition == favId
             favIcon.isChecked = sound.isFav
 
-
-
             title.text = sound.caption
             author.text = sound.tags[0]
 
@@ -125,7 +147,7 @@ class RecyclerAdapter(
 
             cacheDir = File(inflated.context.externalCacheDir, "voices/" + sound.name + ".m4a")
             if (cacheDir!!.exists()) {
-                Log.d("FILEDIR", "TRUE")
+                Log.d("FILEDIR", "TRUE ${cacheDir!!.path}")
                 pathStr = cacheDir!!.path
             } else {
                 Log.d("FILEDIR", "FALSE ${cacheDir!!.path}")
@@ -161,42 +183,43 @@ class RecyclerAdapter(
             mGifDrawable.stop()
 
 
+
             gifImg.setOnClickListener {
                 if (audioPlaying != adapterPosition) {
                     //mPlayer.release()
-                    if (mPlayer.isPlaying) {
+                    if (mPlayer?.isPlaying!!) {
                         resetLayout()
                     }
-                    mPlayer.reset()
-                    mPlayer.setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .build()
-                    )
-                    mPlayer.setDataSource(pathStr)
-                    mPlayer.prepare()
+                    mPlayer?.reset()
+                    Log.d("location", sound.location)
+                    mPlayer?.setDataSource(sound.location)
+                    mPlayer?.prepare()
+
                     Log.e("TPRE", "AGAIN")
                     audioPlaying = adapterPosition
 
 
                 }
                 if (mGifDrawable.isRunning) {
-                    mPlayer.seekTo(mPlayer.duration - 1)
+                    mPlayer?.seekTo(mPlayer?.duration!! - 1)
 
                 } else {
 
-                    if (!mPlayer.isPlaying) {
+                    if (!mPlayer?.isPlaying!!) {
+
+
                         title.typeface = Typeface.DEFAULT_BOLD
-                        mPlayer.start()
+                        mPlayer?.start()
                         titleReset = title
                         gifDrawableReset = mGifDrawable
                         isPlaying = true
                         mGifDrawable.start()
                     }
                 }
-                mPlayer.setOnCompletionListener {
-                    //mGifDrawable.reset();
-                    Log.e("AdapterPostionCalled", "$adapterPosition")
+
+
+                mPlayer?.setOnCompletionListener {
+
                     isPlaying = false
                     title.typeface = Typeface.DEFAULT
                     mGifDrawable.stop();
@@ -206,11 +229,12 @@ class RecyclerAdapter(
 
             }
 
-            Log.d("adapter pos ", adapterPosition.toString())
+
+
             if (!isActivity) {
                 favIcon.isClickable = false
                 favIcon.isActivated = false
-                if (selectedSound != adapterPosition){
+                if (selectedSound != adapterPosition) {
                     selectSoundLayout.background = null
                     cardView.setCardBackgroundColor(Color.WHITE)
                 }
@@ -239,6 +263,7 @@ class RecyclerAdapter(
 //            private val PHOTO_KEY = "PHOTO"
 //        }
     }
+
 
 }
 
