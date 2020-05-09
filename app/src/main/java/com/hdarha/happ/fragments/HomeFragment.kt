@@ -88,8 +88,8 @@ class HomeFragment : Fragment() {
 //            val intent = Intent(this.context, VideoPlayerActivity::class.java)
 //            intent.putExtra("url", url)
 
-            val intent = Intent(this.context,EmptyActivity::class.java)
-            startActivity(intent)
+            val i = Intent(this.context,LoginActivity::class.java)
+            startActivity(i)
         }
 
 

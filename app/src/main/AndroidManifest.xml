@@ -49,7 +49,7 @@
             android:theme="@style/AppTheme" />
         <activity android:name=".activities.ParallaxHeaderActivity" />
         <activity android:name=".activities.EmptyActivity" />
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".activities.LoginActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

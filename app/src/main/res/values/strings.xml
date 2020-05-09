@@ -2,4 +2,6 @@
     <string name="app_name">HApp</string>
     <string name="prev_button_text">Prev</string>
     <string name="next_button_text">Next</string>
+<!--    <string name="default_web_client_id">1060043695794-k73l4t0nt9ed536kgjfpcpnsn3rjcr7d.apps.googleusercontent.com</string>-->
+<!--    <string name="client_secret">Gat-eM8_PxxaiAjqIi_lAkZo</string>-->
 </resources>
