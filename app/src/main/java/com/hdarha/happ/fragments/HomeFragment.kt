@@ -14,8 +14,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.hdarha.happ.R
-import com.hdarha.happ.activities.*
+import com.hdarha.happ.activities.ImageDisplayActivity
+import com.hdarha.happ.activities.LoginActivity
+import com.hdarha.happ.activities.MyVideosActivity
+import com.hdarha.happ.activities.SoundLibraryActivity
 import com.hdarha.happ.adapters.ScreensPagerAdapter
 import com.hdarha.happ.other.ScreenHelper
 import com.karumi.dexter.Dexter
@@ -24,12 +31,13 @@ import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
+import com.squareup.picasso.Picasso
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.engine.impl.GlideEngine
 import com.zhihu.matisse.internal.entity.CaptureStrategy
-import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_buttons_bar_main.*
 import kotlinx.android.synthetic.main.view_top_layout_main.*
 import retrofit2.Retrofit
@@ -38,7 +46,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 private const val REQUEST_CODE_CHOOSE = 1
 
 class HomeFragment : Fragment() {
-
+    private lateinit var auth: FirebaseAuth
     private lateinit var pagerAdapter: ScreensPagerAdapter
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,6 +60,8 @@ class HomeFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         //init data binding tool
         showCustomUI()
+        auth = Firebase.auth
+        updateUI(auth.currentUser)
         //setup viewpager screens
         val screens = ScreenHelper.getScreensFromJson(
             "movies.json",
@@ -70,28 +80,60 @@ class HomeFragment : Fragment() {
 
         dotsIndicator.setViewPager2(viewPager)
         generate_btn.setOnClickListener {
-            permissionCheckGallery()
+            if (auth.currentUser != null) {
+                permissionCheckGallery()
+            } else {
+                activitiesManager(LoginActivity::class.java)
+            }
+
         }
 
         my_videos_btn.setOnClickListener {
-            val intent = Intent(this.context, MyVideosActivity::class.java)
-            startActivity(intent)
+            activitiesManager(MyVideosActivity::class.java)
+//            val intent = Intent(this.context, MyVideosActivity::class.java)
+//            startActivity(intent)
         }
         sound_btn.setOnClickListener {
-            val intent = Intent(this.context, SoundLibraryActivity::class.java)
-            startActivity(intent)
+            activitiesManager(SoundLibraryActivity::class.java)
+//            val intent = Intent(this.context, SoundLibraryActivity::class.java)
+//            startActivity(intent)
         }
 
         profile_image.setOnClickListener {
+            if (auth.currentUser != null) {
+                activity?.bottomNavigationView?.selectedItemId = R.id.bottomNavigationMeMenuId
 
-//            val url = "http://hdarha.herokuapp.com/public/3Lrm8gUBg0T1.mp4"
-//            val intent = Intent(this.context, VideoPlayerActivity::class.java)
-//            intent.putExtra("url", url)
-
-            val i = Intent(this.context,LoginActivity::class.java)
-            startActivity(i)
+            } else {
+                val i = Intent(this.context, LoginActivity::class.java)
+                startActivity(i)
+            }
         }
 
+
+    }
+
+    private fun updateUI(currentUser: FirebaseUser?) {
+        if (currentUser != null) {
+            val profileUrl = currentUser.photoUrl
+            Picasso.get().load(profileUrl).into(profile_image)
+            creditNumberTextView.visibility = View.VISIBLE
+            creditTextView.visibility = View.VISIBLE
+        } else {
+            signInTextView.visibility = View.VISIBLE
+            creditNumberTextView.visibility = View.GONE
+            creditTextView.visibility = View.GONE
+        }
+    }
+
+    private fun activitiesManager(mClass: Class<*>) {
+        if (auth.currentUser != null) {
+            val i = Intent(this.context, mClass)
+            startActivity(i)
+        } else {
+
+            val i = Intent(this.context, LoginActivity::class.java)
+            startActivity(i)
+        }
 
     }
 
@@ -109,7 +151,7 @@ class HomeFragment : Fragment() {
                 Log.e(
                     "onSelected",
                     "onSelected: pathList=$pathList"
-                );
+                )
             }
             .showSingleMediaType(true)
             .autoHideToolbarOnSingleTap(true)
@@ -177,52 +219,4 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun startUpload() {
-        val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("https://db.ygoprodeck.com")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val service: GitHubService = retrofit.create(GitHubService::class.java)
-
-        //val repos: Call<Card>? = service.listRepos()
-
-
-//        repos?.enqueue(object : Callback<Card> {
-//            override fun onResponse(
-//                call: Call<Card>?,
-//                response: Response<Card>
-//            ) {
-//                Log.d("RetroFit_Nice", response.body()?.data!![0].desc)
-//                Toast.makeText(
-//                    context,
-//                    "Something went right",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//
-//            override fun onFailure(
-//                call: Call<Card>?,
-//                t: Throwable?
-//            ) {
-//                Log.d("RetroFit",t.toString())
-//                Toast.makeText(
-//                    context,
-//                    "Something went wrong...Please try later!",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        })
-
-        //Log.d("RETROFIT_API",repos)
-
-
-    }
-
-    interface GitHubService {
-
-        //@GET("/api/v7/cardinfo.php?name=Raigeki")
-
-        //fun listRepos(): Call<Card>?
-    }
 }

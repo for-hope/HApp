@@ -147,11 +147,11 @@ class HistoryFragment : Fragment() {
         val decorView = activity?.window?.decorView
         decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_VISIBLE)
 
-        activity?.window?.statusBarColor =
-            ContextCompat.getColor(
-                this.context!!,
-                R.color.colorPrimary
-            )
+//        activity?.window?.statusBarColor =
+//            ContextCompat.getColor(
+//                this.context!!,
+//                R.color.colorPrimary
+//            )
 
 
         this.activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);

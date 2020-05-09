@@ -69,7 +69,7 @@ class MyVideosActivity : AppCompatActivity() {
 
 
         }
-
+        EmptyVideoListLayout.visibility = View.GONE
         getVideoList()
 
     }
@@ -82,6 +82,9 @@ class MyVideosActivity : AppCompatActivity() {
         recyclerview_videos.adapter = adapter
         progressBarMyVideos.visibility = View.GONE
         adapter.notifyDataSetChanged()
+        if (videos.isEmpty()) {
+            EmptyVideoListLayout.visibility = View.VISIBLE
+        }
     }
 
     private fun getVideoList() {

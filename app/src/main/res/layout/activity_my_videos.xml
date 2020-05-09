@@ -75,6 +75,31 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center" />
 
+        <LinearLayout
+            android:id="@+id/EmptyVideoListLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/empty_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:tint="@android:color/darker_gray"
+                app:srcCompat="@drawable/ic_shipping_and_delivery" />
+
+            <TextView
+                android:id="@+id/emptyVideoListTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="No videos created yet."
+                android:textColor="@android:color/darker_gray"
+                android:textSize="18sp" />
+        </LinearLayout>
+
     </FrameLayout>
 
 </LinearLayout>

@@ -1,21 +1,32 @@
 package com.hdarha.happ.fragments
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.hdarha.happ.R
+import com.hdarha.happ.activities.MainActivity
 import com.hdarha.happ.adapters.SettingsAdapter
 import com.hdarha.happ.objects.SettingItem
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.view_profile_bottom.*
+import kotlinx.android.synthetic.main.view_profile_header.*
 
-class ContentFragment : Fragment(){
+private lateinit var auth: FirebaseAuth
+
+class ContentFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -23,31 +34,42 @@ class ContentFragment : Fragment(){
     ): View? {
         return inflater.inflate(R.layout.fragment_content, container, false)
     }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        activity as AppCompatActivity
+        //activity as AppCompatActivity
+
+        auth = Firebase.auth
+
 
         val profileRecyclerView = view!!.findViewById<RecyclerView>(R.id.profile_recyclerview)
         val linearLayoutManager = LinearLayoutManager(context)
-
 
 
         val adapter = SettingsAdapter(
             getSettingsList(),
             activity as Activity
         )
-
         profileRecyclerView.layoutManager = linearLayoutManager
         profileRecyclerView.adapter = adapter
         profileRecyclerView.isNestedScrollingEnabled = false
         adapter.notifyDataSetChanged()
+
+
+
+        signOutButton.setOnClickListener {
+            auth.signOut()
+            val intent = Intent(activity, MainActivity::class.java)
+            startActivity(intent)
+        }
     }
 
-    private fun getSettingsList():ArrayList<SettingItem> {
+
+    private fun getSettingsList(): ArrayList<SettingItem> {
         val mArrayList = arrayListOf<SettingItem>()
 
         for (x in 0..6) {
-            when(x) {
+            when (x) {
                 0 -> {
                     val intArray = arrayListOf<Int>()
                     val btnDrawable =
@@ -59,11 +81,11 @@ class ContentFragment : Fragment(){
                     val setting = SettingItem(
                         title,
                         titleDrawable,
-                        intArray,null
+                        intArray, null
                     )
                     mArrayList.add(setting)
                 }
-                1-> {
+                1 -> {
                     val intArray = arrayListOf<Int>()
                     val btnDrawable =
                         R.drawable.ic_keyboard_arrow_right_gray_24dp
@@ -73,11 +95,11 @@ class ContentFragment : Fragment(){
                     val setting = SettingItem(
                         title,
                         titleDrawable,
-                        intArray,null
+                        intArray, null
                     )
                     mArrayList.add(setting)
                 }
-                2-> {
+                2 -> {
                     val viewArray = arrayListOf<View>()
                     val switchView = SwitchMaterial(activity as Activity)
                     switchView.text = ""
@@ -92,11 +114,11 @@ class ContentFragment : Fragment(){
                     val setting = SettingItem(
                         title,
                         titleDrawable,
-                        null,viewArray
+                        null, viewArray
                     )
                     mArrayList.add(setting)
                 }
-                3-> {
+                3 -> {
                     val intArray = arrayListOf<Int>()
                     val fbIcon =
                         R.drawable.ic_facebook
@@ -111,16 +133,16 @@ class ContentFragment : Fragment(){
                     intArray.add(googleIcon)
                     intArray.add(twitterIc)
                     intArray.add(emailIcon)
-                    Log.d("Profile",intArray.toString())
+                    Log.d("Profile", intArray.toString())
                     val setting = SettingItem(
                         title,
                         titleDrawable,
-                        intArray,null
+                        intArray, null
                     )
 
                     mArrayList.add(setting)
                 }
-                4-> {
+                4 -> {
                     val intArray = arrayListOf<Int>()
                     val btnDrawable =
                         R.drawable.ic_keyboard_arrow_right_gray_24dp
@@ -130,11 +152,11 @@ class ContentFragment : Fragment(){
                     val setting = SettingItem(
                         title,
                         titleDrawable,
-                        null,null
+                        null, null
                     )
                     mArrayList.add(setting)
                 }
-                5-> {
+                5 -> {
                     val intArray = arrayListOf<Int>()
                     val btnDrawable =
                         R.drawable.ic_keyboard_arrow_right_gray_24dp
@@ -145,11 +167,11 @@ class ContentFragment : Fragment(){
                     val setting = SettingItem(
                         title,
                         titleDrawable,
-                        intArray,null
+                        intArray, null
                     )
                     mArrayList.add(setting)
                 }
-                6-> {
+                6 -> {
                     val intArray = arrayListOf<Int>()
                     val btnDrawable =
                         R.drawable.ic_keyboard_arrow_right_gray_24dp
@@ -160,7 +182,7 @@ class ContentFragment : Fragment(){
                     val setting = SettingItem(
                         title,
                         titleDrawable,
-                        intArray,null
+                        intArray, null
                     )
                     mArrayList.add(setting)
                 }

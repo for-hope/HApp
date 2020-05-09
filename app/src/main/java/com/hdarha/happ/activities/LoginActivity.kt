@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -32,6 +33,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
 
+        setUI()
         auth = Firebase.auth
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -40,21 +42,31 @@ class LoginActivity : AppCompatActivity() {
             .build()
         val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
-       signInButton.setOnClickListener { signIn() }
+        signInButton.setOnClickListener { signIn() }
 
 
     }
 
+    private fun setUI() {
+        this.window?.statusBarColor =
+            ContextCompat.getColor(
+                this,
+                R.color.dracula_primary_dark
+            )
+
+        closeBtn.setOnClickListener { finish() }
+    }
+
     override fun onStart() {
         super.onStart()
-        Log.d(TAG,"STARTING")
+        Log.d(TAG, "STARTING")
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
         updateUI(currentUser)
     }
 
 
-    private fun updateUI(user:FirebaseUser?) {
+    private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
             Log.d("ACCOUNT", "${user.displayName} and ${user.photoUrl}")
             val i = Intent(this, MainActivity::class.java)
@@ -111,7 +123,8 @@ class LoginActivity : AppCompatActivity() {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                     // ...
-                    Snackbar.make(loginLayout, "Authentication Failed.", Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(loginLayout, "Authentication Failed.", Snackbar.LENGTH_SHORT)
+                        .show()
                     updateUI(null as FirebaseUser?)
                 }
 
