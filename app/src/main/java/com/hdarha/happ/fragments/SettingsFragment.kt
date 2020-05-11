@@ -5,11 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import com.github.ksoichiro.android.observablescrollview.ScrollState
 import com.hdarha.happ.R
-import com.hdarha.happ.activities.ParallaxHeaderActivity
 
-class SettingsFragment : ParallaxHeaderActivity() {
+class SettingsFragment : ParallaxHeaderFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

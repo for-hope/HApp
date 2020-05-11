@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.hdarha.happ.BuildConfig
 import com.hdarha.happ.R
 import com.hdarha.happ.activities.ImageDisplayActivity
 import com.hdarha.happ.activities.LoginActivity
@@ -40,8 +41,6 @@ import com.zhihu.matisse.internal.entity.CaptureStrategy
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_buttons_bar_main.*
 import kotlinx.android.synthetic.main.view_top_layout_main.*
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 private const val REQUEST_CODE_CHOOSE = 1
 
@@ -107,6 +106,17 @@ class HomeFragment : Fragment() {
                 val i = Intent(this.context, LoginActivity::class.java)
                 startActivity(i)
             }
+        }
+
+        homeShareBtn.setOnClickListener {
+            val sendIntent = Intent()
+            sendIntent.action = Intent.ACTION_SEND
+            sendIntent.putExtra(
+                Intent.EXTRA_TEXT,
+                "Hey check out this memes app at: https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID
+            )
+            sendIntent.type = "text/plain"
+            startActivity(Intent.createChooser(sendIntent,"Share App!"))
         }
 
 

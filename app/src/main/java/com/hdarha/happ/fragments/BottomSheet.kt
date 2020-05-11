@@ -3,10 +3,12 @@ package com.hdarha.happ.fragments
 
 import android.app.Activity
 import android.app.Dialog
+import android.content.DialogInterface
 import android.content.res.Resources
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
-import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,23 +24,26 @@ import com.hdarha.happ.databinding.LayoutBottomSheetBinding
 import com.hdarha.happ.objects.Voice
 import com.hdarha.happ.other.OnVoiceCallBack
 import com.hdarha.happ.other.checkCache
+import com.hdarha.happ.other.manageMediaPlayer
+import pl.droidsonroids.gif.GifDrawable
 
 
 class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
-    RecyclerAdapter.OnItemClick, OnVoiceCallBack {
-    var bottomSheetBehavior: BottomSheetBehavior<*>? = null
+    RecyclerAdapter.OnItemClick, OnVoiceCallBack, RecyclerAdapter.OnVoiceClick {
+    private var bottomSheetBehavior: BottomSheetBehavior<*>? = null
     var bi: LayoutBottomSheetBinding? = null
 
     private var mCallback = listener
     private var mView: View? = null
-    private lateinit var adapter: RecyclerAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
     private var soundsList = mutableListOf<Voice>()
+    private lateinit var mPlayer: MediaPlayer
+    private var mAdapter: RecyclerAdapter? = null
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
         val bottomSheet =
             super.onCreateDialog(savedInstanceState) as BottomSheetDialog
-
+        //mPlayer = MediaPlayer()
         //inflating layout
         val view =
             View.inflate(
@@ -116,9 +121,27 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
         return bottomSheet
     }
 
+    override fun onResume() {
+        super.onResume()
+        mPlayer = MediaPlayer()
+    }
     override fun onStart() {
         super.onStart()
         bottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
+        //mPlayer = MediaPlayer()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mPlayer.release()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if(mPlayer.isPlaying) {
+            mPlayer.stop()
+        }
+        mPlayer.reset()
     }
 
     private fun hideAppBar(view: View) {
@@ -163,16 +186,22 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
     }
 
     override fun onVoicesRetrieved(voices: ArrayList<Voice>, isCache: Boolean) {
+
         val v = mView!!
         val recyclerView = v.findViewById<RecyclerView>(R.id.rec_view)
         recyclerView.visibility = View.VISIBLE
         val linearLayoutManager = LinearLayoutManager(context)
-        val adapter = RecyclerAdapter(context!!, voices, false, this)
+        val adapter = RecyclerAdapter(context!!, voices, false, this, this)
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.adapter = adapter
+        mAdapter = adapter
         bi!!.bottomSheetPB.visibility = View.GONE
         soundsList = voices.toMutableList()
         adapter.notifyItemInserted(voices.size - 1)
+    }
+
+    override fun onPlay(title: TextView, mGifDrawable: GifDrawable, pathStr: String) {
+        manageMediaPlayer(title, mGifDrawable, pathStr, mAdapter, mPlayer)
     }
 
 

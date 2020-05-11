@@ -2,11 +2,13 @@ package com.hdarha.happ.activities
 
 import android.app.DownloadManager
 import android.content.Context
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.StrictMode
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,17 +17,22 @@ import com.hdarha.happ.adapters.RecyclerAdapter
 import com.hdarha.happ.objects.Voice
 import com.hdarha.happ.other.OnVoiceCallBack
 import com.hdarha.happ.other.checkCache
+import com.hdarha.happ.other.manageMediaPlayer
 import com.hdarha.happ.other.saveToCache
 import kotlinx.android.synthetic.main.activity_sound_library.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import pl.droidsonroids.gif.GifDrawable
 import java.io.File
 
 
-class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, OnVoiceCallBack {
+class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, OnVoiceCallBack,
+    RecyclerAdapter.OnVoiceClick {
     private var voicesList: ArrayList<Voice> = arrayListOf()
     private var downloadChecker = true
     private var mAdapter: RecyclerAdapter? = null
+    private var audioPlaying = false
+    private lateinit var mPlayer: MediaPlayer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sound_library)
@@ -33,12 +40,17 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
         supportActionBar?.title = "Sound Library"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-
+        mPlayer = MediaPlayer()
         window.statusBarColor = ContextCompat.getColor(this, R.color.dracula_primary_dark)
         voicesPB.isIndeterminate = true
         voicesPB.visibility = View.VISIBLE
         pbLayout.visibility = View.VISIBLE
+
         recyclerview_sounds.visibility = View.GONE
+        val linearLayoutManager = LinearLayoutManager(this)
+        recyclerview_sounds.layoutManager = linearLayoutManager
+        recyclerview_sounds.adapter = RecyclerAdapter(this, arrayListOf(),true,this,this)
+
 
         soundsRefresh.setRefreshListener {
 
@@ -54,14 +66,16 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
     }
 
     override fun onDestroy() {
-        if (mAdapter != null) {
-        mAdapter?.onDestroy()
+        if (mPlayer.isPlaying) {
+            mPlayer.stop()
         }
+        mPlayer.reset()
+        mPlayer.release()
         super.onDestroy()
     }
 
     override fun onPause() {
-        mAdapter?.onDestroy()
+        mPlayer.reset()
         super.onPause()
     }
 
@@ -130,6 +144,7 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
                         this@SoundLibraryActivity,
                         voicesList,
                         true,
+                        this@SoundLibraryActivity,
                         this@SoundLibraryActivity
                     )
 
@@ -154,14 +169,18 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
         voicesPB.visibility = View.GONE
         pbLayout.visibility = View.GONE
         recyclerview_sounds.visibility = View.VISIBLE
-        val linearLayoutManager = LinearLayoutManager(this)
-        val adapter = RecyclerAdapter(this, voices, true, this)
-        recyclerview_sounds.layoutManager = linearLayoutManager
+
+        val adapter = RecyclerAdapter(this, voices, true, this, this)
+
         recyclerview_sounds.adapter = adapter
         mAdapter = adapter
         adapter.notifyItemInserted(voices.size - 1)
         soundsRefresh.setRefreshing(false)
     }
 
+
+    override fun onPlay(title: TextView, mGifDrawable: GifDrawable, pathStr: String) {
+        manageMediaPlayer(title, mGifDrawable, pathStr, mAdapter, mPlayer)
+    }
 
 }

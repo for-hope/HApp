@@ -54,99 +54,101 @@ class ImageDisplayActivity : AppCompatActivity(),
     private var ogImage: String? = null
     private var isSoundSelected = false
     private var audioId: String = ""
-    private var isCropped:Boolean = false
+    private var isCropped: Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_display)
+        initUI()
+    }
 
 
-        mPhotoDraweeView = findViewById(R.id.photo_drawee_view)
-
-
-        mTopToolbar = findViewById(R.id.my_toolbar)
-        setSupportActionBar(mTopToolbar)
-        supportActionBar?.title = "Edit Photo"
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-
-
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.statusBarColor = ContextCompat.getColor(this, R.color.colorTitle)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-        };
-
-        val bottomSheet = BottomSheet(this)
-        imgUri = intent.getStringExtra("imgUri")
-        if (!isCropped) {
-        ogImage = imgUri
-        }
-        bottom_bar.replaceMenu(R.menu.bottom_menu)
+    private fun initClickListeners() {
         bottom_bar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_volume -> {
-
-
-                    bottomSheet.show(supportFragmentManager, bottomSheet.tag)
-                    if (bottomSheet.isAdded) {
-                        this.supportFragmentManager.executePendingTransactions()
-                        bottomSheet.dialog!!.setOnDismissListener {
-                            Log.d("DIALOG", "dissmissed")
-                        }
-                    }
-
-
+                    showBottomSheet()
                     true
                 }
                 else -> false
             }
         }
-        mPhotoDraweeView!!.setPhotoUri(Uri.parse(imgUri))
+
 
         bottom_bar.setNavigationOnClickListener {
-            val rnds = (0..10).random()
-            val dir: File = File("/storage/emulated/0/Pictures/happ/")
-            var success = true
-            if (!dir.exists()) {
-                success = dir.mkdirs()
-            }
-            //TODO
-            if (success) {
-                val f = File("/storage/emulated/0/Pictures/happ/cropped$rnds.jpg")
-                val dest: Uri =
-                    Uri.fromFile(f)
-                Log.d("IMG","OG = ${ogImage.toString()}")
-                Log.d("IMG","IMGURI = ${imgUri.toString()}")
-
-                if (ogImage != null && ogImage != "") {
-                    cropImage(Uri.parse(ogImage), dest)
-                } else {
-                    cropImage(Uri.parse(imgUri), dest)
-                }
-
-            } else {
-                Toast.makeText(this, "Error creating image directory.", Toast.LENGTH_SHORT).show()
-            }
-
+            startCropActivity()
         }
 
         fab.setOnClickListener {
-            if (isSoundSelected) {
-                Blurry.with(this).radius(10).sampling(2)
-                    .onto(rootView_img_display.rootView as ViewGroup)
-                //showDialog("Processing video...")
-                startUpload()
-            } else {
-                Toast.makeText(this, "Select a voice first.", Toast.LENGTH_SHORT).show()
-            }
+            submitImage()
 
         }
+    }
 
-        textAnimation()
+    private fun submitImage() {
+        if (isSoundSelected) {
+            Blurry.with(this).radius(10).sampling(2)
+                .onto(rootView_img_display.rootView as ViewGroup)
+            startUpload()
+        } else {
+            Toast.makeText(this, "Select a voice first.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
+    private fun startCropActivity() {
+        val rnds = (0..10).random()
+        //val dir: File = File("/storage/emulated/0/Pictures/happ/")
+        val dir = File(externalCacheDir, "cropped")
+        var success = true
+        if (!dir.exists()) {
+            success = dir.mkdirs()
+        }
+        if (success) {
+            val f = File(dir, "cropped$rnds.jpg")
+            val dest: Uri =
+                Uri.fromFile(f)
+            if (ogImage != null && ogImage != "") {
+                cropImage(Uri.parse(ogImage), dest)
+            } else {
+                cropImage(Uri.parse(imgUri), dest)
+            }
+
+        } else {
+            Toast.makeText(this, "Error creating image directory.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showBottomSheet() {
+        val bottomSheet = BottomSheet(this)
+        bottomSheet.show(supportFragmentManager, bottomSheet.tag)
+        if (bottomSheet.isAdded) {
+            this.supportFragmentManager.executePendingTransactions()
+        }
 
     }
 
+    private fun initUI() {
+        mPhotoDraweeView = findViewById(R.id.photo_drawee_view)
+        mTopToolbar = findViewById(R.id.my_toolbar)
+        setSupportActionBar(mTopToolbar)
+        supportActionBar?.title = "Edit Photo"
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.colorTitle)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+        imgUri = intent.getStringExtra("imgUri")
+        if (!isCropped) {
+            ogImage = imgUri!!
+        }
+
+        mPhotoDraweeView!!.setPhotoUri(Uri.parse(imgUri))
+        bottom_bar.replaceMenu(R.menu.bottom_menu)
+        textAnimation()
+        initClickListeners()
+
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
@@ -163,14 +165,11 @@ class ImageDisplayActivity : AppCompatActivity(),
     }
 
     private fun showDialog(title: String, dialog: Dialog) {
-
-        //dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-
         val imgView = dialog.findViewById<ImageView>(R.id.dialog_img)
         imgView.setImageURI(Uri.parse(imgUri))
         val body = dialog.findViewById(R.id.dialog_body) as TextView
         body.text = title
-        val yesBtn = dialog.findViewById(R.id.accept_btn_dialog) as Button
+        //val yesBtn = dialog.findViewById(R.id.accept_btn_dialog) as Button
         val pb = dialog.findViewById<ProgressBar>(R.id.dialog_pb)
         pb.isIndeterminate = true
         pb.scaleY = 3f
@@ -180,15 +179,6 @@ class ImageDisplayActivity : AppCompatActivity(),
             dialog.dismiss()
             Blurry.delete(rootView_img_display.rootView as ViewGroup)
         }
-
-//        Handler().postDelayed(
-//            {
-//
-//
-//
-//            },
-//            1000 // value in milliseconds
-//        )
 
         dialog.show()
     }
@@ -200,8 +190,6 @@ class ImageDisplayActivity : AppCompatActivity(),
         val noBtn = dialog.findViewById(R.id.cancel_btn_dialog) as Button
         if (ogImage != null && ogImage != "") {
             savePictures(ogImage!!)
-        } else {
-            Log.d("IMAGE", ogImage + "OGIMAGE")
         }
 
         body.text = "Processing Complete"
@@ -220,6 +208,7 @@ class ImageDisplayActivity : AppCompatActivity(),
             val intent = Intent(this, VideoPlayerActivity::class.java)
             intent.putExtra("url", url)
             startActivity(intent)
+            dialog.dismiss()
             finish()
         }
     }
@@ -259,33 +248,14 @@ class ImageDisplayActivity : AppCompatActivity(),
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        val id: Int = item.itemId
-
-        if (id == R.id.action_favorite) {
-            Toast.makeText(
-                this,
-                "Action clicked",
-                Toast.LENGTH_LONG
-            ).show()
-
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     private fun deleteCache(file: String) {
-        val dir = File("/storage/emulated/0/Pictures/happ/")
+        val dir = File(externalCacheDir, "cropped")
         val files = dir.listFiles()
-
-        for (f in files) {
-            if (f == File(file)) {
-                Log.d("FILE1", "YES")
-            } else {
-                f.delete()
+        if (files != null && files.isNotEmpty()) {
+            for (f in files) {
+                if (f != File(file)) {
+                    f.delete()
+                }
             }
         }
     }
@@ -293,24 +263,15 @@ class ImageDisplayActivity : AppCompatActivity(),
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-
             val resultUri = UCrop.getOutput(data!!)
-            Log.d("gotRes", resultUri.toString())
-
             deleteCache(resultUri!!.path.toString())
             if (!isCropped) {
-            ogImage = imgUri
+                ogImage = imgUri
             }
-
             imgUri = resultUri.path.toString()
             mPhotoDraweeView!!.setPhotoUri(resultUri, this)
 
-//            val i = intent
-//            i.putExtra("imgUri", resultUri.toString())
-//            finish()
-//            startActivity(i)
         } else if (resultCode == UCrop.RESULT_ERROR) {
-
             val cropError = UCrop.getError(data!!)
             Log.e("OnActivityResult0 ", cropError.toString())
         }
@@ -318,7 +279,6 @@ class ImageDisplayActivity : AppCompatActivity(),
 
     private fun cropImage(src: Uri, dest: Uri) {
         isCropped = true
-        Log.e("OnActivityResult011 ", src.toString())
         UCrop.of(src, dest)
             .start(this)
     }
@@ -326,7 +286,6 @@ class ImageDisplayActivity : AppCompatActivity(),
     private fun textAnimation() {
         val first = first_text as TextView
         val second = sec_text as TextView
-
         val animator = ValueAnimator.ofFloat(0.0f, 1.0f)
         animator.repeatCount = ValueAnimator.INFINITE
         animator.interpolator = LinearInterpolator()
@@ -343,8 +302,8 @@ class ImageDisplayActivity : AppCompatActivity(),
 
     override fun onComplete(value: Voice?, key: Int) {
         isSoundSelected = true
-        Log.d("Interface", value?.caption!!)
-        first_text.text = value.caption!!
+        //Log.d("Interface", value?.caption!!)
+        first_text.text = value?.caption!!
         sec_text.text = value.caption!!
         val cd = ColorDrawable(Color.parseColor("#6D2DEC29"))
         first_text.background = cd
@@ -372,8 +331,10 @@ class ImageDisplayActivity : AppCompatActivity(),
             val hashStringToSave = gson.toJson(storedHashMap)
             editor.putString(keyValue, hashStringToSave)
             editor.apply()
+            Log.d("SavePicture","Saved.")
         }
     }
+
 
 
     private fun startUpload() {
@@ -383,16 +344,9 @@ class ImageDisplayActivity : AppCompatActivity(),
         val service: RetrofitClientInstance.ImageService =
             retrofitClient.retrofitInstance!!.create(RetrofitClientInstance.ImageService::class.java)
 
-        val inputStream = this.contentResolver.openInputStream(Uri.parse(imgUri))
-        val imgFile = File(getPath(this, Uri.parse(imgUri)))
-        //val imgFile = File("/storage/emulated/0/DCIM/Facebook/FB_IMG_1588431186364.jpg")
 
-        if (imgFile.exists()) {
-            Log.d("REQUEST", "OK ${imgFile.toString()}")
-        } else {
-            Log.d("REQUEST_ERR", "OK ${imgFile.toString()}")
-        }
-        //val requestBodyFile: RequestBody = RequestBody.create(MediaType.parse("image/*"), imgFile)
+        val imgFile = File(getPath(this,Uri.parse(imgUri)))
+
         val requestBodyFile: RequestBody =
             RequestBody.create(MediaType.parse("multipart/form-data"), imgFile)
 
@@ -414,45 +368,29 @@ class ImageDisplayActivity : AppCompatActivity(),
                 Log.d("RESPONSE", "OK ${response.body()}")
                 Log.d("RESPONSE", "OK ${mJson}")
                 Log.d("RESPONSE", "OK ${response.errorBody()?.string()}")
-
                 if (response.message() == "OK") {
                     val gson: Gson = Gson()
-                    val json = response.body()?.string()
+                    //val json = response.body()?.string()
                     val resp = gson.fromJson(mJson, OKResponse::class.java)
                     if (resp != null) {
                         if (resp.status == "success") {
                             finishDialog(dialog, resp.url)
                         } else {
-                            Toast.makeText(
-                                this@ImageDisplayActivity,
-                                "An error occurred.",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
                             errDialog(dialog, resp.reason)
                         }
                     } else {
-                        Toast.makeText(
-                            this@ImageDisplayActivity,
-                            "An error occurred.",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        Log.e("ImageAct", "Err")
                         errDialog(dialog, "Server error try again later")
                     }
                 } else {
-                    errDialog(dialog, "Application error check your connection and try again.")
-                    Toast.makeText(this@ImageDisplayActivity, "Error", Toast.LENGTH_SHORT).show()
+                    errDialog(dialog, "Application error try again.")
                 }
-
-
             }
 
             override fun onFailure(call: Call<ResponseBody?>?, t: Throwable?) {
-                finishDialog(dialog, "wwww")
-                Log.d("RESPONSE", " NOT OK $t")
-                Toast.makeText(this@ImageDisplayActivity, "Error", Toast.LENGTH_SHORT).show()
+                Log.e("Error",t.toString())
+                errDialog(dialog, "Connection error check your connection and try again.")
+//                Log.d("RESPONSE", " NOT OK $t")
+
             }
         })
 

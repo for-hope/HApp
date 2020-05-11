@@ -3,8 +3,6 @@ package com.hdarha.happ.adapters
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.media.AudioAttributes
-import android.media.MediaPlayer
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -22,28 +20,24 @@ import com.hdarha.happ.other.inflate
 import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifImageButton
 import java.io.File
-import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
-private var isPlaying: Boolean = false
-private var mPlayer: MediaPlayer? = null
-private var audioPlaying = -1
 private var titleReset: TextView? = null
 private var gifDrawableReset: GifDrawable? = null
 private var selectedSound: Int = -1
 
 class RecyclerAdapter(
-    context: Context,
+    private var context: Context,
     private val sounds: ArrayList<Voice>,
     private val isActivity: Boolean,
-    listener: OnItemClick
+    listener: OnItemClick,
+    voiceClickListener: OnVoiceClick
 ) :
     RecyclerView.Adapter<RecyclerAdapter.SoundHolder>() {
     private var soundId: String = ""
-    private var favId: Int = -1
-    private var context = context
-    // var fragment = dialogFragment
 
+    // var fragment = dialogFragment
+    private val mVoiceClickCallBack: OnVoiceClick? = voiceClickListener
     private val mCallback: OnItemClick? = listener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SoundHolder {
@@ -58,30 +52,14 @@ class RecyclerAdapter(
 
     override fun onBindViewHolder(holder: SoundHolder, position: Int) {
         val itemPhoto = sounds[position]
-        holder.bindPhoto(itemPhoto, soundId)
-    }
-
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        mPlayer?.stop()
-        mPlayer?.release()
+        holder.bindPhoto(itemPhoto)
     }
 
 
-
-    fun onDestroy() {
-        try{
-            mPlayer?.reset()
-            mPlayer?.release()
-            mPlayer = null
-        } catch (e:Exception) {
-            e.printStackTrace()
-        }
-
-    }
-    private fun selectSound(soundId: String) {
-        this.soundId = soundId
-
+    fun resetLayout() {
+        titleReset?.typeface = Typeface.DEFAULT
+        gifDrawableReset?.stop()
+        gifDrawableReset?.seekTo(0)
     }
 
 
@@ -89,6 +67,9 @@ class RecyclerAdapter(
         fun onClick(value: Voice?, key: Int)
     }
 
+    interface OnVoiceClick {
+        fun onPlay(title: TextView, mGifDrawable: GifDrawable, pathStr: String)
+    }
 
     inner class SoundHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickListener {
         //2
@@ -99,12 +80,6 @@ class RecyclerAdapter(
 
         //3
         init {
-            mPlayer = MediaPlayer()
-            mPlayer?.setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            )
             v.setOnClickListener(this)
         }
 
@@ -117,14 +92,8 @@ class RecyclerAdapter(
 
         }
 
-        private fun resetLayout() {
-            titleReset?.typeface = Typeface.DEFAULT
-            gifDrawableReset?.stop();
-            gifDrawableReset?.seekTo(0)
-        }
 
-        fun bindPhoto(sound: Voice, sId: String) {
-            var soundId = sId
+        fun bindPhoto(sound: Voice) {
             this.sound = sound
             val inflated = view
             val title = inflated.findViewById<TextView>(R.id.sound_title_tv)
@@ -147,10 +116,7 @@ class RecyclerAdapter(
 
             cacheDir = File(inflated.context.externalCacheDir, "voices/" + sound.name + ".m4a")
             if (cacheDir!!.exists()) {
-                Log.d("FILEDIR", "TRUE ${cacheDir!!.path}")
                 pathStr = cacheDir!!.path
-            } else {
-                Log.d("FILEDIR", "FALSE ${cacheDir!!.path}")
             }
 
             //val uri: Uri = Uri.parse(pathStr)
@@ -185,47 +151,47 @@ class RecyclerAdapter(
 
 
             gifImg.setOnClickListener {
-                if (audioPlaying != adapterPosition) {
-                    //mPlayer.release()
-                    if (mPlayer?.isPlaying!!) {
-                        resetLayout()
-                    }
-                    mPlayer?.reset()
-                    Log.d("location", sound.location)
-                    mPlayer?.setDataSource(sound.location)
-                    mPlayer?.prepare()
-
-                    Log.e("TPRE", "AGAIN")
-                    audioPlaying = adapterPosition
-
-
-                }
-                if (mGifDrawable.isRunning) {
-                    mPlayer?.seekTo(mPlayer?.duration!! - 1)
-
-                } else {
-
-                    if (!mPlayer?.isPlaying!!) {
-
-
-                        title.typeface = Typeface.DEFAULT_BOLD
-                        mPlayer?.start()
-                        titleReset = title
-                        gifDrawableReset = mGifDrawable
-                        isPlaying = true
-                        mGifDrawable.start()
-                    }
-                }
-
-
-                mPlayer?.setOnCompletionListener {
-
-                    isPlaying = false
-                    title.typeface = Typeface.DEFAULT
-                    mGifDrawable.stop();
-                    mGifDrawable.seekTo(0)
-                    audioPlaying = -1
-                }
+                mVoiceClickCallBack?.onPlay(title, mGifDrawable, pathStr)
+                titleReset = title
+                gifDrawableReset = mGifDrawable
+//                if (audioPlaying != adapterPosition) {
+//                    //mPlayer.release()
+//                    if (mPlayer?.isPlaying!!) {
+//                        resetLayout()
+//                    }
+//                    mPlayer?.reset()
+//                    mPlayer?.setDataSource(pathStr)
+//                    mPlayer?.prepare()
+//
+//                    audioPlaying = adapterPosition
+//
+//
+//                }
+//                if (mGifDrawable.isRunning) {
+//                    mPlayer?.seekTo(mPlayer?.duration!! - 1)
+//
+//                } else {
+//
+//                    if (!mPlayer?.isPlaying!!) {
+//
+//
+//                        title.typeface = Typeface.DEFAULT_BOLD
+//                        mPlayer?.start()
+//                        titleReset = title
+//                        gifDrawableReset = mGifDrawable
+//                        isPlaying = true
+//                        mGifDrawable.start()
+//                    }
+//                }
+//
+//
+//                mPlayer?.setOnCompletionListener {
+//                    isPlaying = false
+//                    title.typeface = Typeface.DEFAULT
+//                    mGifDrawable.stop();
+//                    mGifDrawable.seekTo(0)
+//                    audioPlaying = -1
+//                }
 
             }
 
@@ -248,6 +214,11 @@ class RecyclerAdapter(
                 }
 
             } else {
+                cardView.setOnClickListener {
+                    mVoiceClickCallBack?.onPlay(title, mGifDrawable, pathStr)
+                    titleReset = title
+                    gifDrawableReset = mGifDrawable
+                }
                 favIcon.setOnClickListener {
                     Log.d("Checked", "$adapterPosition")
                     mCallback!!.onClick(sounds[adapterPosition], adapterPosition)

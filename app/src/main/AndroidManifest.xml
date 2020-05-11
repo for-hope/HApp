@@ -47,7 +47,7 @@
         <activity
             android:name=".activities.SoundLibraryActivity"
             android:theme="@style/AppTheme" />
-        <activity android:name=".activities.ParallaxHeaderActivity" />
+        <activity android:name=".fragments.ParallaxHeaderFragment" />
         <activity android:name=".activities.EmptyActivity" />
         <activity android:name=".activities.LoginActivity" />
 

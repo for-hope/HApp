@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -58,13 +59,29 @@ class ContentFragment : Fragment() {
 
 
         signOutButton.setOnClickListener {
+            showConfirmationDialog()
+        }
+    }
+
+    private fun showConfirmationDialog() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(context!!)
+
+        builder.setTitle("Sign Out")
+        builder.setMessage("Are you sure you want to sign out ?")
+
+        builder.setPositiveButton("Sign out") { dialog, which -> // Do nothing but close the dialog
             auth.signOut()
             val intent = Intent(activity, MainActivity::class.java)
             startActivity(intent)
         }
+
+        builder.setNegativeButton("No") { dialog, which -> // Do nothing
+            dialog.dismiss()
+        }
+
+        val alert: AlertDialog = builder.create()
+        alert.show()
     }
-
-
     private fun getSettingsList(): ArrayList<SettingItem> {
         val mArrayList = arrayListOf<SettingItem>()
 

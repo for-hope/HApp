@@ -6,12 +6,10 @@ import android.app.Activity
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.graphics.Color
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -36,7 +34,6 @@ import com.zhihu.matisse.internal.entity.CaptureStrategy
 import kotlinx.android.synthetic.main.activity_my_videos.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import uz.jamshid.library.IGRefreshLayout
 import java.io.File
 
 
@@ -52,11 +49,16 @@ class MyVideosActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
 
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.statusBarColor = ContextCompat.getColor(this, R.color.colorTitle)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
+
+        val adapter = VideosAdapter(arrayListOf(), this)
+        val linearLayoutManager = LinearLayoutManager(this)
+        recyclerview_videos.layoutManager = linearLayoutManager
+        recyclerview_videos.adapter = adapter
 
         fab.setOnClickListener {
             permissionCheckGallery()
@@ -65,7 +67,7 @@ class MyVideosActivity : AppCompatActivity() {
         progressBarMyVideos.isIndeterminate = true
         progressBarMyVideos.visibility = View.VISIBLE
         swipe.setRefreshListener {
-                getVideoList()
+            getVideoList()
 
 
         }
@@ -76,9 +78,9 @@ class MyVideosActivity : AppCompatActivity() {
 
     private fun setAdapter(videos: MutableList<HVideo>) {
         swipe.setRefreshing(false)
-        val linearLayoutManager = LinearLayoutManager(this)
+        //val linearLayoutManager = LinearLayoutManager(this)
         val adapter = VideosAdapter(ArrayList(videos), this)
-        recyclerview_videos.layoutManager = linearLayoutManager
+
         recyclerview_videos.adapter = adapter
         progressBarMyVideos.visibility = View.GONE
         adapter.notifyDataSetChanged()
@@ -132,15 +134,16 @@ class MyVideosActivity : AppCompatActivity() {
                     )
 
                     val mMMR = MediaMetadataRetriever()
-                    if (File(getPath(this@MyVideosActivity,contentUri)!!).exists()) {
-                    mMMR.setDataSource(this@MyVideosActivity, contentUri)
-                    val bmp = mMMR.frameAtTime
-                    val time = mMMR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                    val timeInMillis = time.toLong()
-                    mMMR.release()
-                    // Stores column values and the contentUri in a local object
-                    // that represents the media file.
-                    videoList += HVideo(contentUri, name, timeInMillis, dateAdded * 1000, bmp)
+                    if (File(getPath(this@MyVideosActivity, contentUri)!!).exists()) {
+                        mMMR.setDataSource(this@MyVideosActivity, contentUri)
+                        val bmp = mMMR.frameAtTime
+                        val time =
+                            mMMR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                        val timeInMillis = time.toLong()
+                        mMMR.release()
+                        // Stores column values and the contentUri in a local object
+                        // that represents the media file.
+                        videoList += HVideo(contentUri, name, timeInMillis, dateAdded * 1000, bmp)
                     }
                 }
             }
@@ -172,7 +175,7 @@ class MyVideosActivity : AppCompatActivity() {
                 Log.e(
                     "onSelected",
                     "onSelected: pathList=$pathList"
-                );
+                )
             }
             .showSingleMediaType(true)
             .autoHideToolbarOnSingleTap(true)

@@ -39,21 +39,19 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+    }
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "STARTING")
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
-        updateUI(currentUser)
+        //updateUI(currentUser)
     }
 
-    private fun updateUI(user: FirebaseUser?) {
-        if (user != null) {
-            Toast.makeText(this, "User logged", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "User logged off", Toast.LENGTH_SHORT).show()
-        }
-    }
+
 
     private fun manageFragments(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
@@ -62,7 +60,6 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.frg_container, fragment, fragment.javaClass.simpleName)
                 .commit()
         }
-
 
         bottomNavigationView.setOnNavigationItemSelectedListener(object :
             BottomNavigationView.OnNavigationItemSelectedListener {

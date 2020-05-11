@@ -2,15 +2,20 @@ package com.hdarha.happ.other
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Typeface
 import android.media.MediaMetadataRetriever
+import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.Gson
+import com.hdarha.happ.adapters.RecyclerAdapter
 import com.hdarha.happ.objects.Voice
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import pl.droidsonroids.gif.GifDrawable
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -129,6 +134,26 @@ fun getMetaData(voices: ArrayList<Voice>, listener: OnVoiceCallBack) {
     listener.onVoicesRetrieved(voices, true)
     //TODO voicesLoaded(voices, true)
 
+}
+
+fun manageMediaPlayer(title: TextView, mGifDrawable: GifDrawable, pathStr: String, adapter: RecyclerAdapter?,mPlayer:MediaPlayer) {
+    if (mPlayer.isPlaying) {
+        mPlayer.stop()
+    }
+    adapter?.resetLayout()
+    mGifDrawable.start()
+    title.typeface = Typeface.DEFAULT_BOLD
+    mPlayer.reset()
+    mPlayer.setDataSource(pathStr)
+    mPlayer.prepare()
+    mPlayer.start()
+
+
+    mPlayer.setOnCompletionListener {
+        title.typeface = Typeface.DEFAULT
+        mGifDrawable.stop();
+        mGifDrawable.seekTo(0)
+    }
 }
 
 interface OnVoiceCallBack {

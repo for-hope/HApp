@@ -1,4 +1,4 @@
-package com.hdarha.happ.activities
+package com.hdarha.happ.fragments
 
 import android.content.Context
 import android.util.DisplayMetrics
@@ -6,9 +6,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import androidx.fragment.app.Fragment
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollView
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks
@@ -17,14 +15,16 @@ import com.hdarha.happ.R
 import me.everything.android.ui.overscroll.IOverScrollDecor
 import me.everything.android.ui.overscroll.VerticalOverScrollBounceEffectDecorator
 import me.everything.android.ui.overscroll.adapters.ScrollViewOverScrollDecorAdapter
+import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 
-abstract class ParallaxHeaderActivity : Fragment(),
+abstract class ParallaxHeaderFragment : Fragment(),
     ObservableScrollViewCallbacks {
     private var headerView: LinearLayout? = null
     private var headerHeight = 0
     private var minimumHeaderHeight = 0
-    private var mContentView : FrameLayout? = null
+    private var mContentView: FrameLayout? = null
     protected fun setContentView(
         view: View,
         header: Fragment,
@@ -85,7 +85,8 @@ abstract class ParallaxHeaderActivity : Fragment(),
         headerView!!.id = headerViewId
         rootView.addView(headerView)
         addFragment(headerViewId, header)
-       mContentView = contentView
+        mContentView = contentView
+
     }
 
 
@@ -100,6 +101,7 @@ abstract class ParallaxHeaderActivity : Fragment(),
     override fun onUpOrCancelMotionEvent(scrollState: ScrollState?) {
 
     }
+
     override fun onDownMotionEvent() {}
     private fun addFragment(id: Int, fragment: Fragment) {
         val transaction =
@@ -110,18 +112,25 @@ abstract class ParallaxHeaderActivity : Fragment(),
     }
 
     private fun update(scrollY: Int) {
-
+        val defMaragin = convertDpToPixel(25f, context).toInt()
+        if (defMaragin - scrollY > 0) {
+            val profile = headerView!!.findViewById<LinearLayout>(R.id.profileLinearLayout)
+            val layoutParams = FrameLayout.LayoutParams(profile.width, profile.height)
+            val defaultOffset = min(defMaragin - scrollY, defMaragin)
+            layoutParams.setMargins(0, defaultOffset, 0, 0)
+            profile.layoutParams = layoutParams
+            profile.requestLayout()
+        }
         headerView!!.layoutParams.height =
             max(headerHeight - scrollY, minimumHeaderHeight)
         headerView!!.requestLayout()
 
     }
 
-    private fun updateProfileLayout(offset:Int) {
-
+    private fun updateProfileLayout(offset: Int) {
         val profile = headerView!!.findViewById<LinearLayout>(R.id.profileLinearLayout)
-        val layoutParams = FrameLayout.LayoutParams(profile.width,profile.height)
-        layoutParams.setMargins(0,offset,0,0)
+        val layoutParams = FrameLayout.LayoutParams(profile.width, profile.height)
+        layoutParams.setMargins(0, offset, 0, 0)
         profile.layoutParams = layoutParams
         profile.requestLayout()
         val h = minimumHeaderHeight + offset

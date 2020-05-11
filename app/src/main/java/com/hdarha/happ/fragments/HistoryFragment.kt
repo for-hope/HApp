@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +30,6 @@ import kotlin.collections.ArrayList
 
 
 class HistoryFragment : Fragment() {
-    private val photosCheckList: ArrayList<String> = arrayListOf()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,6 +47,8 @@ class HistoryFragment : Fragment() {
 
 
 
+
+
         historyProgressBar.isIndeterminate = true
         historyProgressBar.visibility = View.VISIBLE
         EmptyHistoryLayout.visibility = View.GONE
@@ -60,22 +62,26 @@ class HistoryFragment : Fragment() {
 
 
     private fun setupRecyclerView() {
-
+        val mRecyclerAdapter: RecyclerView = view!!.findViewById(R.id.imgItemsRecyclerView)
+        val linearLayoutManager = LinearLayoutManager(context)
+        val uploadsList: ArrayList<Upload> = ArrayList()
+        mRecyclerAdapter.visibility = View.GONE
+        var adapter =
+            UploadItemsAdapter(
+                uploadsList,
+                activity as Activity
+            )
+        mRecyclerAdapter.adapter = adapter
+        mRecyclerAdapter.layoutManager = linearLayoutManager
         GlobalScope.launch {
             activity!!.runOnUiThread {
-                val mRecyclerAdapter: RecyclerView = view!!.findViewById(R.id.imgItemsRecyclerView)
-                mRecyclerAdapter.visibility = View.GONE
-                val uploadsList: ArrayList<Upload> = ArrayList()
-                //val drawablesList: ArrayList<Int> = ArrayList()
-                val linearLayoutManager = LinearLayoutManager(context)
-                /////////
-
-//        val photoDatesList = getPhotoDatesList()
+                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE)
                 val map = getStoredMap()
                 val photoDatesList = getDates(map)
-
+                photoDatesList.sortByDescending { dateFormat.parse(it) }
                 //val photosCheckList:ArrayList<String> = arrayListOf()
                 for (date in photoDatesList) {
+                    Log.d("Date", date)
                     val drawablesList: ArrayList<String> = getPhotos(map, date)
                     if (drawablesList.isNotEmpty()) {
                         val upload = Upload(date, drawablesList)
@@ -84,16 +90,14 @@ class HistoryFragment : Fragment() {
                 }
 
 
-                val adapter =
+                adapter =
                     UploadItemsAdapter(
                         uploadsList,
                         activity as Activity
                     )
-                mRecyclerAdapter.layoutManager = linearLayoutManager
                 mRecyclerAdapter.adapter = adapter
                 mRecyclerAdapter.visibility = View.VISIBLE
                 adapter.notifyDataSetChanged()
-
                 if (uploadsList.isEmpty()) {
                     EmptyHistoryLayout.visibility = View.VISIBLE
                 }
@@ -124,8 +128,6 @@ class HistoryFragment : Fragment() {
     }
 
     private fun getStoredMap(): HashMap<String, String> {
-        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE)
-        val currentDate = sdf.format(Date())
         val prefValue = "history"
         val keyValue = "map"
         val gson = Gson()
@@ -154,13 +156,13 @@ class HistoryFragment : Fragment() {
 //            )
 
 
-        this.activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        this.activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         this.activity?.window?.statusBarColor =
             ContextCompat.getColor(this.context!!, R.color.colorTitle)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             this.activity?.window?.decorView?.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-        };
+        }
 
 
     }
