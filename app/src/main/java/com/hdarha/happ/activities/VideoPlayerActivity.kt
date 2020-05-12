@@ -49,7 +49,7 @@ class VideoPlayerActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.statusBarColor = ContextCompat.getColor(this, R.color.colorTitle)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
@@ -58,7 +58,6 @@ class VideoPlayerActivity : AppCompatActivity() {
         videoPath = intent.getStringExtra("url")!!
 
         videoName = "HApp_Video_" + System.currentTimeMillis() + ".mp4"
-
 
 
         var videoUri = Uri.parse(videoPath)
@@ -93,7 +92,7 @@ class VideoPlayerActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Downloading video...", Toast.LENGTH_SHORT).show()
                 if (!isDownloading) {
-                    downloadVideo(videoName, true)
+                    downloadVideo(videoName)
                     share = true
                 }
 
@@ -105,8 +104,13 @@ class VideoPlayerActivity : AppCompatActivity() {
 
 
     override fun onBackPressed() {
-        super.onBackPressed()
-        finish()
+        if (!isDownloaded) {
+            showConfirmationDialog()
+        } else {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 
     override fun onDestroy() {
@@ -179,14 +183,9 @@ class VideoPlayerActivity : AppCompatActivity() {
 //        unregisterReceiver(onDownloadComplete);
 //    }
 
+
     override fun onSupportNavigateUp(): Boolean {
-        if (!isDownloaded) {
-            showConfirmationDialog()
-        } else {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
+        onBackPressed()
         return super.onSupportNavigateUp()
     }
 
@@ -203,13 +202,13 @@ class VideoPlayerActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         val id: Int = item.itemId
-
+//                    "Video saved to //" + Environment.DIRECTORY_MOVIES + File.separator + videoName,
         if (id == R.id.action_save_video) {
             if (videoPath != "" && !isDownloaded) {
-                downloadVideo(videoName, false)
+                downloadVideo(videoName)
                 Toast.makeText(
                     this,
-                    "Video saved to //" + Environment.DIRECTORY_MOVIES + File.separator + videoName,
+                    "Downloading...",
                     Toast.LENGTH_LONG
                 ).show()
             } else {
@@ -226,12 +225,12 @@ class VideoPlayerActivity : AppCompatActivity() {
         builder.setTitle("Discard")
         builder.setMessage("Are you sure you want to exit without saving?")
 
-        builder.setPositiveButton("Discard") { dialog, which -> // Do nothing but close the dialog
+        builder.setPositiveButton("Discard") { _, _ -> // Do nothing but close the dialog
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 
-        builder.setNegativeButton("NO") { dialog, which -> // Do nothing
+        builder.setNegativeButton("NO") { dialog, _ -> // Do nothing
             dialog.dismiss()
         }
 
@@ -239,13 +238,12 @@ class VideoPlayerActivity : AppCompatActivity() {
         alert.show()
     }
 
-    private fun downloadVideo(videoName: String, isShare: Boolean) {
+    private fun downloadVideo(videoName: String) {
         isDownloading = true
         GlobalScope.launch {
             val policy =
                 StrictMode.ThreadPolicy.Builder().permitAll().build()
             StrictMode.setThreadPolicy(policy)
-
 
             val filePath = File(externalCacheDir, "videos" + File.separator + videoName)
             if (!filePath.exists()) {
@@ -262,7 +260,6 @@ class VideoPlayerActivity : AppCompatActivity() {
                 //request.setDestinationUri(Uri.fromFile(filePath))
                 request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, videoName)
                 downloadID = downloadManager.enqueue(request)
-
             }
         }
     }
@@ -286,6 +283,7 @@ class VideoPlayerActivity : AppCompatActivity() {
                 } else {
                     shareVideo()
                 }
+
                 Toast.makeText(this@VideoPlayerActivity, "Download Completed", Toast.LENGTH_SHORT)
                     .show()
             }

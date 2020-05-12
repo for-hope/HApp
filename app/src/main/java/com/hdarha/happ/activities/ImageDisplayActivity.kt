@@ -52,6 +52,7 @@ class ImageDisplayActivity : AppCompatActivity(),
     private var mPhotoDraweeView: PhotoDraweeView? = null
     private var imgUri: String? = null
     private var ogImage: String? = null
+    //private lateinit var firstImage:String
     private var isSoundSelected = false
     private var audioId: String = ""
     private var isCropped: Boolean = false
@@ -139,6 +140,7 @@ class ImageDisplayActivity : AppCompatActivity(),
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
         imgUri = intent.getStringExtra("imgUri")
+        //firstImage = imgUri!!
         if (!isCropped) {
             ogImage = imgUri!!
         }
@@ -268,7 +270,9 @@ class ImageDisplayActivity : AppCompatActivity(),
             if (!isCropped) {
                 ogImage = imgUri
             }
+
             imgUri = resultUri.path.toString()
+            Log.d("IMGURI",imgUri)
             mPhotoDraweeView!!.setPhotoUri(resultUri, this)
 
         } else if (resultCode == UCrop.RESULT_ERROR) {
@@ -344,8 +348,10 @@ class ImageDisplayActivity : AppCompatActivity(),
         val service: RetrofitClientInstance.ImageService =
             retrofitClient.retrofitInstance!!.create(RetrofitClientInstance.ImageService::class.java)
 
-
-        val imgFile = File(getPath(this,Uri.parse(imgUri)))
+        Log.d("CheckImgUri",imgUri!!)
+        val mUri = Uri.parse(imgUri!!)
+        val path = getPath(this,mUri)
+        val imgFile = File(imgUri!!)
 
         val requestBodyFile: RequestBody =
             RequestBody.create(MediaType.parse("multipart/form-data"), imgFile)

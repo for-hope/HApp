@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -24,6 +26,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private var bi: ActivityMainBinding? = null
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
     //private lateinit var pagerAdapter: ScreensPagerAdapter
 
     private lateinit var auth: FirebaseAuth
@@ -32,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initActivity()
+        firebaseAnalytics = Firebase.analytics
         manageFragments(savedInstanceState)
 
         auth = Firebase.auth
