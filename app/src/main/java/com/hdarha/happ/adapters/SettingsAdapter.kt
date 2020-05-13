@@ -32,6 +32,7 @@ class SettingsAdapter(
 
     override fun onBindViewHolder(holder: SettingsHolder, position: Int) {
         val settingItem = settings[position]
+        holder.setIsRecyclable(false)
         holder.bindItem(settingItem, activity)
     }
 
@@ -52,7 +53,7 @@ class SettingsAdapter(
         fun bindItem(settingItem: SettingItem, activity: Activity) {
             val inflated = view
 
-            val titleTextView = inflated.findViewById<TextView>(R.id.setting_title)
+            val titleTextView = inflated.findViewById<TextView>(R.id.s2_title)
 
             val iconImageView = inflated.findViewById<ImageView>(R.id.setting_end_ic)
             val endLayout = inflated.findViewById<LinearLayout>(R.id.EndIconsLayout)

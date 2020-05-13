@@ -11,7 +11,7 @@ import com.hdarha.happ.fragments.HeaderFragment
 class EmptyActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //setContentView(R.layout.activity_empty, HeaderFragment(), ContentFragment())
+        setContentView(R.layout.activity_empty)
         showCustomUI()
     }
 

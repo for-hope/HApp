@@ -186,18 +186,19 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
     }
 
     override fun onVoicesRetrieved(voices: ArrayList<Voice>, isCache: Boolean) {
-
-        val v = mView!!
-        val recyclerView = v.findViewById<RecyclerView>(R.id.rec_view)
-        recyclerView.visibility = View.VISIBLE
-        val linearLayoutManager = LinearLayoutManager(context)
-        val adapter = RecyclerAdapter(context!!, voices, false, this, this)
-        recyclerView.layoutManager = linearLayoutManager
-        recyclerView.adapter = adapter
-        mAdapter = adapter
-        bi!!.bottomSheetPB.visibility = View.GONE
-        soundsList = voices.toMutableList()
-        adapter.notifyItemInserted(voices.size - 1)
+        if (context != null) {
+            val v = mView!!
+            val recyclerView = v.findViewById<RecyclerView>(R.id.rec_view)
+            recyclerView.visibility = View.VISIBLE
+            val linearLayoutManager = LinearLayoutManager(context)
+            val adapter = RecyclerAdapter(context!!, voices, false, this, this)
+            recyclerView.layoutManager = linearLayoutManager
+            recyclerView.adapter = adapter
+            mAdapter = adapter
+            bi!!.bottomSheetPB.visibility = View.GONE
+            soundsList = voices.toMutableList()
+            adapter.notifyItemInserted(voices.size - 1)
+        }
     }
 
     override fun onPlay(title: TextView, mGifDrawable: GifDrawable, pathStr: String) {

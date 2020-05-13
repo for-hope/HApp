@@ -14,16 +14,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.hdarha.happ.BuildConfig
 import com.hdarha.happ.R
-import com.hdarha.happ.activities.ImageDisplayActivity
-import com.hdarha.happ.activities.LoginActivity
-import com.hdarha.happ.activities.MyVideosActivity
-import com.hdarha.happ.activities.SoundLibraryActivity
+import com.hdarha.happ.activities.*
 import com.hdarha.happ.adapters.ScreensPagerAdapter
 import com.hdarha.happ.other.ScreenHelper
 import com.karumi.dexter.Dexter
@@ -125,7 +123,9 @@ class HomeFragment : Fragment() {
     private fun updateUI(currentUser: FirebaseUser?) {
         if (currentUser != null) {
             val profileUrl = currentUser.photoUrl
-            Picasso.get().load(profileUrl).into(profile_image)
+            val p = Picasso.get()
+            Log.d("url",profileUrl.toString())
+            Glide.with(this).load(profileUrl).into(profile_image)
             creditNumberTextView.visibility = View.VISIBLE
             creditTextView.visibility = View.VISIBLE
         } else {

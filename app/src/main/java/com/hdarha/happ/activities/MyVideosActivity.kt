@@ -76,6 +76,9 @@ class MyVideosActivity : AppCompatActivity() {
 
     }
 
+    override fun onBackPressed() {
+        finish()
+    }
     private fun setAdapter(videos: MutableList<HVideo>) {
         swipe.setRefreshing(false)
         //val linearLayoutManager = LinearLayoutManager(this)

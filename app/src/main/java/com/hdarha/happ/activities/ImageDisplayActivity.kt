@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.util.Log
 import android.view.*
 import android.view.animation.LinearInterpolator
@@ -26,6 +27,7 @@ import com.hdarha.happ.fragments.OnDialogComplete
 import com.hdarha.happ.objects.OKResponse
 import com.hdarha.happ.objects.Voice
 import com.hdarha.happ.other.RetrofitClientInstance
+import com.squareup.picasso.Picasso
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.util.FileUtils.getPath
 import jp.wasabeef.blurry.Blurry
@@ -52,6 +54,8 @@ class ImageDisplayActivity : AppCompatActivity(),
     private var mPhotoDraweeView: PhotoDraweeView? = null
     private var imgUri: String? = null
     private var ogImage: String? = null
+    private val cancelRequestSignal = CancellationSignal()
+    private val bottomSheet = BottomSheet(this)
     //private lateinit var firstImage:String
     private var isSoundSelected = false
     private var audioId: String = ""
@@ -67,7 +71,8 @@ class ImageDisplayActivity : AppCompatActivity(),
         bottom_bar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_volume -> {
-                    showBottomSheet()
+
+                    showBottomSheet(bottomSheet)
                     true
                 }
                 else -> false
@@ -118,11 +123,12 @@ class ImageDisplayActivity : AppCompatActivity(),
         }
     }
 
-    private fun showBottomSheet() {
-        val bottomSheet = BottomSheet(this)
-        bottomSheet.show(supportFragmentManager, bottomSheet.tag)
-        if (bottomSheet.isAdded) {
-            this.supportFragmentManager.executePendingTransactions()
+    private fun showBottomSheet(bottomSheet: BottomSheet) {
+        if (!bottomSheet.isVisible and !bottomSheet.isAdded) {
+            bottomSheet.show(supportFragmentManager, bottomSheet.tag)
+            if (bottomSheet.isAdded) {
+                this.supportFragmentManager.executePendingTransactions()
+            }
         }
 
     }
@@ -166,18 +172,27 @@ class ImageDisplayActivity : AppCompatActivity(),
         return dialog
     }
 
-    private fun showDialog(title: String, dialog: Dialog) {
+    private fun showDialog(dialog: Dialog) {
         val imgView = dialog.findViewById<ImageView>(R.id.dialog_img)
-        imgView.setImageURI(Uri.parse(imgUri))
+        Log.d("ImgURi", imgUri!!)
+        if (imgUri!!.startsWith("conetnt")) {
+            Picasso.get().load(Uri.parse(imgUri)).resize(300, 200).centerCrop().into(imgView)
+        } else {
+            val f = File(imgUri!!)
+            Picasso.get().load(f).resize(300, 200).centerCrop().into(imgView)
+        }
+
+        //.setImageURI(Uri.parse(imgUri))
         val body = dialog.findViewById(R.id.dialog_body) as TextView
-        body.text = title
-        //val yesBtn = dialog.findViewById(R.id.accept_btn_dialog) as Button
+        body.text = "Processing Video"
+
         val pb = dialog.findViewById<ProgressBar>(R.id.dialog_pb)
         pb.isIndeterminate = true
         pb.scaleY = 3f
         val noBtn = dialog.findViewById(R.id.cancel_btn_dialog) as Button
 
         noBtn.setOnClickListener {
+            cancelRequestSignal.cancel()
             dialog.dismiss()
             Blurry.delete(rootView_img_display.rootView as ViewGroup)
         }
@@ -272,7 +287,7 @@ class ImageDisplayActivity : AppCompatActivity(),
             }
 
             imgUri = resultUri.path.toString()
-            Log.d("IMGURI",imgUri)
+            Log.d("IMGURI", imgUri)
             mPhotoDraweeView!!.setPhotoUri(resultUri, this)
 
         } else if (resultCode == UCrop.RESULT_ERROR) {
@@ -335,23 +350,30 @@ class ImageDisplayActivity : AppCompatActivity(),
             val hashStringToSave = gson.toJson(storedHashMap)
             editor.putString(keyValue, hashStringToSave)
             editor.apply()
-            Log.d("SavePicture","Saved.")
+            Log.d("SavePicture", "Saved.")
         }
     }
 
 
-
     private fun startUpload() {
         val dialog: Dialog = makeDialog()
-        showDialog("Processing Video...", dialog)
+        showDialog(dialog)
         val retrofitClient = RetrofitClientInstance()
         val service: RetrofitClientInstance.ImageService =
             retrofitClient.retrofitInstance!!.create(RetrofitClientInstance.ImageService::class.java)
 
-        Log.d("CheckImgUri",imgUri!!)
-        val mUri = Uri.parse(imgUri!!)
-        val path = getPath(this,mUri)
-        val imgFile = File(imgUri!!)
+        Log.d("CheckImgUri", imgUri!!)
+
+
+        var imgFile = File(imgUri!!)
+
+        if (imgUri!!.startsWith("content")) {
+            Log.d("CheckImgUriContent", imgUri!!)
+            val mUri = Uri.parse(imgUri!!)
+            val path = getPath(this, mUri)
+            imgFile = File(path)
+        }
+
 
         val requestBodyFile: RequestBody =
             RequestBody.create(MediaType.parse("multipart/form-data"), imgFile)
@@ -364,6 +386,9 @@ class ImageDisplayActivity : AppCompatActivity(),
 
         val uploadBundle: Call<ResponseBody?> = service.uploadImage(part, audioId)!!
 
+        cancelRequestSignal.setOnCancelListener {
+            uploadBundle.cancel()
+        }
         uploadBundle.enqueue(object : Callback<ResponseBody?> {
             override fun onResponse(
                 call: Call<ResponseBody?>?,
@@ -393,7 +418,7 @@ class ImageDisplayActivity : AppCompatActivity(),
             }
 
             override fun onFailure(call: Call<ResponseBody?>?, t: Throwable?) {
-                Log.e("Error",t.toString())
+                Log.e("Error", t.toString())
                 errDialog(dialog, "Connection error check your connection and try again.")
 //                Log.d("RESPONSE", " NOT OK $t")
 

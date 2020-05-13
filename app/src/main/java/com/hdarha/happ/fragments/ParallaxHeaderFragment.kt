@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollView
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks
@@ -24,7 +26,9 @@ abstract class ParallaxHeaderFragment : Fragment(),
     private var headerView: LinearLayout? = null
     private var headerHeight = 0
     private var minimumHeaderHeight = 0
-    private var mContentView: FrameLayout? = null
+    private var mContentView: LinearLayout? = null
+    private lateinit var mScrollView: ObservableScrollView
+    private var lastScroll = 0
     protected fun setContentView(
         view: View,
         header: Fragment,
@@ -36,44 +40,53 @@ abstract class ParallaxHeaderFragment : Fragment(),
         val mContext = context
         val rootView = view as ViewGroup
         headerHeight = convertDpToPixel(
-            300f,
+            250f,
             mContext
         ).toInt()
         minimumHeaderHeight =
             convertDpToPixel(
-                260f,
+                200f,
                 mContext
             ).toInt()
         val contentViewId = View.generateViewId()
-        val contentView = FrameLayout(mContext!!)
-        contentView.layoutParams = LinearLayout.LayoutParams(
+        val contentView = LinearLayout(mContext!!)
+        val params = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+        //params.setMargins(0,headerHeight,0,0)
+        contentView.layoutParams = params
+        contentView.orientation = LinearLayout.VERTICAL
         contentView.setPadding(0, headerHeight, 0, 0)
         contentView.id = contentViewId
         val scrollView = ObservableScrollView(mContext)
-        scrollView.layoutParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
+
+        val p =LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT
         )
+
+        scrollView.layoutParams = p
         scrollView.setScrollViewCallbacks(this)
         scrollView.isFillViewport = true
         scrollView.addView(contentView)
         scrollView.setScrollViewCallbacks(this)
+        scrollView.isNestedScrollingEnabled =  false
 
         val decor: IOverScrollDecor = VerticalOverScrollBounceEffectDecorator(
             ScrollViewOverScrollDecorAdapter(scrollView)
         )
         decor.setOverScrollUpdateListener { decor1: IOverScrollDecor?, state: Int, offset: Float ->
-            if (offset > 0) {
+            if (offset.toInt() > 0) {
                 // 'view' is currently being over-scrolled from the top.
                 update((-offset).toInt())
-            } else if (offset < 0) {
-                updateProfileLayout(offset.toInt())
+            } else if (offset.toInt() < 0) {
+                Log.d("Offet", offset.toInt().toString())
+                updateProfileLayout(offset.toInt() + lastScroll)
             }
 
         }
+
         rootView.addView(scrollView)
         addFragment(contentViewId, content)
         val headerViewId = View.generateViewId()
@@ -84,9 +97,10 @@ abstract class ParallaxHeaderFragment : Fragment(),
         )
         headerView!!.id = headerViewId
         rootView.addView(headerView)
+
         addFragment(headerViewId, header)
         mContentView = contentView
-
+        mScrollView = scrollView
     }
 
 
@@ -112,33 +126,47 @@ abstract class ParallaxHeaderFragment : Fragment(),
     }
 
     private fun update(scrollY: Int) {
-        val defMaragin = convertDpToPixel(25f, context).toInt()
-        if (defMaragin - scrollY > 0) {
-            val profile = headerView!!.findViewById<LinearLayout>(R.id.profileLinearLayout)
-            val layoutParams = FrameLayout.LayoutParams(profile.width, profile.height)
-            val defaultOffset = min(defMaragin - scrollY, defMaragin)
-            layoutParams.setMargins(0, defaultOffset, 0, 0)
-            profile.layoutParams = layoutParams
-            profile.requestLayout()
+        if (scrollY > 0) {
+            lastScroll = -scrollY
+            updateProfileLayout(-scrollY)
         }
-        headerView!!.layoutParams.height =
-            max(headerHeight - scrollY, minimumHeaderHeight)
-        headerView!!.requestLayout()
+        if (scrollY < 0) {
+            val defMaragin = convertDpToPixel(25f, context).toInt()
+            if (defMaragin - scrollY > 0) {
+                Log.d("Updatey",scrollY.toString())
+                val profile = headerView!!.findViewById<LinearLayout>(R.id.profileLinearLayout)
+                val layoutParams:FrameLayout.LayoutParams = profile.layoutParams as FrameLayout.LayoutParams
+                val defaultOffset = min(defMaragin - scrollY, defMaragin)
+                layoutParams.setMargins(0, -scrollY, 0, 0)
+                profile.layoutParams = layoutParams
+                profile.requestLayout()
+                val h = max(headerHeight - scrollY, minimumHeaderHeight)
+                headerView!!.layoutParams.height = h
+                headerView!!.requestLayout()
+            }
+
+        }
 
     }
 
     private fun updateProfileLayout(offset: Int) {
-        val profile = headerView!!.findViewById<LinearLayout>(R.id.profileLinearLayout)
-        val layoutParams = FrameLayout.LayoutParams(profile.width, profile.height)
-        layoutParams.setMargins(0, offset, 0, 0)
-        profile.layoutParams = layoutParams
-        profile.requestLayout()
-        val h = minimumHeaderHeight + offset
-        headerView!!.layoutParams.height = h
-        //mContentView!!.setPadding(0, h, 0, 0)
-        headerView!!.requestLayout()
-        //mContentView!!.requestLayout()
+        if (offset < 0) {
+            //Log.d("updateProfile", offset.toString())
+            val profile = headerView!!.findViewById<LinearLayout>(R.id.profileLinearLayout)
 
+            val layoutParams:FrameLayout.LayoutParams = profile.layoutParams as FrameLayout.LayoutParams
+            layoutParams.setMargins(0, offset, 0, 0)
+            profile.layoutParams = layoutParams
+            profile.requestLayout()
+            val h = headerHeight + offset
+            if (h > 0) {
+            headerView!!.layoutParams.height = h
+                headerView!!.visibility = View.VISIBLE
+            } else {
+                headerView!!.visibility = View.GONE
+            }
+            headerView!!.requestLayout()
+        }
     }
 
     companion object {

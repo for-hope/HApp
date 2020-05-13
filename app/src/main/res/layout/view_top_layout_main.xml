@@ -7,7 +7,15 @@
     android:layout_marginTop="20dp"
     android:orientation="horizontal">
 
-        <de.hdodenhof.circleimageview.CircleImageView
+    <ImageView
+        android:id="@+id/testimg"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_weight="0"
+        android:visibility="gone"
+        app:srcCompat="@drawable/despicable" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_image"
             android:layout_width="55dp"
             android:layout_height="55dp"

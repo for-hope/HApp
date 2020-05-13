@@ -33,7 +33,11 @@ class HeaderFragment : Fragment() {
     private fun setupProfileInfo(currentUser: FirebaseUser?) {
         if (currentUser != null) {
             val profileImage = view?.findViewById<ImageView>(R.id.profileImageView)
-            Picasso.get().load(currentUser.photoUrl).into(profileImage)
+            val picasso = Picasso.get()
+            val url = currentUser.photoUrl
+            picasso.load(url).into(profileImage)
+
+
             displayNameTextView.text = currentUser.displayName
         }
     }
