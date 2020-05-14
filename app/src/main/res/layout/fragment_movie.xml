@@ -1,105 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:fitsSystemWindows="false"
-android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mScreenHolder"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradiant_bg2"
+    android:fitsSystemWindows="false"
+    android:orientation="vertical">
 
   <ImageView
-    android:id="@+id/bg_img"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-
-    android:adjustViewBounds="false"
-    android:scaleType="fitXY"
-    android:visibility="visible"
-    app:srcCompat="@drawable/bcg2" />
-
-<ImageView
-    android:id="@+id/posterImageView"
-    android:layout_width="wrap_content"
-    android:layout_height="350dp"
-    android:layout_gravity="center|end"
-    android:layout_marginTop="50dp"
-    android:adjustViewBounds="true"
-    android:visibility="gone"
-    tools:srcCompat="@drawable/person" />
-
-<ImageView
-    android:id="@+id/text_img"
-    android:layout_width="350dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="80dp"
-    android:visibility="gone"
-    app:srcCompat="@drawable/txt" />
-
-<ScrollView
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingLeft="@dimen/vertical_padding"
-    android:paddingTop="@dimen/horizontal_padding"
-    android:paddingRight="@dimen/vertical_padding"
-    android:paddingBottom="@dimen/horizontal_padding">
+      android:id="@+id/imageViewBanner"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top"
+      android:adjustViewBounds="true"
+      android:contentDescription="Banner "
+      android:cropToPadding="false"
+      android:scaleType="fitCenter"
+      app:srcCompat="@drawable/topbluebg" />
 
   <LinearLayout
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:orientation="vertical">
+      android:layout_height="match_parent"
+      android:gravity="right"
+      android:orientation="horizontal">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:layout_marginTop="100dp"
+        android:layout_weight="0"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp">
 
-      <LinearLayout
-          android:layout_width="0dp"
+      <TextView
+          android:id="@+id/textViewTopBanner"
+          android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginTop="80dp"
-          android:layout_weight="1"
-          android:orientation="vertical">
+          android:layout_marginStart="25dp"
+          android:fontFamily="@font/orienta"
+          android:gravity="center"
+          android:shadowColor="#303F9F"
+          android:shadowDx="2"
+          android:shadowDy="2"
+          android:shadowRadius="1"
+          android:text="Get started with \n our memix generator :"
+          android:textColor="#FFFFFF"
+          android:textSize="24sp"
+          android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/titleTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="A very easy to use process :"
-            android:textColor="@color/colorTitle"
-            android:textSize="@dimen/title_text_size"
-            android:textStyle="bold"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/ratingTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorAccent"
-            android:textSize="@dimen/subtitle_text_size"
-            android:visibility="gone" />
-
-      </LinearLayout>
+      <TextView
+          android:id="@+id/textViewBottomBanner"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="50dp"
+          android:gravity="center"
+          android:text="Just click the generate button \n and Photo goes in, a memix comes out."
+          android:textColor="#303F9F"
+          android:textSize="18sp"
+          android:textStyle="bold" />
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/overviewTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-black"
-        android:gravity="center"
-        android:paddingEnd="100dp"
-        android:shadowColor="#000000"
-        android:text="Just lick the generate bnutton, upload a picture slelect voicem ohoto goes in a video comes out"
-        android:textColor="#fea52e"
-        android:textSize="@dimen/body_text_size"
-        android:textStyle="normal"
-        android:visibility="gone" />
+    <ImageView
+        android:id="@+id/bg_img"
+        android:layout_width="wrap_content"
+        android:layout_height="260dp"
 
+        android:layout_gravity="right|top"
+        android:layout_marginTop="80dp"
+        android:layout_weight="0"
+        android:adjustViewBounds="true"
+        android:cropToPadding="true"
+        android:paddingTop="40dp"
+        android:scaleType="centerInside"
+        android:visibility="visible"
+        app:srcCompat="@drawable/person" />
   </LinearLayout>
-
-</ScrollView>
-
 
 </FrameLayout>

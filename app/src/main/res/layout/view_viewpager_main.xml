@@ -7,23 +7,6 @@
     android:layout_weight="1">
 
 
-    <FrameLayout
-        android:id="@+id/BlurHolderLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
-
-        <ImageView
-            android:id="@+id/blur"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:scaleType="fitXY"
-            android:visibility="visible"
-            app:srcCompat="@drawable/fog" />
-
-    </FrameLayout>
-
     <RelativeLayout
         android:id="@+id/DotsLayout"
         android:layout_width="match_parent"

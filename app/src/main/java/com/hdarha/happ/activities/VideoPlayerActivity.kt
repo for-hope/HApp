@@ -68,12 +68,16 @@ class VideoPlayerActivity : AppCompatActivity() {
                 FileProvider.getUriForFile(this, "com.hdarha.app.fileprovider", File(videoPath))
         }
         try {
+            progressLayout.visibility = View.VISIBLE
             videoView.setVideoURI(videoUri)
             videoView.requestFocus()
             val mediaController = MediaController(this)
             videoView.setMediaController(mediaController)
             mediaController.setAnchorView(videoView)
             videoView.setOnPreparedListener {
+                Log.d("Video","START")
+                videoView.visibility = View.VISIBLE
+                progressLayout.visibility = View.GONE
                 videoView.start()
             }
         } catch (e: Exception) {

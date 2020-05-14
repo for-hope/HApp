@@ -30,8 +30,10 @@ import com.hdarha.happ.other.RetrofitClientInstance
 import com.squareup.picasso.Picasso
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.util.FileUtils.getPath
+import id.zelory.compressor.Compressor
 import jp.wasabeef.blurry.Blurry
 import kotlinx.android.synthetic.main.activity_image_display.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.relex.photodraweeview.PhotoDraweeView
@@ -175,7 +177,7 @@ class ImageDisplayActivity : AppCompatActivity(),
     private fun showDialog(dialog: Dialog) {
         val imgView = dialog.findViewById<ImageView>(R.id.dialog_img)
         Log.d("ImgURi", imgUri!!)
-        if (imgUri!!.startsWith("conetnt")) {
+        if (imgUri!!.startsWith("content")) {
             Picasso.get().load(Uri.parse(imgUri)).resize(300, 200).centerCrop().into(imgView)
         } else {
             val f = File(imgUri!!)
@@ -373,57 +375,67 @@ class ImageDisplayActivity : AppCompatActivity(),
             val path = getPath(this, mUri)
             imgFile = File(path)
         }
+        val sizeNormal = imgFile.length() / 1024
+        Log.d("File Size:","$sizeNormal kb")
+        GlobalScope.launch {
+            val compressedFile = Compressor.compress(applicationContext,imgFile)
+            val size = compressedFile.length() / 1024
+            Log.d("File Size Compressed ", "$size kb ")
 
 
-        val requestBodyFile: RequestBody =
-            RequestBody.create(MediaType.parse("multipart/form-data"), imgFile)
 
-        val part: MultipartBody.Part =
-            MultipartBody.Part.createFormData("img", imgFile.name, requestBodyFile)
+            val requestBodyFile: RequestBody =
+                RequestBody.create(MediaType.parse("multipart/form-data"), compressedFile)
 
-        val audioId = RequestBody.create(MediaType.parse("text/plain"), this.audioId)
+            val part: MultipartBody.Part =
+                MultipartBody.Part.createFormData("img", imgFile.name, requestBodyFile)
+
+            val audioId = RequestBody.create(MediaType.parse("text/plain"), this@ImageDisplayActivity.audioId)
 
 
-        val uploadBundle: Call<ResponseBody?> = service.uploadImage(part, audioId)!!
+            val uploadBundle: Call<ResponseBody?> = service.uploadImage(part, audioId)!!
 
-        cancelRequestSignal.setOnCancelListener {
-            uploadBundle.cancel()
-        }
-        uploadBundle.enqueue(object : Callback<ResponseBody?> {
-            override fun onResponse(
-                call: Call<ResponseBody?>?,
-                response: Response<ResponseBody?>
-            ) {
-                val mJson = response.body()?.string()
-                Log.d("RESPONSE", "OK ${response.body()?.string()}")
-                Log.d("RESPONSE", "OK ${response.body()}")
-                Log.d("RESPONSE", "OK ${mJson}")
-                Log.d("RESPONSE", "OK ${response.errorBody()?.string()}")
-                if (response.message() == "OK") {
-                    val gson: Gson = Gson()
-                    //val json = response.body()?.string()
-                    val resp = gson.fromJson(mJson, OKResponse::class.java)
-                    if (resp != null) {
-                        if (resp.status == "success") {
-                            finishDialog(dialog, resp.url)
+            cancelRequestSignal.setOnCancelListener {
+                uploadBundle.cancel()
+            }
+            uploadBundle.enqueue(object : Callback<ResponseBody?> {
+                override fun onResponse(
+                    call: Call<ResponseBody?>?,
+                    response: Response<ResponseBody?>
+                ) {
+                    val mJson = response.body()?.string()
+                    Log.d("RESPONSE", "OK ${response.body()?.string()}")
+                    Log.d("RESPONSE", "OK ${response.body()}")
+                    Log.d("RESPONSE", "OK ${mJson}")
+                    Log.d("RESPONSE", "OK ${response.errorBody()?.string()}")
+                    if (response.message() == "OK") {
+                        val gson: Gson = Gson()
+                        //val json = response.body()?.string()
+                        val resp = gson.fromJson(mJson, OKResponse::class.java)
+                        if (resp != null) {
+                            if (resp.status == "success") {
+                                finishDialog(dialog, resp.url)
+                            } else {
+                                errDialog(dialog, resp.reason)
+                            }
                         } else {
-                            errDialog(dialog, resp.reason)
+                            errDialog(dialog, "Server error try again later")
                         }
                     } else {
-                        errDialog(dialog, "Server error try again later")
+                        errDialog(dialog, "Application error try again.")
                     }
-                } else {
-                    errDialog(dialog, "Application error try again.")
                 }
-            }
 
-            override fun onFailure(call: Call<ResponseBody?>?, t: Throwable?) {
-                Log.e("Error", t.toString())
-                errDialog(dialog, "Connection error check your connection and try again.")
+                override fun onFailure(call: Call<ResponseBody?>?, t: Throwable?) {
+                    Log.e("Error", t.toString())
+                    errDialog(dialog, "Connection error check your connection and try again.")
 //                Log.d("RESPONSE", " NOT OK $t")
 
-            }
-        })
+                }
+            })
+        }
+
+
 
 
     }

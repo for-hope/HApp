@@ -17,17 +17,5 @@ object Utility {
         return (screenWidthDp / columnWidthDp + 0.5).toInt()
     }
 
-    private fun getPath(uri: Uri?,activity:Activity): String? {
-        val projection =
-            arrayOf(MediaStore.Images.Media.DATA)
-        val cursor =
-            activity.contentResolver.query(uri!!, projection, null, null, null)
-                ?: return null
-        val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        cursor.moveToFirst()
-        val s = cursor.getString(columnIndex)
-        cursor.close()
-        return s
-    }
 
 }

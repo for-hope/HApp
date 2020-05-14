@@ -10,7 +10,10 @@ object ScreenHelper {
 
 
     const val KEY_BG_URI = "bgUri"
-
+    const val KEY_POSTER_URI = "posterUri"
+    const val KEY_BANNER_URI = "banner"
+    const val KEY_TITLE_STRING = "title"
+    const val KEY_OVERVIEW_STRING = "overview"
     fun getScreensFromJson(fileName: String, context: Context): ArrayList<Screen> {
 
         val screens = ArrayList<Screen>()
@@ -27,7 +30,11 @@ object ScreenHelper {
             // Create the list of Movies
             for (index in 0 until jsonScreens.length()) {
                 val movieBgUri = jsonScreens.getJSONObject(index).getString(KEY_BG_URI)
-                screens.add(Screen(movieBgUri))
+                val screenPosterUri = jsonScreens.getJSONObject(index).getString(KEY_POSTER_URI)
+                val bannerUri = jsonScreens.getJSONObject(index).getString(KEY_BANNER_URI)
+                val title = jsonScreens.getJSONObject(index).getString(KEY_TITLE_STRING)
+                val overview = jsonScreens.getJSONObject(index).getString(KEY_OVERVIEW_STRING)
+                screens.add(Screen(movieBgUri,screenPosterUri,bannerUri,title,overview))
             }
         } catch (e: JSONException) {
             return screens

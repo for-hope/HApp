@@ -1,25 +1,25 @@
 {
   "movies":[
     {
-      "title":"A very easy to use process :\n",
-      "rating":7,
-      "posterUri":"person",
-      "overview":"Just click the Generate button, Upload a photo, select a voice, Photo goes in, video comes out!",
-      "bgUri": "bcg2"
+      "title":"Get started with \n our memix generator :",
+      "banner":"topbluebg",
+      "posterUri":"gradiant_bg2",
+      "overview":"Just click the generate button \n and Photo goes in, a memix comes out.",
+      "bgUri": "person"
     },
     {
-      "rating":8,
-      "title":"Droid Runner 2049",
-      "posterUri":"v1",
-      "overview":"According to all known laws of aviation, there is no way a bee should be able to fly. Its wings are too small to get its fat little body off the ground.",
-      "bgUri": "bcg1"
+      "banner":"banner_dblue",
+      "title":"Voice Library of 50+  \n meme voices",
+      "posterUri":"gradiant_bg1",
+      "overview":"Frequently updated custom \n voices so you never \n run out of fun",
+      "bgUri": "v1"
     },
     {
-      "title":"Dawn of the Planet of the Droids",
-      "rating":7,
-      "posterUri":"dawn",
-      "overview":"A group of scientists in San Francisco struggle to stay alive in the aftermath of a plague that is wiping out humanity, while Andy tries to maintain dominance over his community of intelligent droids.",
-      "bgUri": "bcg3"
+      "title":"New updates and features",
+      "banner":"banner_purple",
+      "posterUri":"gradiant_bg3",
+      "overview":"Stay tuned for many updates and features coming soon!",
+      "bgUri": ""
     }
   ]
 }

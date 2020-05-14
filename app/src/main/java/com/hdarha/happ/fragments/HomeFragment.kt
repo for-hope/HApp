@@ -64,7 +64,7 @@ class HomeFragment : Fragment() {
             "movies.json",
             context!!
         )
-
+        Log.d("screens",screens.toString())
         val dotsIndicator = activity!!.findViewById<DotsIndicator>(R.id.dots_indicator)
         val viewPager = activity!!.findViewById<ViewPager2>(R.id.view_pager)
 
