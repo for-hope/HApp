@@ -178,6 +178,7 @@ class ImageDisplayActivity : AppCompatActivity(),
         val imgView = dialog.findViewById<ImageView>(R.id.dialog_img)
         Log.d("ImgURi", imgUri!!)
         if (imgUri!!.startsWith("content")) {
+
             Picasso.get().load(Uri.parse(imgUri)).resize(300, 200).centerCrop().into(imgView)
         } else {
             val f = File(imgUri!!)
@@ -301,6 +302,7 @@ class ImageDisplayActivity : AppCompatActivity(),
     private fun cropImage(src: Uri, dest: Uri) {
         isCropped = true
         UCrop.of(src, dest)
+            .withAspectRatio(3f,4f)
             .start(this)
     }
 

@@ -64,7 +64,7 @@ class HomeFragment : Fragment() {
             "movies.json",
             context!!
         )
-        Log.d("screens",screens.toString())
+        Log.d("screens", screens.toString())
         val dotsIndicator = activity!!.findViewById<DotsIndicator>(R.id.dots_indicator)
         val viewPager = activity!!.findViewById<ViewPager2>(R.id.view_pager)
 
@@ -107,24 +107,31 @@ class HomeFragment : Fragment() {
         }
 
         homeShareBtn.setOnClickListener {
-            val sendIntent = Intent()
-            sendIntent.action = Intent.ACTION_SEND
-            sendIntent.putExtra(
-                Intent.EXTRA_TEXT,
-                "Hey check out this memes app at: https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID
-            )
-            sendIntent.type = "text/plain"
-            startActivity(Intent.createChooser(sendIntent,"Share App!"))
+            //shareApp()
+            val intent = Intent(context, VideoPlayerActivity::class.java)
+            intent.putExtra("url", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4")
+            startActivity(intent)
         }
 
 
+    }
+
+    private fun shareApp() {
+        val sendIntent = Intent()
+        sendIntent.action = Intent.ACTION_SEND
+        sendIntent.putExtra(
+            Intent.EXTRA_TEXT,
+            "Hey check out this memes app at: https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID
+        )
+        sendIntent.type = "text/plain"
+        startActivity(Intent.createChooser(sendIntent, "Share App!"))
     }
 
     private fun updateUI(currentUser: FirebaseUser?) {
         if (currentUser != null) {
             val profileUrl = currentUser.photoUrl
             val p = Picasso.get()
-            Log.d("url",profileUrl.toString())
+            Log.d("url", profileUrl.toString())
             Glide.with(this).load(profileUrl).into(profile_image)
             creditNumberTextView.visibility = View.VISIBLE
             creditTextView.visibility = View.VISIBLE

@@ -12,8 +12,7 @@
         android:id="@+id/dialog_img"
         android:layout_width="300dp"
         android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        app:srcCompat="@drawable/bg1" />
+        android:scaleType="centerCrop" />
 
     <ProgressBar
         android:id="@+id/dialog_pb"

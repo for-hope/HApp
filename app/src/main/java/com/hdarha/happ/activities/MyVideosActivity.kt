@@ -90,6 +90,7 @@ class MyVideosActivity : AppCompatActivity() {
         if (videos.isEmpty()) {
             EmptyVideoListLayout.visibility = View.VISIBLE
         }
+
     }
 
     private fun getVideoList() {

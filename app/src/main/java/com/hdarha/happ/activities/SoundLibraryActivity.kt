@@ -93,7 +93,6 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
                     val cacheFile =
                         File(externalCacheDir, "voices" + File.separator + voice.name + ".m4a")
                     if (!cacheFile.exists()) {
-
                         val downloadManager =
                             getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
                         val uri: Uri = Uri.parse(voice.location)
@@ -101,7 +100,6 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
                         val request = DownloadManager.Request(uri)
                         request.setTitle(voice.caption)
                         request.setDescription("Downloading")
-                        //request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
                         Log.d("DownloadManager", "Saving to $cacheFile")
                         request.setDestinationUri(Uri.fromFile(cacheFile))

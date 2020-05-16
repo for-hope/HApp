@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -73,11 +74,11 @@ class HistoryFragment : Fragment() {
             )
         mRecyclerAdapter.adapter = adapter
         mRecyclerAdapter.layoutManager = linearLayoutManager
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE)
+        val map = getStoredMap()
+        val photoDatesList = getDates(map)
         GlobalScope.launch {
             activity!!.runOnUiThread {
-                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE)
-                val map = getStoredMap()
-                val photoDatesList = getDates(map)
                 photoDatesList.sortByDescending { dateFormat.parse(it) }
                 //val photosCheckList:ArrayList<String> = arrayListOf()
                 for (date in photoDatesList) {
@@ -107,6 +108,7 @@ class HistoryFragment : Fragment() {
         }
     }
 
+
     private fun getDates(map: HashMap<String, String>): ArrayList<String> {
         val datesList = arrayListOf<String>()
         map.forEach {
@@ -131,15 +133,20 @@ class HistoryFragment : Fragment() {
         val prefValue = "history"
         val keyValue = "map"
         val gson = Gson()
-        val sharedPreferences =
-            this.activity!!.getSharedPreferences(prefValue, Context.MODE_PRIVATE)
-
-        val hashString = sharedPreferences.getString(keyValue, "")
-        val type: Type = object : TypeToken<HashMap<String, String>>() {}.type
         var storedHashMap: HashMap<String, String> = hashMapOf()
-        if (hashString != "") {
-            storedHashMap = gson.fromJson(hashString, type) as HashMap<String, String>
+        if (activity != null){
+            val sharedPreferences = activity!!.getSharedPreferences(prefValue, Context.MODE_PRIVATE)
+
+            val hashString = sharedPreferences.getString(keyValue, "")
+            val type: Type = object : TypeToken<HashMap<String, String>>() {}.type
+
+            if (hashString != "") {
+                storedHashMap = gson.fromJson(hashString, type) as HashMap<String, String>
+            }
+        } else {
+            Toast.makeText(context,"Error loading history. Try refreshing.",Toast.LENGTH_SHORT).show()
         }
+
         return storedHashMap
     }
 
