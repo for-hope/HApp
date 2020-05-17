@@ -1,31 +1,26 @@
 package com.hdarha.happ.activities
 
 import HVideo
-import android.Manifest
 import android.app.Activity
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.MediaMetadataRetriever
+import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hdarha.happ.R
 import com.hdarha.happ.adapters.VideosAdapter
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionDeniedResponse
-import com.karumi.dexter.listener.PermissionGrantedResponse
-import com.karumi.dexter.listener.PermissionRequest
-import com.karumi.dexter.listener.single.PermissionListener
+import com.hdarha.happ.other.TAG
 import com.yalantis.ucrop.util.FileUtils.getPath
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
@@ -36,9 +31,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 
+private const val REQUEST_CODE_CHOOSE = 1
 
 class MyVideosActivity : AppCompatActivity() {
-    private val REQUEST_CODE_CHOOSE = 1
+
     val context = this
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,11 +57,11 @@ class MyVideosActivity : AppCompatActivity() {
         recyclerview_videos.adapter = adapter
 
         fab.setOnClickListener {
-            permissionCheckGallery()
+            showGallery()
         }
 
         progressBarMyVideos.isIndeterminate = true
-        progressBarMyVideos.visibility = View.VISIBLE
+        progressLayout.visibility = View.VISIBLE
         swipe.setRefreshListener {
             getVideoList()
 
@@ -79,13 +75,14 @@ class MyVideosActivity : AppCompatActivity() {
     override fun onBackPressed() {
         finish()
     }
+
     private fun setAdapter(videos: MutableList<HVideo>) {
         swipe.setRefreshing(false)
         //val linearLayoutManager = LinearLayoutManager(this)
         val adapter = VideosAdapter(ArrayList(videos), this)
 
         recyclerview_videos.adapter = adapter
-        progressBarMyVideos.visibility = View.GONE
+        progressLayout.visibility = View.GONE
         adapter.notifyDataSetChanged()
         if (videos.isEmpty()) {
             EmptyVideoListLayout.visibility = View.VISIBLE
@@ -101,6 +98,8 @@ class MyVideosActivity : AppCompatActivity() {
                 MediaStore.Video.Media.DISPLAY_NAME,
                 MediaStore.Video.Media.DATE_ADDED
             )
+            //val selection = "${MediaStore.Video.Media.id} LIKE ?"
+
             val selection = "${MediaStore.Video.Media.DISPLAY_NAME} LIKE ?"
             //val selectionArgs = arrayOf("%FolderName%")
             val selectionArgs = arrayOf("%HApp_%")
@@ -138,16 +137,35 @@ class MyVideosActivity : AppCompatActivity() {
                     )
 
                     val mMMR = MediaMetadataRetriever()
-                    if (File(getPath(this@MyVideosActivity, contentUri)!!).exists()) {
-                        mMMR.setDataSource(this@MyVideosActivity, contentUri)
-                        val bmp = mMMR.frameAtTime
-                        val time =
-                            mMMR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                        val timeInMillis = time.toLong()
-                        mMMR.release()
-                        // Stores column values and the contentUri in a local object
-                        // that represents the media file.
-                        videoList += HVideo(contentUri, name, timeInMillis, dateAdded * 1000, bmp)
+                    val path = getPath(this@MyVideosActivity, contentUri)
+
+                    if (path != null && File(path).exists()) {
+                        val file = File(path)
+                        @Suppress("DEPRECATION") val testFile =
+                            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES + File.separator + "HApp" + File.separator + file.name)
+                        if (testFile.exists()) {
+                            Log.d(TAG, testFile.absolutePath + " EXISTS")
+                            mMMR.setDataSource(this@MyVideosActivity, contentUri)
+                            val bmp = mMMR.frameAtTime
+                            val thumbnail =
+                                ThumbnailUtils.extractThumbnail(bmp, bmp.width / 2, bmp.height / 2)
+                            val time =
+                                mMMR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                            val timeInMillis = time.toLong()
+                            mMMR.release()
+                            // Stores column values and the contentUri in a local object
+                            // that represents the media file.
+                            videoList += HVideo(
+                                contentUri,
+                                name,
+                                timeInMillis,
+                                dateAdded * 1000,
+                                thumbnail
+                            )
+                        } else {
+                            Log.d(TAG, testFile.absolutePath + " NOT EXIST")
+                        }
+
                     }
                 }
             }
@@ -190,29 +208,6 @@ class MyVideosActivity : AppCompatActivity() {
             .forResult(REQUEST_CODE_CHOOSE)
     }
 
-    private fun permissionCheckGallery() {
-        Dexter.withContext(this)
-            .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            .withListener(object : PermissionListener {
-                override fun onPermissionGranted(p0: PermissionGrantedResponse?) {
-                    Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT)
-                        .show()
-                    showGallery()
-                }
-
-                override fun onPermissionDenied(p0: PermissionDeniedResponse?) {
-                    Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT)
-                        .show()
-                }
-
-                override fun onPermissionRationaleShouldBeShown(
-                    permission: PermissionRequest?,
-                    token: PermissionToken?
-                ) {
-                    Toast.makeText(context, "DIK", Toast.LENGTH_SHORT).show()
-                }
-            }).check()
-    }
 
     override fun onActivityResult(
         requestCode: Int,

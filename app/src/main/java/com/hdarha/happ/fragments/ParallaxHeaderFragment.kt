@@ -2,13 +2,10 @@ package com.hdarha.happ.fragments
 
 import android.content.Context
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollView
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks
@@ -17,9 +14,7 @@ import com.hdarha.happ.R
 import me.everything.android.ui.overscroll.IOverScrollDecor
 import me.everything.android.ui.overscroll.VerticalOverScrollBounceEffectDecorator
 import me.everything.android.ui.overscroll.adapters.ScrollViewOverScrollDecorAdapter
-import kotlin.math.abs
 import kotlin.math.max
-import kotlin.math.min
 
 abstract class ParallaxHeaderFragment : Fragment(),
     ObservableScrollViewCallbacks {
@@ -61,9 +56,9 @@ abstract class ParallaxHeaderFragment : Fragment(),
         contentView.id = contentViewId
         val scrollView = ObservableScrollView(mContext)
 
-        val p =LinearLayout.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.MATCH_PARENT
+        val p = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
         )
 
         scrollView.layoutParams = p
@@ -71,17 +66,17 @@ abstract class ParallaxHeaderFragment : Fragment(),
         scrollView.isFillViewport = true
         scrollView.addView(contentView)
         scrollView.setScrollViewCallbacks(this)
-        scrollView.isNestedScrollingEnabled =  false
+        scrollView.isNestedScrollingEnabled = false
 
         val decor: IOverScrollDecor = VerticalOverScrollBounceEffectDecorator(
             ScrollViewOverScrollDecorAdapter(scrollView)
         )
-        decor.setOverScrollUpdateListener { decor1: IOverScrollDecor?, state: Int, offset: Float ->
+        decor.setOverScrollUpdateListener { _: IOverScrollDecor?, _: Int, offset: Float ->
             if (offset.toInt() > 0) {
                 // 'view' is currently being over-scrolled from the top.
                 update((-offset).toInt())
             } else if (offset.toInt() < 0) {
-                Log.d("Offet", offset.toInt().toString())
+
                 updateProfileLayout(offset.toInt() + lastScroll)
             }
 
@@ -133,10 +128,10 @@ abstract class ParallaxHeaderFragment : Fragment(),
         if (scrollY < 0) {
             val defMaragin = convertDpToPixel(25f, context).toInt()
             if (defMaragin - scrollY > 0) {
-                Log.d("Updatey",scrollY.toString())
+
                 val profile = headerView!!.findViewById<LinearLayout>(R.id.profileLinearLayout)
-                val layoutParams:FrameLayout.LayoutParams = profile.layoutParams as FrameLayout.LayoutParams
-                val defaultOffset = min(defMaragin - scrollY, defMaragin)
+                val layoutParams: FrameLayout.LayoutParams =
+                    profile.layoutParams as FrameLayout.LayoutParams
                 layoutParams.setMargins(0, -scrollY, 0, 0)
                 profile.layoutParams = layoutParams
                 profile.requestLayout()
@@ -151,16 +146,17 @@ abstract class ParallaxHeaderFragment : Fragment(),
 
     private fun updateProfileLayout(offset: Int) {
         if (offset < 0) {
-            //Log.d("updateProfile", offset.toString())
+
             val profile = headerView!!.findViewById<LinearLayout>(R.id.profileLinearLayout)
 
-            val layoutParams:FrameLayout.LayoutParams = profile.layoutParams as FrameLayout.LayoutParams
+            val layoutParams: FrameLayout.LayoutParams =
+                profile.layoutParams as FrameLayout.LayoutParams
             layoutParams.setMargins(0, offset, 0, 0)
             profile.layoutParams = layoutParams
             profile.requestLayout()
             val h = headerHeight + offset
             if (h > 0) {
-            headerView!!.layoutParams.height = h
+                headerView!!.layoutParams.height = h
                 headerView!!.visibility = View.VISIBLE
             } else {
                 headerView!!.visibility = View.GONE

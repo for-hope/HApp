@@ -28,7 +28,7 @@
             android:id="@+id/videoView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
 
         <LinearLayout
             android:id="@+id/progressLayout"
@@ -49,7 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Loading Video..."
+                android:text="@string/loading_video"
                 android:textColor="@android:color/white" />
         </LinearLayout>
 
@@ -75,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Share"
+            android:text="@string/share"
             app:icon="@drawable/ic_share_black_24dp"
             app:iconPadding="8dp"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle" />

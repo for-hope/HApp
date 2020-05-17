@@ -3,6 +3,7 @@ package com.hdarha.happ.objects;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+@SuppressWarnings("ALL")
 public class OKResponse {
 
     @SerializedName("status")
@@ -14,15 +15,14 @@ public class OKResponse {
     @SerializedName("reason")
     @Expose
     private String reason;
+
     /**
      * No args constructor for use in serialization
-     *
      */
     public OKResponse() {
     }
 
     /**
-     *
      * @param url
      * @param status
      */

@@ -1,12 +1,10 @@
 package com.hdarha.happ.adapters
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -27,7 +25,6 @@ private var gifDrawableReset: GifDrawable? = null
 private var selectedSound: Int = -1
 
 class RecyclerAdapter(
-    private var context: Context,
     private val sounds: ArrayList<Voice>,
     private val isActivity: Boolean,
     listener: OnItemClick,
@@ -84,13 +81,7 @@ class RecyclerAdapter(
         }
 
         //4
-        override fun onClick(v: View) {
-//            Log.d("RecyclerView", "CLICK! $adapterPosition")
-//            val soundId = sounds[adapterPosition].id
-//            selectSound(soundId)
-//            notifyDataSetChanged()
-
-        }
+        override fun onClick(v: View) {}
 
 
         fun bindPhoto(sound: Voice) {
@@ -100,7 +91,6 @@ class RecyclerAdapter(
             val author = inflated.findViewById<TextView>(R.id.sound_author_tv)
             val timestamp = inflated.findViewById<TextView>(R.id.sound_timestamp_tv)
             val eqImg = inflated.findViewById<GifImageView>(R.id.eq_img)
-            val playImg = inflated.findViewById<ImageView>(R.id.play_img)
             val gifImg = inflated.findViewById<GifImageButton>(R.id.gifImageBtn)
             val cardView = inflated.findViewById<MaterialCardView>(R.id.sound_card)
             val favIcon = inflated.findViewById<MaterialCheckBox>(R.id.fav_icon)
@@ -137,7 +127,7 @@ class RecyclerAdapter(
             if (sound.name != soundId) {
                 title.typeface = Typeface.DEFAULT
                 eqImg.visibility = View.INVISIBLE
-                playImg.visibility = View.INVISIBLE
+
             }
 
             //setup player
@@ -154,44 +144,6 @@ class RecyclerAdapter(
                 mVoiceClickCallBack?.onPlay(title, mGifDrawable, pathStr)
                 titleReset = title
                 gifDrawableReset = mGifDrawable
-//                if (audioPlaying != adapterPosition) {
-//                    //mPlayer.release()
-//                    if (mPlayer?.isPlaying!!) {
-//                        resetLayout()
-//                    }
-//                    mPlayer?.reset()
-//                    mPlayer?.setDataSource(pathStr)
-//                    mPlayer?.prepare()
-//
-//                    audioPlaying = adapterPosition
-//
-//
-//                }
-//                if (mGifDrawable.isRunning) {
-//                    mPlayer?.seekTo(mPlayer?.duration!! - 1)
-//
-//                } else {
-//
-//                    if (!mPlayer?.isPlaying!!) {
-//
-//
-//                        title.typeface = Typeface.DEFAULT_BOLD
-//                        mPlayer?.start()
-//                        titleReset = title
-//                        gifDrawableReset = mGifDrawable
-//                        isPlaying = true
-//                        mGifDrawable.start()
-//                    }
-//                }
-//
-//
-//                mPlayer?.setOnCompletionListener {
-//                    isPlaying = false
-//                    title.typeface = Typeface.DEFAULT
-//                    mGifDrawable.stop();
-//                    mGifDrawable.seekTo(0)
-//                    audioPlaying = -1
-//                }
 
             }
 
@@ -228,11 +180,6 @@ class RecyclerAdapter(
 
         }
 
-
-//        companion object {
-//            //5
-//            private val PHOTO_KEY = "PHOTO"
-//        }
     }
 
 

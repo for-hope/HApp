@@ -39,7 +39,7 @@
             android:fontFamily="monospace"
             android:gravity="center"
             android:padding="20dp"
-            android:text="No sound selected."
+            android:text="@string/no_sound_selected"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -54,7 +54,7 @@
             android:fontFamily="monospace"
             android:gravity="center"
             android:padding="20dp"
-            android:text="No sound selected."
+            android:text="@string/no_sound_selected"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold" />

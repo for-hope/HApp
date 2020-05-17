@@ -21,6 +21,7 @@ import com.google.gson.reflect.TypeToken
 import com.hdarha.happ.R
 import com.hdarha.happ.adapters.UploadItemsAdapter
 import com.hdarha.happ.objects.Upload
+import com.hdarha.happ.other.PREF_HISTORY
 import kotlinx.android.synthetic.main.fragment_history.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -43,7 +44,7 @@ class HistoryFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         val mAppCompatActivity = activity as AppCompatActivity
         mAppCompatActivity.setSupportActionBar(view!!.findViewById(R.id.uploadsToolbar))
-        mAppCompatActivity.supportActionBar?.title = "History"
+        mAppCompatActivity.supportActionBar?.title = getString(R.string.history)
         showCustomUI()
 
 
@@ -130,12 +131,13 @@ class HistoryFragment : Fragment() {
     }
 
     private fun getStoredMap(): HashMap<String, String> {
-        val prefValue = "history"
+        //val prefValue = "history"
         val keyValue = "map"
         val gson = Gson()
         var storedHashMap: HashMap<String, String> = hashMapOf()
-        if (activity != null){
-            val sharedPreferences = activity!!.getSharedPreferences(prefValue, Context.MODE_PRIVATE)
+        if (activity != null) {
+            val sharedPreferences =
+                activity!!.getSharedPreferences(PREF_HISTORY, Context.MODE_PRIVATE)
 
             val hashString = sharedPreferences.getString(keyValue, "")
             val type: Type = object : TypeToken<HashMap<String, String>>() {}.type
@@ -144,7 +146,8 @@ class HistoryFragment : Fragment() {
                 storedHashMap = gson.fromJson(hashString, type) as HashMap<String, String>
             }
         } else {
-            Toast.makeText(context,"Error loading history. Try refreshing.",Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Error loading history. Try refreshing.", Toast.LENGTH_SHORT)
+                .show()
         }
 
         return storedHashMap

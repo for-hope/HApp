@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.hdarha.happ.R
 import com.hdarha.happ.activities.VideoPlayerActivity
+import com.hdarha.happ.other.TAG
 import com.hdarha.happ.other.inflate
 import com.yalantis.ucrop.util.FileUtils.getPath
 import java.io.File
@@ -69,7 +70,7 @@ class VideosAdapter(private val videos: ArrayList<HVideo>, private val activity:
             var date = sdf.format(c.time)
 
             if (DateUtils.isToday(c.time.time)) {
-                date = "Today"
+                date = activity.getString(R.string.today)
             }
             dateTextView.text = date
             titleTextView.text = video.name.replace("HApp_Video_", "")
@@ -79,13 +80,19 @@ class VideosAdapter(private val videos: ArrayList<HVideo>, private val activity:
             val secs = TimeUnit.MILLISECONDS.toSeconds(timeInMillis).toInt()
             val dur = "${String.format("%02d", mins)}:${String.format("%02d", secs)}"
             timeTextView.text = dur
-            thumbnailImageView.setImageBitmap(video.thumbnail)
+            try {
+                thumbnailImageView.setImageBitmap(video.thumbnail)
+            } catch (e: OutOfMemoryError) {
+                Log.e(TAG, e.message.toString())
+                Toast.makeText(activity, "Error loading image (Memory Full).", Toast.LENGTH_SHORT)
+                    .show()
+            }
+
 
             deleteButton.setOnClickListener { confirmationDialog(video.uri) }
             thumbnailImageView.setOnClickListener {
-                val intent = Intent(activity,VideoPlayerActivity::class.java)
-
-                intent.putExtra("url", getPath(activity,video.uri))
+                val intent = Intent(activity, VideoPlayerActivity::class.java)
+                intent.putExtra("url", getPath(activity, video.uri))
                 activity.startActivity(intent)
 
             }
@@ -93,9 +100,9 @@ class VideosAdapter(private val videos: ArrayList<HVideo>, private val activity:
 
         private fun confirmationDialog(fileUri: Uri) {
             AlertDialog.Builder(activity)
-                .setTitle("Delete Video")
-                .setMessage("Are you sure you want to delete this video?")
-                .setPositiveButton("Delete") { _, _ ->
+                .setTitle(activity.getString(R.string.delete_video))
+                .setMessage(activity.getString(R.string.delete_confirmation))
+                .setPositiveButton(activity.getString(R.string.delete)) { _, _ ->
                     deleteVideo(fileUri)
                 }
                 .setNegativeButton(android.R.string.no, null)

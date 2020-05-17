@@ -52,7 +52,7 @@
             android:name=".activities.SoundLibraryActivity"
             android:theme="@style/AppTheme" />
         <activity android:name=".fragments.ParallaxHeaderFragment" />
-        <activity android:name=".activities.EmptyActivity" />
+
         <activity android:name=".activities.LoginActivity" />
 
         <meta-data
@@ -90,6 +90,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths_public" />
         </provider>
+
+
     </application>
 
 

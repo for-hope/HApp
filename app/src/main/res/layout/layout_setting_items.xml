@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">>
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
-
         android:id="@+id/setting1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,9 +29,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_translate_black_24dp"
+                    android:drawableStart="@drawable/ic_translate_black_24dp"
                     android:drawablePadding="10dp"
-                    android:text="Language (EN)"
+                    android:text=""
                     android:textColor="#000000"
                     android:textSize="18sp"
                     app:drawableTint="#D32F2F" />
@@ -43,7 +41,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="0"
-                    app:srcCompat="@drawable/ic_keyboard_arrow_right_gray_24dp" />
+                    app:srcCompat="@drawable/ic_keyboard_arrow_right_gray_24dp"
+                    android:contentDescription="@string/enter" />
 
             </LinearLayout>
 
@@ -78,9 +77,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_survey"
+                    android:drawableStart="@drawable/ic_survey"
                     android:drawablePadding="10dp"
-                    android:text="Feedback"
+                    android:text="@string/feedback"
                     android:textColor="#000000"
                     android:textSize="18sp"
                     app:drawableTint="#D32F2F" />
@@ -90,7 +89,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="0"
-                    app:srcCompat="@drawable/ic_keyboard_arrow_right_gray_24dp" />
+                    app:srcCompat="@drawable/ic_keyboard_arrow_right_gray_24dp"
+                    android:contentDescription="@string/enter" />
 
             </LinearLayout>
 
@@ -125,9 +125,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_notifications_none_black_24dp"
+                    android:drawableStart="@drawable/ic_notifications_none_black_24dp"
                     android:drawablePadding="10dp"
-                    android:text="Push Notification"
+                    android:text="@string/push_notification"
                     android:textColor="#000000"
                     android:textSize="18sp"
                     app:drawableTint="#D32F2F" />
@@ -172,9 +172,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_headset_mic_black_24dp"
+                    android:drawableStart="@drawable/ic_headset_mic_black_24dp"
                     android:drawablePadding="10dp"
-                    android:text="Contact us"
+                    android:text="@string/contact_us"
                     android:textColor="#000000"
                     android:textSize="18sp"
                     app:drawableTint="#D32F2F" />
@@ -183,48 +183,48 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:gravity="right"
+                    android:gravity="end"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/imageFacebook"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0"
                         android:paddingStart="2dp"
                         android:paddingEnd="2dp"
                         android:tint="@android:color/darker_gray"
-                        app:srcCompat="@drawable/ic_facebook" />
+                        app:srcCompat="@drawable/ic_facebook"
+                        android:contentDescription="@string/facebook" />
 
                     <ImageView
                         android:id="@+id/imageInstagram"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0"
                         android:paddingStart="2dp"
                         android:paddingEnd="2dp"
                         android:tint="@android:color/darker_gray"
-                        app:srcCompat="@drawable/ic_instagram" />
+                        app:srcCompat="@drawable/ic_instagram"
+                        android:contentDescription="@string/instagram" />
 
                     <ImageView
                         android:id="@+id/imageTwitter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0"
                         android:paddingStart="2dp"
                         android:paddingEnd="2dp"
                         android:tint="@android:color/darker_gray"
-                        app:srcCompat="@drawable/ic_twitter" />
+                        app:srcCompat="@drawable/ic_twitter"
+                        android:contentDescription="@string/twitter" />
 
                     <ImageView
                         android:id="@+id/imageEmail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0"
                         android:paddingStart="2dp"
                         android:paddingEnd="2dp"
                         android:tint="@android:color/darker_gray"
-                        app:srcCompat="@drawable/ic_arroba" />
+                        app:srcCompat="@drawable/ic_arroba"
+                        android:contentDescription="@string/email" />
 
                 </LinearLayout>
 
@@ -258,12 +258,12 @@
                 android:padding="20dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_eraser"
+                    android:drawableStart="@drawable/ic_eraser"
                     android:drawablePadding="10dp"
-                    android:text="Erase all content"
+                    android:text="@string/erase_all_content"
                     android:textColor="#000000"
                     android:textSize="18sp"
                     app:drawableTint="#D32F2F" />
@@ -301,9 +301,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_lightbulb_outline_black_24dp"
+                    android:drawableStart="@drawable/ic_lightbulb_outline_black_24dp"
                     android:drawablePadding="10dp"
-                    android:text="Terms of service"
+                    android:text="@string/terms_of_service"
                     android:textColor="#000000"
                     android:textSize="18sp"
                     app:drawableTint="#D32F2F" />
@@ -313,7 +313,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="0"
-                    app:srcCompat="@drawable/ic_keyboard_arrow_right_gray_24dp" />
+                    app:srcCompat="@drawable/ic_keyboard_arrow_right_gray_24dp"
+                    android:contentDescription="@string/enter" />
 
             </LinearLayout>
 
@@ -348,9 +349,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_info_outline_black_24dp"
+                    android:drawableStart="@drawable/ic_info_outline_black_24dp"
                     android:drawablePadding="10dp"
-                    android:text="About us"
+                    android:text="@string/about_us"
                     android:textColor="#000000"
                     android:textSize="18sp"
                     app:drawableTint="#D32F2F" />
@@ -360,7 +361,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="0"
-                    app:srcCompat="@drawable/ic_keyboard_arrow_right_gray_24dp" />
+                    app:srcCompat="@drawable/ic_keyboard_arrow_right_gray_24dp"
+                    android:contentDescription="@string/enter" />
 
             </LinearLayout>
 

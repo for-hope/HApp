@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
                 android:visibility="visible">
 
 
-                <com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                <com.google.android.material.appbar.AppBarLayout
                     android:id="@+id/appBarLayout"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
@@ -49,7 +49,8 @@
                             android:layout_height="?attr/actionBarSize"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:src="@drawable/ic_sound_waves"
-                            android:tint="@android:color/white" />
+                            android:tint="@android:color/white"
+                            android:contentDescription="@string/toolbar_icon" />
 
                         <TextView
                             android:id="@+id/nameToolbar"
@@ -58,7 +59,7 @@
                             android:layout_gravity="center_vertical"
                             android:layout_marginStart="15dp"
                             android:layout_weight="1"
-                            android:text="Select Sound"
+                            android:text="@string/select_sound"
                             android:textAppearance="@style/TextAppearance.AppCompat.Title"
                             android:textColor="@android:color/white" />
 
@@ -68,7 +69,8 @@
                             android:layout_height="?attr/actionBarSize"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:src="@drawable/ic_random"
-                            android:tint="@android:color/white" />
+                            android:tint="@android:color/white"
+                            android:contentDescription="@string/shuffle_voices" />
 
                         <ImageButton
                             android:id="@+id/cancel_btn_bs"
@@ -76,7 +78,8 @@
                             android:layout_height="?attr/actionBarSize"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:src="@android:drawable/ic_menu_close_clear_cancel"
-                            android:tint="@android:color/white" />
+                            android:tint="@android:color/white"
+                            android:contentDescription="@string/close_activity" />
                     </LinearLayout>
 
 
@@ -96,70 +99,6 @@
                         android:background="#5E6278"
                         android:orientation="vertical"
                         android:padding="15dp">
-
-
-                        <!--                    <include-->
-                        <!--                        android:id="@+id/news_title2"-->
-                        <!--                        layout="@layout/view_sounds"-->
-                        <!--                        android:layout_width="match_parent"-->
-                        <!--                        android:layout_height="wrap_content" />-->
-
-                        <!--                    <LinearLayout-->
-                        <!--                        android:layout_width="match_parent"-->
-                        <!--                        android:layout_height="wrap_content"-->
-                        <!--                        android:layout_marginTop="15dp"-->
-                        <!--                        android:layout_marginBottom="15dp"-->
-                        <!--                        android:orientation="horizontal">-->
-
-
-                        <!--                        <View-->
-                        <!--                            android:layout_width="?attr/actionBarSize"-->
-                        <!--                            android:layout_height="0dp" />-->
-
-                        <!--                        <View-->
-                        <!--                            android:layout_width="10dp"-->
-                        <!--                            android:layout_height="0dp" />-->
-
-                        <!--                        <View-->
-                        <!--                            android:layout_width="match_parent"-->
-                        <!--                            android:layout_height="1dp"-->
-                        <!--                            android:background="#e6e6e6" />-->
-                        <!--                    </LinearLayout>-->
-
-                        <!--                    <include-->
-                        <!--                        android:id="@+id/l1"-->
-                        <!--                        layout="@layout/view_sounds"-->
-                        <!--                        android:layout_width="match_parent"-->
-                        <!--                        android:layout_height="wrap_content" />-->
-
-
-                        <!--                    <LinearLayout-->
-                        <!--                        android:layout_width="match_parent"-->
-                        <!--                        android:layout_height="wrap_content"-->
-                        <!--                        android:layout_marginTop="15dp"-->
-                        <!--                        android:layout_marginBottom="15dp"-->
-                        <!--                        android:orientation="horizontal">-->
-
-
-                        <!--                        <View-->
-                        <!--                            android:layout_width="?attr/actionBarSize"-->
-                        <!--                            android:layout_height="0dp" />-->
-
-                        <!--                        <View-->
-                        <!--                            android:layout_width="10dp"-->
-                        <!--                            android:layout_height="0dp" />-->
-
-                        <!--                        <View-->
-                        <!--                            android:layout_width="match_parent"-->
-                        <!--                            android:layout_height="1dp"-->
-                        <!--                            android:background="#e6e6e6" />-->
-                        <!--                    </LinearLayout>-->
-
-                        <!--                    <include-->
-                        <!--                        android:id="@+id/l3"-->
-                        <!--                        layout="@layout/view_sounds"-->
-                        <!--                        android:layout_width="match_parent"-->
-                        <!--                        android:layout_height="wrap_content" />-->
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rec_view"
@@ -181,12 +120,28 @@
 
             </LinearLayout>
 
-            <ProgressBar
-                android:id="@+id/bottomSheetPB"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
+            <LinearLayout
+                android:id="@+id/progessLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ProgressBar
+                    android:id="@+id/bottomSheetPB"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center" />
+
+                <TextView
+                    android:id="@+id/textViewLoading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loading_voices"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
         </FrameLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,7 +1,7 @@
 package com.hdarha.happ.fragments
 
-import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -21,16 +20,14 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.hdarha.happ.BuildConfig
 import com.hdarha.happ.R
-import com.hdarha.happ.activities.*
+import com.hdarha.happ.activities.ImageDisplayActivity
+import com.hdarha.happ.activities.LoginActivity
+import com.hdarha.happ.activities.MyVideosActivity
+import com.hdarha.happ.activities.SoundLibraryActivity
 import com.hdarha.happ.adapters.ScreensPagerAdapter
+import com.hdarha.happ.other.PREF_POINTS
 import com.hdarha.happ.other.ScreenHelper
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionDeniedResponse
-import com.karumi.dexter.listener.PermissionGrantedResponse
-import com.karumi.dexter.listener.PermissionRequest
-import com.karumi.dexter.listener.single.PermissionListener
-import com.squareup.picasso.Picasso
+import com.hdarha.happ.other.permissionCheck
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
@@ -78,7 +75,7 @@ class HomeFragment : Fragment() {
         dotsIndicator.setViewPager2(viewPager)
         generate_btn.setOnClickListener {
             if (auth.currentUser != null) {
-                permissionCheckGallery()
+                permissionCheck(context!!,view!!) { showGallery() }
             } else {
                 activitiesManager(LoginActivity::class.java)
             }
@@ -86,7 +83,8 @@ class HomeFragment : Fragment() {
         }
 
         my_videos_btn.setOnClickListener {
-            activitiesManager(MyVideosActivity::class.java)
+            permissionCheck(context!!,view!!) { activitiesManager(MyVideosActivity::class.java) }
+
 //            val intent = Intent(this.context, MyVideosActivity::class.java)
 //            startActivity(intent)
         }
@@ -107,34 +105,38 @@ class HomeFragment : Fragment() {
         }
 
         homeShareBtn.setOnClickListener {
-            //shareApp()
-            val intent = Intent(context, VideoPlayerActivity::class.java)
-            intent.putExtra("url", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4")
-            startActivity(intent)
+            shareApp()
+//            val intent = Intent(context, VideoPlayerActivity::class.java)
+//            intent.putExtra("url", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4")
+//            startActivity(intent)
         }
 
 
     }
 
     private fun shareApp() {
+        val link = "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID
+        val title = getString(R.string.share_app_title)
+        val desc = getString(R.string.share_app_description) + link
         val sendIntent = Intent()
         sendIntent.action = Intent.ACTION_SEND
         sendIntent.putExtra(
             Intent.EXTRA_TEXT,
-            "Hey check out this memes app at: https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID
+            desc
         )
         sendIntent.type = "text/plain"
-        startActivity(Intent.createChooser(sendIntent, "Share App!"))
+        startActivity(Intent.createChooser(sendIntent, title))
     }
 
     private fun updateUI(currentUser: FirebaseUser?) {
         if (currentUser != null) {
             val profileUrl = currentUser.photoUrl
-            val p = Picasso.get()
+            //val p = Picasso.get()
             Log.d("url", profileUrl.toString())
             Glide.with(this).load(profileUrl).into(profile_image)
             creditNumberTextView.visibility = View.VISIBLE
             creditTextView.visibility = View.VISIBLE
+            creditNumberTextView.text = activity!!.getSharedPreferences(PREF_POINTS,Context.MODE_PRIVATE).getInt("credit",0).toString()
         } else {
             signInTextView.visibility = View.VISIBLE
             creditNumberTextView.visibility = View.GONE
@@ -162,46 +164,18 @@ class HomeFragment : Fragment() {
             .capture(true)
             .theme(R.style.Matisse_Dracula)
             .captureStrategy(
-                CaptureStrategy(true, "com.hdarha.app.fileprovider", "testhapp")
+                CaptureStrategy(true, "com.hdarha.app.fileprovider", "HApp")
             )
-            .setOnSelectedListener { _, pathList ->
-                Log.e(
-                    "onSelected",
-                    "onSelected: pathList=$pathList"
-                )
-            }
             .showSingleMediaType(true)
-            .autoHideToolbarOnSingleTap(true)
             .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+            .autoHideToolbarOnSingleTap(true)
             .thumbnailScale(0.85f)
             .imageEngine(GlideEngine())
             .showPreview(false) // Default is `true`
             .forResult(REQUEST_CODE_CHOOSE)
     }
 
-    private fun permissionCheckGallery() {
-        Dexter.withContext(this.activity)
-            .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            .withListener(object : PermissionListener {
-                override fun onPermissionGranted(p0: PermissionGrantedResponse?) {
-                    Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT)
-                        .show()
-                    showGallery()
-                }
 
-                override fun onPermissionDenied(p0: PermissionDeniedResponse?) {
-                    Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT)
-                        .show()
-                }
-
-                override fun onPermissionRationaleShouldBeShown(
-                    permission: PermissionRequest?,
-                    token: PermissionToken?
-                ) {
-                    Toast.makeText(context, "DIK", Toast.LENGTH_SHORT).show()
-                }
-            }).check()
-    }
 
     private fun showCustomUI() {
         val decorView = activity?.window?.decorView

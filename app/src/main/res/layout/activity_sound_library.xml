@@ -10,17 +10,18 @@
         android:id="@+id/toolbar_sound_library"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
         android:background="@color/dracula_primary"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/SoundLibraryTheme"
         app:titleTextColor="@android:color/white" />
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/pbLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0">
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
 
         <ProgressBar
             android:id="@+id/voicesPB"
@@ -28,7 +29,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center" />
-    </FrameLayout>
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loading_voices"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
 
     <uz.jamshid.library.IGRefreshLayout
         android:id="@+id/soundsRefresh"

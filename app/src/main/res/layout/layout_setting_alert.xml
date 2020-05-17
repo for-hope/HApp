@@ -12,17 +12,17 @@
         android:layout_width="200dp"
         android:layout_height="100dp"
         android:layout_gravity="center"
-        app:srcCompat="@drawable/ic_subscription" />
+        app:srcCompat="@drawable/ic_subscription"
+        android:contentDescription="@string/dialog_icon" />
 
     <TextView
         android:id="@+id/textViewDialogBody"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:layout_weight="0"
         android:gravity="center"
         android:stateListAnimator="@null"
-        android:text="You won't recieve any notifications if you turn this setting off."
+        android:text=""
         android:textColor="@android:color/black" />
 
     <Button
@@ -31,18 +31,18 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
-        android:text="@string/com_facebook_loginview_cancel_action"
+        android:text=""
         android:textAllCaps="false"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle" />
 
     <Button
-        android:id="@+id/btnPostiveSettings"
+        android:id="@+id/btnPositiveSettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
         android:backgroundTint="@android:color/white"
-        android:text="Turn Off"
+        android:text=""
         android:textAllCaps="false"
         android:textColor="@color/colorPrimary"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle" />

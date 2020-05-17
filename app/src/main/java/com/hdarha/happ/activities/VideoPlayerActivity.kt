@@ -29,21 +29,19 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.hdarha.happ.R
+import com.hdarha.happ.other.TAG
 import kotlinx.android.synthetic.main.activity_video_player.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.io.File
 
 
 class VideoPlayerActivity : AppCompatActivity() {
     private var videoPath: String = ""
-    var downloadID: Long = 0L
-    var isDownloaded = false
-    var isDownloading = false
+    private var downloadID: Long = 0L
+    private var isDownloaded = false
+    private var isDownloading = false
     private lateinit var videoName: String
     private var share = false
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-    private lateinit var downloadManager: DownloadManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_player)
@@ -59,6 +57,7 @@ class VideoPlayerActivity : AppCompatActivity() {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
         registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+
         videoPath = intent.getStringExtra("url")!!
 
         videoName = "HApp_Video_" + System.currentTimeMillis() + ".mp4"
@@ -77,7 +76,7 @@ class VideoPlayerActivity : AppCompatActivity() {
             progressLayout.visibility = View.VISIBLE
             videoView.setVideoURI(videoUri)
             videoView.requestFocus()
-            videoView.setOnErrorListener { mediaPlayer, i, i2 ->
+            videoView.setOnErrorListener { _, i, i2 ->
                 Log.d("VideoPlayerActivity", "OnCreate : $i and $i2")
                 true
             }
@@ -104,10 +103,12 @@ class VideoPlayerActivity : AppCompatActivity() {
             if (isDownloaded) {
                 shareVideo()
             } else {
-                Toast.makeText(this, "Downloading video...", Toast.LENGTH_SHORT).show()
                 if (!isDownloading) {
+                    Toast.makeText(this, "Downloading Video...", Toast.LENGTH_SHORT).show()
                     downloadVideo(videoName)
                     share = true
+                } else {
+                    checkDownloadStatus(intent)
                 }
 
             }
@@ -192,11 +193,6 @@ class VideoPlayerActivity : AppCompatActivity() {
         mMMR.release()
     }
 
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        unregisterReceiver(onDownloadComplete);
-//    }
-
 
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
@@ -227,7 +223,8 @@ class VideoPlayerActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    Toast.makeText(this, "Video is downloading.", Toast.LENGTH_SHORT).show()
+                    checkDownloadStatus(intent)
+                    //Toast.makeText(this, "Video is downloading.", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 Toast.makeText(this, "Video already downloaded.", Toast.LENGTH_SHORT).show()
@@ -259,108 +256,156 @@ class VideoPlayerActivity : AppCompatActivity() {
     private fun downloadVideo(videoName: String) {
         isDownloading = true
 
-        GlobalScope.launch {
-            val policy =
-                StrictMode.ThreadPolicy.Builder().permitAll().build()
-            StrictMode.setThreadPolicy(policy)
-            val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            try {
-                val uri: Uri = Uri.parse(videoPath)
-                val request = DownloadManager.Request(uri)
-                request.setTitle(videoName)
-                request.setDescription("Downloading Video...")
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                request.setDestinationInExternalPublicDir(
-                    Environment.DIRECTORY_MOVIES,
-                    "HApp" + File.separator + videoName
-                )
+        val policy =
+            StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        try {
+            val uri: Uri = Uri.parse(videoPath)
+            val request = DownloadManager.Request(uri)
+            request.setTitle(videoName)
+            request.setDescription("Downloading Video...")
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_MOVIES,
+                "HApp" + File.separator + videoName
+            )
 
-                downloadID = downloadManager.enqueue(request)
-            } catch (e: Exception) {
-                Log.e("downloadVideo", e.message.toString())
-            }
+            downloadID = downloadManager.enqueue(request)
+        } catch (e: Exception) {
+            Log.e("downloadVideo", e.message.toString())
+        }
 
+
+    }
+
+    private val onDownloadComplete: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            checkDownloadStatus(intent)
         }
 
     }
 
 
+    private fun checkDownloadStatus(intent: Intent) {
+        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val query = DownloadManager.Query()
+        val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
 
-    private val onDownloadComplete: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent) {
-            //Fetching the download id received with the broadcast
-            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-            val query = DownloadManager.Query()
-            query.setFilterById(id)
-            val downloadManager =
-                this@VideoPlayerActivity.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            val cursor: Cursor = downloadManager.query(query)
-            cursor.moveToFirst()
-            val statusIndex: Int = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
-            val status: Int = cursor.getInt(statusIndex)
+        query.setFilterById(downloadID)
+        val cursor: Cursor? = downloadManager.query(query)
+        Log.d(TAG, "Starting..")
+        if (cursor!!.moveToFirst()) {
+            Log.d(TAG, "moved to cursor")
+            val columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+            val status = cursor.getInt(columnIndex)
+            val columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
+            val reason = cursor.getInt(columnReason)
 
-            if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                Log.d("Status", "Successful")
-                this@VideoPlayerActivity.supportActionBar?.title = "Download status successful"
-                Toast.makeText(this@VideoPlayerActivity, "Download successful", Toast.LENGTH_SHORT)
-                    .show()
-            } else if (status == DownloadManager.STATUS_FAILED) {
-                Log.e("Status", "Download failed")
-                val reasonIndex: Int = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
-                val reason: Int = cursor.getInt(reasonIndex)
-                Log.e("STATUS", reason.toString() + "")
-                this@VideoPlayerActivity.supportActionBar?.title = "F: $reason"
-                Toast.makeText(
-                    this@VideoPlayerActivity,
-                    "Download failed reason : $reason",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
-
-            //Checking if the received broadcast is for our enqueued download by matching download id
-            if (downloadID == id) {
-                isDownloading = false
-                val action = intent.action
-                if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
-                    isDownloaded = true
-                    val oldVideoPath = videoPath
-                    @Suppress("DEPRECATION")
-                    videoPath = File(
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
-                        videoName
-                    ).path
-                    if (!share) {
-                        showDialog(makeDialog(), oldVideoPath)
-                    } else {
-                        shareVideo()
+            when (status) {
+                DownloadManager.STATUS_FAILED -> {
+                    var failedReason = ""
+                    when (reason) {
+                        DownloadManager.ERROR_CANNOT_RESUME -> failedReason =
+                            "ERROR_CANNOT_RESUME"
+                        DownloadManager.ERROR_DEVICE_NOT_FOUND -> failedReason =
+                            "ERROR_DEVICE_NOT_FOUND"
+                        DownloadManager.ERROR_FILE_ALREADY_EXISTS -> failedReason =
+                            "ERROR_FILE_ALREADY_EXISTS"
+                        DownloadManager.ERROR_FILE_ERROR -> failedReason = "ERROR_FILE_ERROR"
+                        DownloadManager.ERROR_HTTP_DATA_ERROR -> failedReason =
+                            "ERROR_HTTP_DATA_ERROR"
+                        DownloadManager.ERROR_INSUFFICIENT_SPACE -> failedReason =
+                            "ERROR_INSUFFICIENT_SPACE"
+                        DownloadManager.ERROR_TOO_MANY_REDIRECTS -> failedReason =
+                            "ERROR_TOO_MANY_REDIRECTS"
+                        DownloadManager.ERROR_UNHANDLED_HTTP_CODE -> failedReason =
+                            "ERROR_UNHANDLED_HTTP_CODE"
+                        DownloadManager.ERROR_UNKNOWN -> failedReason = "ERROR_UNKNOWN"
                     }
-
+                    downloadFailed(failedReason)
+                }
+                DownloadManager.STATUS_PAUSED -> {
+                    var pausedReason = ""
+                    when (reason) {
+                        DownloadManager.PAUSED_QUEUED_FOR_WIFI -> pausedReason =
+                            "PAUSED_QUEUED_FOR_WIFI"
+                        DownloadManager.PAUSED_UNKNOWN -> pausedReason = "PAUSED_UNKNOWN"
+                        DownloadManager.PAUSED_WAITING_FOR_NETWORK -> pausedReason =
+                            "PAUSED_WAITING_FOR_NETWORK"
+                        DownloadManager.PAUSED_WAITING_TO_RETRY -> pausedReason =
+                            "PAUSED_WAITING_TO_RETRY"
+                    }
                     Toast.makeText(
                         this@VideoPlayerActivity,
-                        "Download Complete",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
-
-                } else {
-                    Toast.makeText(
-                        this@VideoPlayerActivity,
-                        "Download couldn't be complete.",
-                        Toast.LENGTH_SHORT
+                        "Download PAUSED: $pausedReason",
+                        Toast.LENGTH_LONG
                     ).show()
                 }
-
-
+                DownloadManager.STATUS_PENDING -> Toast.makeText(
+                    this@VideoPlayerActivity,
+                    "Download is pending.",
+                    Toast.LENGTH_LONG
+                ).show()
+                DownloadManager.STATUS_RUNNING -> Toast.makeText(
+                    this@VideoPlayerActivity,
+                    "Download is running.",
+                    Toast.LENGTH_LONG
+                ).show()
+                DownloadManager.STATUS_SUCCESSFUL -> {
+                    downloadSuccessful()
+                    downloadManager.remove(id)
+                }
             }
+
+
+        } else {
+            downloadCancelled()
         }
-        private fun checkDownloadStatus() {
-            val query = DownloadManager.Query()
-            val id: Long = preferenceManager.getLong(strPref_Download_ID, 0)
-            query.setFilterById(id)
-            val cursor: Cursor = downloadManager.query(query)
+    }
+
+    private fun downloadFailed(failedReason: String) {
+        Toast.makeText(
+            this@VideoPlayerActivity,
+            "Download FAILED: $failedReason",
+            Toast.LENGTH_LONG
+        ).show()
+        isDownloading = false
+        isDownloaded = false
+    }
+
+    private fun downloadSuccessful() {
+        Toast.makeText(
+            this@VideoPlayerActivity,
+            "DOWNLOAD SUCCESSFUL",
+            Toast.LENGTH_LONG
+        ).show()
+        isDownloading = false
+        isDownloaded = true
+        val oldVideoPath = videoPath
+        @Suppress("DEPRECATION")
+        videoPath = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
+            videoName
+        ).path
+
+        if (!share) {
+            showDialog(makeDialog(), oldVideoPath)
+        } else {
+            shareVideo()
         }
 
+    }
+
+    private fun downloadCancelled() {
+        Log.d(TAG, "Download cancelled")
+        Toast.makeText(
+            this@VideoPlayerActivity,
+            "Download cancelled.",
+            Toast.LENGTH_LONG
+        ).show()
+        isDownloading = false
+        isDownloaded = false
     }
 
 }

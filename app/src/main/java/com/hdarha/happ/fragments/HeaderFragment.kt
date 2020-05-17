@@ -1,11 +1,12 @@
 package com.hdarha.happ.fragments
 
+import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
@@ -14,6 +15,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.hdarha.happ.R
+import com.hdarha.happ.other.PREF_POINTS
 import kotlinx.android.synthetic.main.fragment_header.*
 
 private lateinit var auth: FirebaseAuth
@@ -37,13 +39,17 @@ class HeaderFragment : Fragment() {
             val profileImage = view?.findViewById<ImageView>(R.id.profileImageView)
             val url = currentUser.photoUrl
             if (profileImage != null) {
-                Glide.with(context!!).load(url).into(profileImage!!)
+                Glide.with(context!!).load(url).into(profileImage)
             } else {
                 Toast.makeText(context!!,"Error loading profile pic",Toast.LENGTH_SHORT).show()
             }
-
-
-
+            val mPref = activity!!.getSharedPreferences(PREF_POINTS, Context.MODE_PRIVATE)
+            val credit = mPref.getInt("credit",0)
+            val creation = mPref.getInt("creation",0)
+            val creditTextView = view?.findViewById<TextView>(R.id.textViewCredit)
+            val creationTextView = view?.findViewById<TextView>(R.id.textViewCreations)
+            creditTextView?.text = credit.toString()
+            creationTextView?.text = creation.toString()
             var providerId = ""
             for (data in currentUser.providerData) {
                 providerId = data.providerId

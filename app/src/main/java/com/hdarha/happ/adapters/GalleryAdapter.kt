@@ -56,7 +56,7 @@ class GalleryAdapter(private val images: ArrayList<String>,private val activity:
             val inflated = view
 
             val galleryImageView = inflated.findViewById<ImageView>(R.id.GalleryImageView)
-            Log.d("GalleryAdapter","Image URI ${drawableId}")
+            Log.d("GalleryAdapter","Image URI $drawableId")
 
             Picasso.get().load(Uri.parse(drawableId)).into(galleryImageView)
             galleryImageView.setOnClickListener {

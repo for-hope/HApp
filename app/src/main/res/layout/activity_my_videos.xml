@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/myVideosLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F1F1F1"
@@ -25,9 +27,9 @@
             android:layout_gravity="end|bottom"
             android:layout_margin="25dp"
             android:src="@drawable/ic_add_black_24dp"
+            app:backgroundTint="@color/colorAccent"
             app:rippleColor="@android:color/white"
-            app:tint = "@null"
-            app:backgroundTint="@color/colorAccent" />
+            app:tint="@null" />
 
 
         <uz.jamshid.library.IGRefreshLayout
@@ -67,20 +69,35 @@
             </androidx.core.widget.NestedScrollView>
         </uz.jamshid.library.IGRefreshLayout>
 
+        <LinearLayout
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <ProgressBar
-            android:id="@+id/progressBarMyVideos"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
+            <ProgressBar
+                android:id="@+id/progressBarMyVideos"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+
+            <TextView
+                android:id="@+id/textViewLoading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/loading_video"
+                android:textColor="@color/colorAccentDark" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/EmptyVideoListLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:ignore="UseCompoundDrawables">
 
             <ImageView
                 android:id="@+id/empty_icon"
@@ -88,14 +105,15 @@
                 android:layout_height="100dp"
                 android:layout_gravity="center"
                 android:tint="@android:color/darker_gray"
-                app:srcCompat="@drawable/ic_shipping_and_delivery" />
+                app:srcCompat="@drawable/ic_shipping_and_delivery"
+                android:contentDescription="@string/empty_history" />
 
             <TextView
                 android:id="@+id/emptyVideoListTV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="No videos created yet."
+                android:text="@string/no_videos_created_yet"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="18sp" />
         </LinearLayout>

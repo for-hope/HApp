@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dialog_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginBottom="40dp"
     android:background="@drawable/layout_bg"
     android:orientation="vertical"
-    android:padding="30dp">
+    android:padding="10dp">
 
     <TextView
         android:id="@+id/statusTextView"
@@ -15,10 +16,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="5dp"
-        android:drawableLeft="@drawable/ic_check_circle_black_24dp"
+        android:drawableStart="@drawable/ic_check_circle_black_24dp"
         android:drawablePadding="5dp"
         android:gravity="center"
-        android:text="Saved"
+        android:text="@string/saved"
         android:textColor="@android:color/black"
         android:textSize="18sp" />
 
@@ -28,8 +29,8 @@
         android:layout_height="220dp"
         android:layout_gravity="center"
         android:layout_marginBottom="5dp"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/bcg1" />
+        android:contentDescription="@string/thumbnail"
+        android:scaleType="fitCenter" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -51,7 +52,7 @@
             android:layout_marginStart="3dp"
             android:layout_marginEnd="3dp"
             android:layout_weight="0  "
-            android:text="Share" />
+            android:text="@string/share" />
 
         <View
             android:id="@+id/divider5"
@@ -74,12 +75,16 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
+            android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
-            android:text="Facebook"
+            android:text="@string/facebook"
             android:textAllCaps="false"
-            android:textSize="14dp"
+            android:textSize="14sp"
+            app:autoSizeTextType="uniform"
             app:icon="@drawable/ic_facebook"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle" />
+            app:iconPadding="4dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle"
+            tools:ignore="ButtonStyle" />
 
         <Button
             android:id="@+id/button4"
@@ -89,11 +94,13 @@
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:fontFamily="sans-serif-medium"
-            android:text="Instagram"
+            android:text="@string/instagram"
             android:textAllCaps="false"
-            android:textSize="14dp"
+            android:textSize="14sp"
             app:icon="@drawable/ic_instagram"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle" />
+            app:iconPadding="4dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle"
+            tools:ignore="ButtonStyle" />
     </LinearLayout>
 
 </LinearLayout>

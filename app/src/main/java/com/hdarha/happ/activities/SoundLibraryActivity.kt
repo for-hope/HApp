@@ -31,7 +31,6 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
     private var voicesList: ArrayList<Voice> = arrayListOf()
     private var downloadChecker = true
     private var mAdapter: RecyclerAdapter? = null
-    private var audioPlaying = false
     private lateinit var mPlayer: MediaPlayer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +48,7 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
         recyclerview_sounds.visibility = View.GONE
         val linearLayoutManager = LinearLayoutManager(this)
         recyclerview_sounds.layoutManager = linearLayoutManager
-        recyclerview_sounds.adapter = RecyclerAdapter(this, arrayListOf(),true,this,this)
+        recyclerview_sounds.adapter = RecyclerAdapter(arrayListOf(), true, this, this)
 
 
         soundsRefresh.setRefreshListener {
@@ -139,7 +138,6 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
                     //voicesList!!.reverse()
                     Log.d("ListSorted", voicesList.toString())
                     val adapter = RecyclerAdapter(
-                        this@SoundLibraryActivity,
                         voicesList,
                         true,
                         this@SoundLibraryActivity,
@@ -168,7 +166,7 @@ class SoundLibraryActivity : AppCompatActivity(), RecyclerAdapter.OnItemClick, O
         pbLayout.visibility = View.GONE
         recyclerview_sounds.visibility = View.VISIBLE
 
-        val adapter = RecyclerAdapter(this, voices, true, this, this)
+        val adapter = RecyclerAdapter(voices, true, this, this)
 
         recyclerview_sounds.adapter = adapter
         mAdapter = adapter

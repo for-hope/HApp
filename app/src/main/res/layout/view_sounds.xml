@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -23,7 +22,7 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/sound_card"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
             android:layout_weight="1"
@@ -41,16 +40,6 @@
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:layout_weight="0">
-
-                    <ImageView
-                        android:id="@+id/play_img"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:background="#CACAC6"
-                        android:padding="12dp"
-                        android:visibility="gone"
-                        app:srcCompat="@drawable/play" />
 
                     <pl.droidsonroids.gif.GifImageButton
                         android:id="@+id/gifImageBtn"
@@ -82,20 +71,18 @@
                     <TextView
                         android:id="@+id/sound_title_tv"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:gravity="center_vertical"
                         android:maxLines="1"
                         android:singleLine="true"
-                        android:text="Song name "
+                        android:text="@string/title"
                         android:textColor="#323232"
                         android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0"
                         android:orientation="horizontal">
 
                         <TextView
@@ -103,14 +90,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="10"
-                            android:text="Unknown artist" />
+                            android:text="@string/unknown_artist" />
 
                         <TextView
                             android:id="@+id/sound_timestamp_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="0"
-                            android:text="2:00" />
+                            android:text="" />
                     </LinearLayout>
 
                 </LinearLayout>

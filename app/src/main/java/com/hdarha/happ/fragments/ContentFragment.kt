@@ -25,9 +25,11 @@ import com.google.firebase.ktx.Firebase
 import com.hdarha.happ.R
 import com.hdarha.happ.activities.MainActivity
 import com.hdarha.happ.activities.WebViewActivity
+import com.hdarha.happ.other.PREF_HISTORY
+import com.hdarha.happ.other.PREF_POINTS
+import com.hdarha.happ.other.PREF_SETTINGS
 import kotlinx.android.synthetic.main.layout_setting_items.*
 import kotlinx.android.synthetic.main.view_profile_bottom.*
-import java.util.*
 
 
 class ContentFragment : Fragment() {
@@ -46,7 +48,7 @@ class ContentFragment : Fragment() {
         //activity as AppCompatActivity
 
         auth = Firebase.auth
-        preferences = activity!!.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        preferences = activity!!.getSharedPreferences(PREF_SETTINGS, Context.MODE_PRIVATE)
 
         setupSettings()
 
@@ -61,7 +63,8 @@ class ContentFragment : Fragment() {
         val editor = preferences.edit()
         editor.putString("lang", langCode)
         editor.apply()
-        textLanguageSetting.text = "Language ($langCode)"
+        val languageStr = getString(R.string.language) + " $langCode"
+        textLanguageSetting.text = languageStr
         Toast.makeText(
             context,
             "App language changed to $lang",
@@ -71,7 +74,9 @@ class ContentFragment : Fragment() {
 
     private fun languageSetting() {
         var defaultLang = preferences.getString("lang", "En")
-        textLanguageSetting.text = "Language ($defaultLang)"
+
+        val languageStr = getString(R.string.language) + " $defaultLang"
+        textLanguageSetting.text = languageStr
         setting1.setOnClickListener {
             defaultLang = preferences.getString("lang", "En")
             var checkedItem = 0
@@ -81,13 +86,13 @@ class ContentFragment : Fragment() {
                 checkedItem = 2
             }
             val languages =
-                arrayOf("English", "French", "Arabic")
+                arrayOf(getString(R.string.english), getString(R.string.french), getString(R.string.arabic))
             val builder =
                 AlertDialog.Builder(this.activity!!)
-            builder.setTitle("Change Language")
+            builder.setTitle(getString(R.string.change_language))
             builder.setIcon(R.drawable.ic_translate_black_24dp)
             builder.setSingleChoiceItems(languages, checkedItem, null)
-            builder.setPositiveButton("Apply") { dialogInterface, _ ->
+            builder.setPositiveButton(getString(R.string.apply)) { dialogInterface, _ ->
                 dialogInterface.dismiss()
                 val which = (dialogInterface as AlertDialog).listView.checkedItemPosition
                 val lang = languages[which]
@@ -113,8 +118,8 @@ class ContentFragment : Fragment() {
                 switchPushNotifications.isChecked = true
                 val d = makeDialog()
                 val drawable = activity!!.getDrawable(R.drawable.ic_subscription)
-                val body = "You won't receive any notifications if you turn this setting off."
-                showDialog(d, drawable!!, body, "Turn Off", "Cancel", 0)
+                val body = getString(R.string.notification_dialog_body)
+                showDialog(d, drawable!!, body, getString(R.string.turn_off), getString(R.string.cancel), 0)
             } else {
                 val editor = preferences.edit()
                 editor.putBoolean("notifications", false)
@@ -161,9 +166,9 @@ class ContentFragment : Fragment() {
             showDialog(
                 d,
                 drawable!!,
-                "Are you sure you want to remove all history and content from HApp?",
-                "Remove All",
-                "Cancel",
+                getString(R.string.erase_dialog_body),
+                getString(R.string.remove_all),
+                getString(R.string.cancel),
                 1
             )
         }
@@ -183,13 +188,23 @@ class ContentFragment : Fragment() {
             notificationOperation()
         } else if (id == 1) {
             Toast.makeText(this.context, "Deleting everything", Toast.LENGTH_SHORT).show()
+            eraseOperation()
         }
-
     }
 
     private fun eraseOperation() {
-        //todo
+        val historyPref: SharedPreferences =
+            activity!!.getSharedPreferences(PREF_HISTORY, Context.MODE_PRIVATE)
+        historyPref.edit().clear().apply()
+        val settingsPref: SharedPreferences =
+            activity!!.getSharedPreferences(PREF_SETTINGS, Context.MODE_PRIVATE)
+        settingsPref.edit().clear().apply()
+        val pointsPref: SharedPreferences =
+            activity!!.getSharedPreferences(PREF_POINTS, Context.MODE_PRIVATE)
+        pointsPref.edit().clear().apply()
+
     }
+
     private fun makeDialog(): Dialog {
         val dialog = Dialog(this.context!!)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -209,7 +224,7 @@ class ContentFragment : Fragment() {
     ) {
         val imgView = dialog.findViewById<ImageView>(R.id.imageViewSettingDialog)
         val body = dialog.findViewById<TextView>(R.id.textViewDialogBody)
-        val yesBtn = dialog.findViewById<Button>(R.id.btnPostiveSettings)
+        val yesBtn = dialog.findViewById<Button>(R.id.btnPositiveSettings)
         val noBtn = dialog.findViewById<Button>(R.id.btnNegativeSettings)
 
         imgView.setImageDrawable(drawable)
@@ -228,16 +243,16 @@ class ContentFragment : Fragment() {
     private fun setupSettings() {
         languageSetting()
         setting2.setOnClickListener {
-            webSetting("Feedback", "")
+            webSetting(getString(R.string.feedback), "1")
         }
         notificationSetting()
         contactUsSetting()
         eraseContent()
         setting6.setOnClickListener {
-            webSetting("Privacy Policy", "")
+            webSetting(getString(R.string.privacy_policy), "2")
         }
         setting7.setOnClickListener {
-            webSetting("About Us", "")
+            webSetting(getString(R.string.about_us), "3")
         }
 
     }
@@ -246,16 +261,16 @@ class ContentFragment : Fragment() {
     private fun showConfirmationDialog() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(context!!)
 
-        builder.setTitle("Sign Out")
-        builder.setMessage("Are you sure you want to sign out ?")
+        builder.setTitle(getString(R.string.sign_out))
+        builder.setMessage(getString(R.string.sign_out_confirmation))
 
-        builder.setPositiveButton("Sign out") { dialog, which -> // Do nothing but close the dialog
+        builder.setPositiveButton(getString(R.string.sign_out)) { _, _ -> // Do nothing but close the dialog
             auth.signOut()
             val intent = Intent(activity, MainActivity::class.java)
             startActivity(intent)
         }
 
-        builder.setNegativeButton("No") { dialog, which -> // Do nothing
+        builder.setNegativeButton(getString(R.string.no)) { dialog, _ -> // Do nothing
             dialog.dismiss()
         }
 

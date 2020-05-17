@@ -3,7 +3,6 @@ package com.hdarha.happ.fragments
 
 import android.app.Activity
 import android.app.Dialog
-import android.content.DialogInterface
 import android.content.res.Resources
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -91,6 +90,7 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
 
         bi!!.bottomSheetPB.isIndeterminate = true
         bi!!.bottomSheetPB.visibility = View.VISIBLE
+        bi!!.progessLayout.visibility = View.VISIBLE
 
         bi!!.activityBtn.setOnClickListener {
             Toast.makeText(
@@ -102,10 +102,14 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
 
         //aap bar edit button clicked
         bi!!.rndBtn.setOnClickListener {
-            val rndSound = soundsList.random()
-            val position = soundsList.indexOf(rndSound)
-            mCallback.onComplete(rndSound, position)
-            dismiss()
+            if (soundsList.isNotEmpty()) {
+                val rndSound = soundsList.random()
+                val position = soundsList.indexOf(rndSound)
+                mCallback.onComplete(rndSound, position)
+                dismiss()
+            } else {
+                Toast.makeText(this.context, "Loading sounds..", Toast.LENGTH_SHORT).show()
+            }
         }
 
         //aap bar more button clicked
@@ -125,6 +129,7 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
         super.onResume()
         mPlayer = MediaPlayer()
     }
+
     override fun onStart() {
         super.onStart()
         bottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -138,7 +143,7 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
 
     override fun onPause() {
         super.onPause()
-        if(mPlayer.isPlaying) {
+        if (mPlayer.isPlaying) {
             mPlayer.stop()
         }
         mPlayer.reset()
@@ -191,11 +196,12 @@ class BottomSheet(listener: OnDialogComplete) : BottomSheetDialogFragment(),
             val recyclerView = v.findViewById<RecyclerView>(R.id.rec_view)
             recyclerView.visibility = View.VISIBLE
             val linearLayoutManager = LinearLayoutManager(context)
-            val adapter = RecyclerAdapter(context!!, voices, false, this, this)
+            val adapter = RecyclerAdapter(voices, false, this, this)
             recyclerView.layoutManager = linearLayoutManager
             recyclerView.adapter = adapter
             mAdapter = adapter
             bi!!.bottomSheetPB.visibility = View.GONE
+            bi!!.progessLayout.visibility = View.GONE
             soundsList = voices.toMutableList()
             adapter.notifyItemInserted(voices.size - 1)
         }

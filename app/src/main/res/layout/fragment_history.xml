@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -53,7 +54,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:ignore="UseCompoundDrawables">
 
             <ImageView
                 android:id="@+id/imageView2"
@@ -61,14 +63,15 @@
                 android:layout_height="100dp"
                 android:layout_gravity="center"
                 android:tint="@android:color/darker_gray"
-                app:srcCompat="@drawable/ic_shipping_and_delivery" />
+                app:srcCompat="@drawable/ic_shipping_and_delivery"
+                android:contentDescription="@string/empty_list" />
 
             <TextView
                 android:id="@+id/textView6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Empty History"
+                android:text="@string/empty_history"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="18sp" />
         </LinearLayout>

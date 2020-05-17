@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Typeface
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
-import android.net.Uri
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
@@ -23,22 +22,25 @@ import retrofit2.Response
 fun retrieveFromCache(activity: Activity, listener: OnVoiceCallBack) {
     val voicesList = arrayListOf<Voice>()
     val gson = Gson()
-    val mPrefs = activity.getSharedPreferences("voice", Context.MODE_PRIVATE)
+    val mPrefs = activity.getSharedPreferences(PREF_VOICE, Context.MODE_PRIVATE)
     var jsonList = mutableSetOf<String>()
     jsonList = mPrefs.getStringSet("jsonList", jsonList)!!
     if (jsonList.isNotEmpty()) {
         GlobalScope.launch {
             delay(1000L)
-            activity.runOnUiThread {
-                Log.d("SoundLibrary", "Async Cache")
-                for (jsonObject in jsonList) {
-                    val voice: Voice = gson.fromJson(jsonObject, Voice::class.java)
 
-                    voicesList.add(voice)
-                }
-                voicesList.sortByDescending { it.isFav }
+            for (jsonObject in jsonList) {
+                val voice: Voice = gson.fromJson(jsonObject, Voice::class.java)
+
+                voicesList.add(voice)
+            }
+            voicesList.sortByDescending { it.isFav }
+
+            activity.runOnUiThread {
                 listener.onVoicesRetrieved(voicesList, false)
             }
+
+
         }
 
 
@@ -50,19 +52,15 @@ fun saveToCache(voices: ArrayList<Voice>, activity: Activity) {
     GlobalScope.launch {
         Log.d("SoundLibrary", "Saving Cache")
         val gson = Gson()
-        val mPrefs = activity.getSharedPreferences("voice", Context.MODE_PRIVATE)
+        val mPrefs = activity.getSharedPreferences(PREF_VOICE, Context.MODE_PRIVATE)
         val editor = mPrefs.edit()
         val jsonArrayList = arrayListOf<String>()
-
         for (voice in voices) {
             val jsonString = gson.toJson(voice)
             Log.d("VOICE_CACHING", voice.caption)
             jsonArrayList.add(jsonString)
         }
         val set = jsonArrayList.toSet()
-
-
-
         editor.putStringSet("jsonList", set)
         editor.putBoolean("isCached", true)
         editor.apply()
@@ -72,7 +70,7 @@ fun saveToCache(voices: ArrayList<Voice>, activity: Activity) {
 
 fun checkCache(activity: Activity, listener: OnVoiceCallBack) {
     Log.d("SoundLibrary", "Checking Cache")
-    val mPrefs = activity.getSharedPreferences("voice", Context.MODE_PRIVATE)
+    val mPrefs = activity.getSharedPreferences(PREF_VOICE, Context.MODE_PRIVATE)
 
     val isCached = mPrefs.getBoolean("isCached", false)
     if (!isCached) {
@@ -87,33 +85,35 @@ fun checkCache(activity: Activity, listener: OnVoiceCallBack) {
 
 
 fun getSounds(activity: Activity, listener: OnVoiceCallBack) {
-    val retrofitClient = RetrofitClientInstance()
-    val service: RetrofitClientInstance.VoiceService = retrofitClient.retrofitInstance!!.create(
-        RetrofitClientInstance.VoiceService::class.java
-    )
+    GlobalScope.launch {
+        val retrofitClient = RetrofitClientInstance()
+        val service: RetrofitClientInstance.VoiceService = retrofitClient.retrofitInstance!!.create(
+            RetrofitClientInstance.VoiceService::class.java
+        )
 
-    val voices = service.listVoices()
+        val voices = service.listVoices()
 
-    voices?.enqueue(object : Callback<List<Voice>> {
+        voices?.enqueue(object : Callback<List<Voice>> {
 
-        override fun onResponse(call: Call<List<Voice>>, response: Response<List<Voice>>) {
-            Log.d("SoundsList", response.body()!![0].caption)
-            val mVoices = response.body()
-            getMetaData(ArrayList(mVoices!!), listener)
+            override fun onResponse(call: Call<List<Voice>>, response: Response<List<Voice>>) {
+                Log.d("SoundsList", response.body()!![0].caption)
+                val mVoices = response.body()
+                getMetaData(ArrayList(mVoices!!), listener)
 
-        }
+            }
 
-        override fun onFailure(call: Call<List<Voice>>, t: Throwable) {
-            Log.d("SoundsList", t.localizedMessage?.toString()!!)
-            Toast.makeText(
-                activity,
-                "Something went wrong...Please try later!",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+            override fun onFailure(call: Call<List<Voice>>, t: Throwable) {
+                Log.d("SoundsList", t.localizedMessage?.toString()!!)
+                Toast.makeText(
+                    activity,
+                    "Something went wrong...Please try later!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
 
 
-    })
+        })
+    }
 }
 
 fun getMetaData(voices: ArrayList<Voice>, listener: OnVoiceCallBack) {
@@ -132,11 +132,16 @@ fun getMetaData(voices: ArrayList<Voice>, listener: OnVoiceCallBack) {
         mmr.release()
     }
     listener.onVoicesRetrieved(voices, true)
-    //TODO voicesLoaded(voices, true)
 
 }
 
-fun manageMediaPlayer(title: TextView, mGifDrawable: GifDrawable, pathStr: String, adapter: RecyclerAdapter?,mPlayer:MediaPlayer) {
+fun manageMediaPlayer(
+    title: TextView,
+    mGifDrawable: GifDrawable,
+    pathStr: String,
+    adapter: RecyclerAdapter?,
+    mPlayer: MediaPlayer
+) {
     if (mPlayer.isPlaying) {
         mPlayer.stop()
     }
@@ -151,7 +156,7 @@ fun manageMediaPlayer(title: TextView, mGifDrawable: GifDrawable, pathStr: Strin
 
     mPlayer.setOnCompletionListener {
         title.typeface = Typeface.DEFAULT
-        mGifDrawable.stop();
+        mGifDrawable.stop()
         mGifDrawable.seekTo(0)
     }
 }

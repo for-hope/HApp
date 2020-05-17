@@ -12,44 +12,54 @@
         android:id="@+id/closeBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|end"
+        android:layout_gravity="end"
+        android:contentDescription="@string/close_activity"
         app:srcCompat="@drawable/ic_close_black_24dp" />
-
-    <ImageView
-        android:id="@+id/logoImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="50dp"
-        app:srcCompat="@drawable/logo" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:gravity="bottom"
+        android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textView10"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:fontFamily="monospace"
-            android:gravity="center"
-            android:text="Hdarha Motion Memes"
-            android:textColor="@android:color/white"
-            android:textSize="24sp" />
+        <ImageView
+            android:id="@+id/logoImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:cropToPadding="true"
+            android:padding="50dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/logo"
+            android:contentDescription="@string/app_logo" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:gravity="bottom"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:text="@string/hdarha_motion_memes"
+                android:textColor="@android:color/white"
+                android:textSize="24sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
                 android:orientation="horizontal">
 
                 <View
@@ -65,10 +75,12 @@
                     android:id="@+id/textView9"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_marginStart="20dp"
                     android:layout_marginEnd="20dp"
                     android:layout_weight="0"
-                    android:text="Get started with"
+                    android:gravity="center"
+                    android:text="@string/get_started_with"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -82,13 +94,27 @@
                     android:background="@android:color/white"
                     android:backgroundTint="#FFFFFF" />
             </LinearLayout>
-        </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical">
+            <com.facebook.login.widget.LoginButton
+                android:id="@+id/login_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+
+                android:layout_gravity="center_horizontal" />
+
+            <TextView
+                android:id="@+id/orTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:text="@string/or"
+                android:textColor="@android:color/white"
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
             <com.google.android.gms.common.SignInButton
                 android:id="@+id/sign_in_button"
@@ -97,45 +123,34 @@
                 android:layout_gravity="center">
 
             </com.google.android.gms.common.SignInButton>
-            <TextView
-                android:id="@+id/orTV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_weight="0"
-                android:text="Or"
-                android:textColor="@android:color/white"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-            <com.facebook.login.widget.LoginButton
-                android:id="@+id/login_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
 
-
-                android:layout_gravity="center_horizontal" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView11"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="50dp"
-            android:text="By continuing I have read and agreed to the"
-            android:textColor="@android:color/white" />
+            android:layout_weight="0"
+            android:gravity="bottom"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textView12"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:gravity="center"
-            android:text="Terms of Service and Privacy Policy"
-            android:textColor="@android:color/holo_red_dark" />
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="50dp"
+                android:text="@string/by_continuing_i_have_read_and_agreed_to_the"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:gravity="center"
+                android:text="@string/terms_of_service_and_privacy_policy"
+                android:textColor="@android:color/holo_red_dark" />
+        </LinearLayout>
     </LinearLayout>
 
 </FrameLayout>

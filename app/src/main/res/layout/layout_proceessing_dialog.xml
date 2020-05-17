@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dialog_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -12,7 +11,8 @@
         android:id="@+id/dialog_img"
         android:layout_width="300dp"
         android:layout_height="200dp"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/dialog_image" />
 
     <ProgressBar
         android:id="@+id/dialog_pb"
@@ -28,7 +28,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:padding="18dp"
-        android:text="Processing Video..." />
+        android:text="@string/processing_video" />
 
     <TextView
         android:id="@+id/reasonTextView"
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
         android:gravity="center"
-        android:text="Reason : No Face Detected"
+        android:text=""
         android:textColor="#D32F2F"
         android:visibility="gone" />
 
@@ -54,6 +54,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:backgroundTint="@color/colorAccent"
-        android:text="Got it"
+        android:text="@string/got_it"
         android:visibility="gone" />
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.hdarha.happ.activities
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -8,9 +9,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.hdarha.happ.R
-import kotlinx.android.synthetic.main.activity_sound_library.*
 import kotlinx.android.synthetic.main.activity_webview.*
 
 
@@ -25,6 +24,7 @@ class WebViewActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_webview)
@@ -41,7 +41,7 @@ class WebViewActivity : AppCompatActivity() {
                 if (progress == 100) mWebProgress.visibility = View.GONE
             }
         }
-        val url = intent.getStringExtra("url")
+        //val url = intent.getStringExtra("url")
         mSettingWebView.loadUrl("https://twitter.com/fr/privacy")
 
     }

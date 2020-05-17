@@ -11,7 +11,6 @@ import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
-import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -29,16 +28,16 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.hdarha.happ.R
+import com.hdarha.happ.other.TAG
 import kotlinx.android.synthetic.main.activity_login.*
-import java.util.*
 
-
+private const val RC_SIGN_IN = 1
 class LoginActivity : AppCompatActivity() {
-    private val TAG = "LoginActivity"
+
     private lateinit var auth: FirebaseAuth
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var callbackManager: CallbackManager
-    private val RC_SIGN_IN = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -62,6 +61,7 @@ class LoginActivity : AppCompatActivity() {
 
 
     }
+
     private fun handleFacebookAccessToken(token: AccessToken) {
         Log.d(TAG, "handleFacebookAccessToken:$token")
 
@@ -76,8 +76,10 @@ class LoginActivity : AppCompatActivity() {
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     updateUI(null)
                 }
 
@@ -86,12 +88,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun facebookLogin() {
-         callbackManager = CallbackManager.Factory.create()
-
+        callbackManager = CallbackManager.Factory.create()
 
 
         val loginButton = findViewById<View>(R.id.login_button) as LoginButton
-        loginButton.setPermissions("email","public_profile")
+        loginButton.setPermissions("email", "public_profile")
 
         // Callback registration
         loginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult?> {
@@ -106,10 +107,13 @@ class LoginActivity : AppCompatActivity() {
 
             override fun onError(exception: FacebookException) {
                 Log.d(TAG, "facebook:onError", exception)
+                Toast.makeText(this@LoginActivity, "Login error : $exception", Toast.LENGTH_SHORT)
+                    .show()
             }
         })
 
     }
+
     private fun setUI() {
         this.window?.statusBarColor =
             ContextCompat.getColor(
@@ -145,7 +149,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data)
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
@@ -165,7 +169,11 @@ class LoginActivity : AppCompatActivity() {
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
-
+            Toast.makeText(
+                this@LoginActivity,
+                "signInResult:failed code=" + e.statusCode,
+                Toast.LENGTH_SHORT
+            ).show()
             Log.w(TAG, "signInResult:failed code=" + e.statusCode)
 
         }
@@ -184,6 +192,11 @@ class LoginActivity : AppCompatActivity() {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                     // ...
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Authentication Error : ${task.exception}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     Snackbar.make(loginLayout, "Authentication Failed.", Snackbar.LENGTH_SHORT)
                         .show()
                     updateUI(null as FirebaseUser?)

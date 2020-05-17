@@ -26,6 +26,8 @@ import com.hdarha.happ.fragments.BottomSheet
 import com.hdarha.happ.fragments.OnDialogComplete
 import com.hdarha.happ.objects.OKResponse
 import com.hdarha.happ.objects.Voice
+import com.hdarha.happ.other.PREF_HISTORY
+import com.hdarha.happ.other.PREF_POINTS
 import com.hdarha.happ.other.RetrofitClientInstance
 import com.squareup.picasso.Picasso
 import com.yalantis.ucrop.UCrop
@@ -36,6 +38,7 @@ import kotlinx.android.synthetic.main.activity_image_display.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.relex.photodraweeview.PhotoDraweeView
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -58,6 +61,7 @@ class ImageDisplayActivity : AppCompatActivity(),
     private var ogImage: String? = null
     private val cancelRequestSignal = CancellationSignal()
     private val bottomSheet = BottomSheet(this)
+
     //private lateinit var firstImage:String
     private var isSoundSelected = false
     private var audioId: String = ""
@@ -139,7 +143,7 @@ class ImageDisplayActivity : AppCompatActivity(),
         mPhotoDraweeView = findViewById(R.id.photo_drawee_view)
         mTopToolbar = findViewById(R.id.my_toolbar)
         setSupportActionBar(mTopToolbar)
-        supportActionBar?.title = "Edit Photo"
+        supportActionBar?.title = getString(R.string.edit_photo)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -176,9 +180,8 @@ class ImageDisplayActivity : AppCompatActivity(),
 
     private fun showDialog(dialog: Dialog) {
         val imgView = dialog.findViewById<ImageView>(R.id.dialog_img)
-        Log.d("ImgURi", imgUri!!)
-        if (imgUri!!.startsWith("content")) {
 
+        if (imgUri!!.startsWith("content")) {
             Picasso.get().load(Uri.parse(imgUri)).resize(300, 200).centerCrop().into(imgView)
         } else {
             val f = File(imgUri!!)
@@ -187,7 +190,7 @@ class ImageDisplayActivity : AppCompatActivity(),
 
         //.setImageURI(Uri.parse(imgUri))
         val body = dialog.findViewById(R.id.dialog_body) as TextView
-        body.text = "Processing Video"
+        body.text = getString(R.string.processing_video)
 
         val pb = dialog.findViewById<ProgressBar>(R.id.dialog_pb)
         pb.isIndeterminate = true
@@ -203,6 +206,20 @@ class ImageDisplayActivity : AppCompatActivity(),
         dialog.show()
     }
 
+    private fun processComplete() {
+        val pointsPref = this.getSharedPreferences(PREF_POINTS, Context.MODE_PRIVATE)
+        val editor = pointsPref.edit()
+        val prefCreationKey = "creation"
+        val prefCreditKey = "credit"
+        var mCreations = pointsPref.getInt(prefCreationKey, 0)
+        var mCredit = pointsPref.getInt(prefCreditKey, 0)
+        mCreations += 1
+        if (mCredit > 0) mCredit -= 1
+        editor.putInt(prefCreationKey, mCreations)
+        editor.putInt(prefCreditKey, mCredit)
+        editor.apply()
+    }
+
     private fun finishDialog(dialog: Dialog, url: String?) {
         val body = dialog.findViewById(R.id.dialog_body) as TextView
         val yesBtn = dialog.findViewById(R.id.accept_btn_dialog) as Button
@@ -211,8 +228,8 @@ class ImageDisplayActivity : AppCompatActivity(),
         if (ogImage != null && ogImage != "") {
             savePictures(ogImage!!)
         }
-
-        body.text = "Processing Complete"
+        processComplete()
+        body.text = getString(R.string.processing_complete)
         body.typeface = Typeface.DEFAULT_BOLD
         body.setCompoundDrawablesWithIntrinsicBounds(
             0,
@@ -240,10 +257,10 @@ class ImageDisplayActivity : AppCompatActivity(),
         val pb = dialog.findViewById<ProgressBar>(R.id.dialog_pb)
         val noBtn = dialog.findViewById(R.id.cancel_btn_dialog) as Button
 
-        body.text = "Error occured"
-        errText.text = "Reason : $err"
+        body.text = getString(R.string.error_occurred)
+        val errString = getString(R.string.reason_is) + err
+        errText.text = errString
         errText.visibility = View.VISIBLE
-
         body.typeface = Typeface.DEFAULT_BOLD
         body.setCompoundDrawablesWithIntrinsicBounds(
             0,
@@ -255,7 +272,7 @@ class ImageDisplayActivity : AppCompatActivity(),
         noBtn.visibility = View.GONE
         yesBtn.visibility = View.VISIBLE
 
-        yesBtn.text = "Try again"
+        yesBtn.text = getString(R.string.try_again)
         yesBtn.setOnClickListener {
             dialog.dismiss()
             Blurry.delete(rootView_img_display.rootView as ViewGroup)
@@ -290,19 +307,19 @@ class ImageDisplayActivity : AppCompatActivity(),
             }
 
             imgUri = resultUri.path.toString()
-            Log.d("IMGURI", imgUri)
+
             mPhotoDraweeView!!.setPhotoUri(resultUri, this)
 
         } else if (resultCode == UCrop.RESULT_ERROR) {
             val cropError = UCrop.getError(data!!)
-            Log.e("OnActivityResult0 ", cropError.toString())
+            Log.e("OnActivityResult ", cropError.toString())
         }
     }
 
     private fun cropImage(src: Uri, dest: Uri) {
         isCropped = true
         UCrop.of(src, dest)
-            .withAspectRatio(3f,4f)
+            .withAspectRatio(3f, 4f)
             .start(this)
     }
 
@@ -338,11 +355,11 @@ class ImageDisplayActivity : AppCompatActivity(),
         GlobalScope.launch {
             val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE)
             val currentDate = sdf.format(Date())
-            val prefValue = "history"
+            //val prefValue = "history"
             val keyValue = "map"
             val gson = Gson()
             val sharedPreferences =
-                this@ImageDisplayActivity.getSharedPreferences(prefValue, Context.MODE_PRIVATE)
+                this@ImageDisplayActivity.getSharedPreferences(PREF_HISTORY, Context.MODE_PRIVATE)
             val editor = sharedPreferences.edit()
             val hashString = sharedPreferences.getString(keyValue, "")
             val type: Type = object : TypeToken<HashMap<String, String>>() {}.type
@@ -354,7 +371,6 @@ class ImageDisplayActivity : AppCompatActivity(),
             val hashStringToSave = gson.toJson(storedHashMap)
             editor.putString(keyValue, hashStringToSave)
             editor.apply()
-            Log.d("SavePicture", "Saved.")
         }
     }
 
@@ -366,24 +382,23 @@ class ImageDisplayActivity : AppCompatActivity(),
         val service: RetrofitClientInstance.ImageService =
             retrofitClient.retrofitInstance!!.create(RetrofitClientInstance.ImageService::class.java)
 
-        Log.d("CheckImgUri", imgUri!!)
+
 
 
         var imgFile = File(imgUri!!)
 
         if (imgUri!!.startsWith("content")) {
-            Log.d("CheckImgUriContent", imgUri!!)
             val mUri = Uri.parse(imgUri!!)
             val path = getPath(this, mUri)
             imgFile = File(path)
         }
         val sizeNormal = imgFile.length() / 1024
-        Log.d("File Size:","$sizeNormal kb")
+        Log.d("File Size:", "$sizeNormal kb")
+
         GlobalScope.launch {
-            val compressedFile = Compressor.compress(applicationContext,imgFile)
+            val compressedFile = Compressor.compress(applicationContext, imgFile)
             val size = compressedFile.length() / 1024
             Log.d("File Size Compressed ", "$size kb ")
-
 
 
             val requestBodyFile: RequestBody =
@@ -392,7 +407,8 @@ class ImageDisplayActivity : AppCompatActivity(),
             val part: MultipartBody.Part =
                 MultipartBody.Part.createFormData("img", imgFile.name, requestBodyFile)
 
-            val audioId = RequestBody.create(MediaType.parse("text/plain"), this@ImageDisplayActivity.audioId)
+            val audioId =
+                RequestBody.create(MediaType.parse("text/plain"), this@ImageDisplayActivity.audioId)
 
 
             val uploadBundle: Call<ResponseBody?> = service.uploadImage(part, audioId)!!
@@ -400,44 +416,45 @@ class ImageDisplayActivity : AppCompatActivity(),
             cancelRequestSignal.setOnCancelListener {
                 uploadBundle.cancel()
             }
-            uploadBundle.enqueue(object : Callback<ResponseBody?> {
-                override fun onResponse(
-                    call: Call<ResponseBody?>?,
-                    response: Response<ResponseBody?>
-                ) {
-                    val mJson = response.body()?.string()
+
+            withContext(Dispatchers.IO) {
+                uploadBundle.enqueue(object : Callback<ResponseBody?> {
+                    override fun onResponse(
+                        call: Call<ResponseBody?>?,
+                        response: Response<ResponseBody?>
+                    ) {
+                        val mJson = response.body()?.string()
                     Log.d("RESPONSE", "OK ${response.body()?.string()}")
                     Log.d("RESPONSE", "OK ${response.body()}")
-                    Log.d("RESPONSE", "OK ${mJson}")
+                    Log.d("RESPONSE", "OK $mJson")
                     Log.d("RESPONSE", "OK ${response.errorBody()?.string()}")
-                    if (response.message() == "OK") {
-                        val gson: Gson = Gson()
-                        //val json = response.body()?.string()
-                        val resp = gson.fromJson(mJson, OKResponse::class.java)
-                        if (resp != null) {
-                            if (resp.status == "success") {
-                                finishDialog(dialog, resp.url)
+                        if (response.message() == "OK") {
+                            val gson = Gson()
+                            //val json = response.body()?.string()
+                            val resp = gson.fromJson(mJson, OKResponse::class.java)
+                            if (resp != null) {
+                                if (resp.status == "success") {
+                                    finishDialog(dialog, resp.url)
+                                } else {
+                                    errDialog(dialog, resp.reason)
+                                }
                             } else {
-                                errDialog(dialog, resp.reason)
+                                errDialog(dialog, getString(R.string.server_err_msg))
                             }
                         } else {
-                            errDialog(dialog, "Server error try again later")
+                            errDialog(dialog, getString(R.string.app_err_msg))
                         }
-                    } else {
-                        errDialog(dialog, "Application error try again.")
                     }
-                }
 
-                override fun onFailure(call: Call<ResponseBody?>?, t: Throwable?) {
-                    Log.e("Error", t.toString())
-                    errDialog(dialog, "Connection error check your connection and try again.")
+                    override fun onFailure(call: Call<ResponseBody?>?, t: Throwable?) {
+                        Log.e("Error", t.toString())
+                        errDialog(dialog, getString(R.string.conn_err_msg))
 //                Log.d("RESPONSE", " NOT OK $t")
 
-                }
-            })
+                    }
+                })
+            }
         }
-
-
 
 
     }

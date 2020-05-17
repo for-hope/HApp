@@ -2,9 +2,11 @@ package com.hdarha.happ.objects;
 
 
 import java.util.List;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+@SuppressWarnings("ALL")
 public class Voice {
 
     @SerializedName("caption")
@@ -25,16 +27,13 @@ public class Voice {
     private long duration = 0;
 
 
-
     /**
      * No args constructor for use in serialization
-     *
      */
     public Voice() {
     }
 
     /**
-     *
      * @param name
      * @param caption
      * @param location
@@ -47,7 +46,6 @@ public class Voice {
         this.location = location;
         this.tags = tags;
     }
-
 
 
     public String getCaption() {
