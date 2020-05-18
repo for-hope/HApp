@@ -54,7 +54,8 @@
                 android:gravity="center"
                 android:text="@string/hdarha_motion_memes"
                 android:textColor="@android:color/white"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                app:autoSizeTextType="uniform" />
 
             <LinearLayout
                 android:layout_width="match_parent"

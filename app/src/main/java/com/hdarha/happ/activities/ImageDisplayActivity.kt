@@ -19,6 +19,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.hdarha.happ.R
@@ -29,7 +30,6 @@ import com.hdarha.happ.objects.Voice
 import com.hdarha.happ.other.PREF_HISTORY
 import com.hdarha.happ.other.PREF_POINTS
 import com.hdarha.happ.other.RetrofitClientInstance
-import com.squareup.picasso.Picasso
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.util.FileUtils.getPath
 import id.zelory.compressor.Compressor
@@ -65,7 +65,8 @@ class ImageDisplayActivity : AppCompatActivity(),
     //private lateinit var firstImage:String
     private var isSoundSelected = false
     private var audioId: String = ""
-    private var isCropped: Boolean = false
+    private var isCropped = false
+    private var isProcessing = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_display)
@@ -97,9 +98,10 @@ class ImageDisplayActivity : AppCompatActivity(),
     }
 
     private fun submitImage() {
-        if (isSoundSelected) {
+        if (isSoundSelected && !isProcessing) {
             Blurry.with(this).radius(10).sampling(2)
                 .onto(rootView_img_display.rootView as ViewGroup)
+            isProcessing = true
             startUpload()
         } else {
             Toast.makeText(this, "Select a voice first.", Toast.LENGTH_SHORT).show()
@@ -182,10 +184,12 @@ class ImageDisplayActivity : AppCompatActivity(),
         val imgView = dialog.findViewById<ImageView>(R.id.dialog_img)
 
         if (imgUri!!.startsWith("content")) {
-            Picasso.get().load(Uri.parse(imgUri)).resize(300, 200).centerCrop().into(imgView)
+            Glide.with(this).load(Uri.parse(imgUri)).override(300, 200).centerCrop().into(imgView)
+            //Picasso.get().load(Uri.parse(imgUri)).resize(300, 200).centerCrop().into(imgView)
         } else {
             val f = File(imgUri!!)
-            Picasso.get().load(f).resize(300, 200).centerCrop().into(imgView)
+            Glide.with(this).load(f).override(300, 200).centerCrop().into(imgView)
+            //Picasso.get().load(f).resize(300, 200).centerCrop().into(imgView)
         }
 
         //.setImageURI(Uri.parse(imgUri))
@@ -221,6 +225,7 @@ class ImageDisplayActivity : AppCompatActivity(),
     }
 
     private fun finishDialog(dialog: Dialog, url: String?) {
+        isProcessing = false
         val body = dialog.findViewById(R.id.dialog_body) as TextView
         val yesBtn = dialog.findViewById(R.id.accept_btn_dialog) as Button
         val pb = dialog.findViewById<ProgressBar>(R.id.dialog_pb)
@@ -251,6 +256,7 @@ class ImageDisplayActivity : AppCompatActivity(),
     }
 
     private fun errDialog(dialog: Dialog, err: String) {
+        isProcessing = false
         val body = dialog.findViewById(R.id.dialog_body) as TextView
         val errText = dialog.findViewById(R.id.reasonTextView) as TextView
         val yesBtn = dialog.findViewById(R.id.accept_btn_dialog) as Button
@@ -383,8 +389,6 @@ class ImageDisplayActivity : AppCompatActivity(),
             retrofitClient.retrofitInstance!!.create(RetrofitClientInstance.ImageService::class.java)
 
 
-
-
         var imgFile = File(imgUri!!)
 
         if (imgUri!!.startsWith("content")) {
@@ -396,8 +400,12 @@ class ImageDisplayActivity : AppCompatActivity(),
         Log.d("File Size:", "$sizeNormal kb")
 
         GlobalScope.launch {
-            val compressedFile = Compressor.compress(applicationContext, imgFile)
-            val size = compressedFile.length() / 1024
+            var size = sizeNormal
+            var compressedFile = imgFile
+            if (sizeNormal > 1024) {
+                compressedFile = Compressor.compress(applicationContext, imgFile)
+                size = compressedFile.length() / 1024
+            }
             Log.d("File Size Compressed ", "$size kb ")
 
 
@@ -424,10 +432,10 @@ class ImageDisplayActivity : AppCompatActivity(),
                         response: Response<ResponseBody?>
                     ) {
                         val mJson = response.body()?.string()
-                    Log.d("RESPONSE", "OK ${response.body()?.string()}")
-                    Log.d("RESPONSE", "OK ${response.body()}")
-                    Log.d("RESPONSE", "OK $mJson")
-                    Log.d("RESPONSE", "OK ${response.errorBody()?.string()}")
+                        Log.d("RESPONSE", "OK ${response.body()?.string()}")
+                        Log.d("RESPONSE", "OK ${response.body()}")
+                        Log.d("RESPONSE", "OK $mJson")
+                        Log.d("RESPONSE", "OK ${response.errorBody()?.string()}")
                         if (response.message() == "OK") {
                             val gson = Gson()
                             //val json = response.body()?.string()

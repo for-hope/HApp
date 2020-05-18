@@ -1,22 +1,18 @@
 package com.hdarha.happ.adapters
 
+
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-
-
 import android.view.View
 import android.view.ViewGroup
-
 import android.widget.ImageView
-
-
 import androidx.recyclerview.widget.RecyclerView
-import com.hdarha.happ.activities.ImageDisplayActivity
+import com.bumptech.glide.Glide
 import com.hdarha.happ.R
+import com.hdarha.happ.activities.ImageDisplayActivity
 import com.hdarha.happ.other.inflate
-import com.squareup.picasso.Picasso
 
 
 class GalleryAdapter(private val images: ArrayList<String>,private val activity: Activity) :
@@ -58,7 +54,8 @@ class GalleryAdapter(private val images: ArrayList<String>,private val activity:
             val galleryImageView = inflated.findViewById<ImageView>(R.id.GalleryImageView)
             Log.d("GalleryAdapter","Image URI $drawableId")
 
-            Picasso.get().load(Uri.parse(drawableId)).into(galleryImageView)
+            Glide.with(activity).load(Uri.parse(drawableId)).into(galleryImageView)
+            //Picasso.get().load(Uri.parse(drawableId)).into(galleryImageView)
             galleryImageView.setOnClickListener {
                 val intent = Intent(activity, ImageDisplayActivity::class.java)
                 intent.putExtra("imgUri", drawableId)

@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -14,7 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.hdarha.happ.R
-import com.hdarha.happ.databinding.ActivityMainBinding
+
 import com.hdarha.happ.fragments.HistoryFragment
 import com.hdarha.happ.fragments.HomeFragment
 import com.hdarha.happ.fragments.SettingsFragment
@@ -23,7 +22,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
-    private var bi: ActivityMainBinding? = null
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     //private lateinit var pagerAdapter: ScreensPagerAdapter
 
@@ -42,7 +40,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
         finish()
     }
 
@@ -115,10 +112,7 @@ class MainActivity : AppCompatActivity() {
         }
         //make status bar transparent
         //showCustomUI()
-        bi = DataBindingUtil.setContentView(
-            this,
-            R.layout.activity_main
-        )
+
     }
 
 

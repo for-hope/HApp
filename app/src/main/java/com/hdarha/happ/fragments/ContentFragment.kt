@@ -19,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.facebook.login.LoginManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -63,7 +64,7 @@ class ContentFragment : Fragment() {
         val editor = preferences.edit()
         editor.putString("lang", langCode)
         editor.apply()
-        val languageStr = getString(R.string.language) + " $langCode"
+        val languageStr = getString(R.string.language) + " ($langCode)"
         textLanguageSetting.text = languageStr
         Toast.makeText(
             context,
@@ -75,7 +76,7 @@ class ContentFragment : Fragment() {
     private fun languageSetting() {
         var defaultLang = preferences.getString("lang", "En")
 
-        val languageStr = getString(R.string.language) + " $defaultLang"
+        val languageStr = getString(R.string.language) + " ($defaultLang)"
         textLanguageSetting.text = languageStr
         setting1.setOnClickListener {
             defaultLang = preferences.getString("lang", "En")
@@ -113,6 +114,7 @@ class ContentFragment : Fragment() {
     private fun notificationSetting() {
         val notif = preferences.getBoolean("notifications", true)
         switchPushNotifications.isChecked = notif
+        switchPushNotifications.visibility = View.VISIBLE
         switchPushNotifications.setOnClickListener {
             if (!switchPushNotifications.isChecked) {
                 switchPushNotifications.isChecked = true
@@ -266,6 +268,7 @@ class ContentFragment : Fragment() {
 
         builder.setPositiveButton(getString(R.string.sign_out)) { _, _ -> // Do nothing but close the dialog
             auth.signOut()
+            LoginManager.getInstance().logOut()
             val intent = Intent(activity, MainActivity::class.java)
             startActivity(intent)
         }
