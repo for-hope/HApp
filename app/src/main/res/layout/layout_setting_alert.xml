@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="250dp"
+    android:layout_width="@dimen/_180sdp"
     android:layout_height="wrap_content"
     android:background="@drawable/layout_bg"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="@dimen/_9sdp">
 
     <ImageView
         android:id="@+id/imageViewSettingDialog"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
+        android:layout_width="@dimen/_140sdp"
+        android:layout_height="@dimen/_70sdp"
         android:layout_gravity="center"
-        app:srcCompat="@drawable/ic_subscription"
-        android:contentDescription="@string/dialog_icon" />
+        android:contentDescription="@string/dialog_icon"
+        app:srcCompat="@drawable/ic_subscription" />
 
     <TextView
         android:id="@+id/textViewDialogBody"
@@ -23,16 +23,20 @@
         android:gravity="center"
         android:stateListAnimator="@null"
         android:text=""
-        android:textColor="@android:color/black" />
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/_10ssp" />
 
     <Button
         android:id="@+id/btnNegativeSettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="5dp"
+        android:layout_margin="@dimen/_2sdp"
+        android:insetBottom="6dp"
         android:text=""
         android:textAllCaps="false"
+        android:textSize="@dimen/_10ssp"
+        app:iconPadding="8dp"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle" />
 
     <Button
@@ -40,10 +44,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="5dp"
+        android:layout_margin="@dimen/_2sdp"
         android:backgroundTint="@android:color/white"
         android:text=""
         android:textAllCaps="false"
         android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/_10ssp"
+        app:iconPadding="8dp"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle" />
 </LinearLayout>

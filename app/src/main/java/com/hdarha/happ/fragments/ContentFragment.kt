@@ -29,6 +29,7 @@ import com.hdarha.happ.activities.WebViewActivity
 import com.hdarha.happ.other.PREF_HISTORY
 import com.hdarha.happ.other.PREF_POINTS
 import com.hdarha.happ.other.PREF_SETTINGS
+import com.hdarha.happ.other.get24dpDrawable
 import kotlinx.android.synthetic.main.layout_setting_items.*
 import kotlinx.android.synthetic.main.view_profile_bottom.*
 
@@ -135,21 +136,25 @@ class ContentFragment : Fragment() {
 
 
     private fun contactUsSetting() {
+        imageFacebook.setImageDrawable(get24dpDrawable(activity!!, R.drawable.ic_facebook))
         imageFacebook.setOnClickListener {
             val browserIntent =
                 Intent(Intent.ACTION_VIEW, Uri.parse("http://www.facebook.com"))
             startActivity(browserIntent)
         }
+        imageTwitter.setImageDrawable(get24dpDrawable(activity!!, R.drawable.ic_twitter))
         imageTwitter.setOnClickListener {
             val browserIntent =
                 Intent(Intent.ACTION_VIEW, Uri.parse("http://www.twitter.com"))
             startActivity(browserIntent)
         }
+        imageInstagram.setImageDrawable(get24dpDrawable(activity!!, R.drawable.ic_instagram))
         imageInstagram.setOnClickListener {
             val browserIntent =
                 Intent(Intent.ACTION_VIEW, Uri.parse("http://www.instagram.com"))
             startActivity(browserIntent)
         }
+        imageEmail.setImageDrawable(get24dpDrawable(activity!!, R.drawable.ic_arroba))
         imageEmail.setOnClickListener {
             val emailIntent = Intent(
                 Intent.ACTION_SENDTO, Uri.fromParts(
@@ -243,6 +248,7 @@ class ContentFragment : Fragment() {
     }
 
     private fun setupSettings() {
+        updateDrawables()
         languageSetting()
         setting2.setOnClickListener {
             webSetting(getString(R.string.feedback), "1")
@@ -259,7 +265,24 @@ class ContentFragment : Fragment() {
 
     }
 
+    private fun setStartIcon(tv: TextView, resId: Int) {
+        tv.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            get24dpDrawable(activity!!, resId),
+            null,
+            null,
+            null
+        )
+    }
 
+    private fun updateDrawables() {
+        setStartIcon(textLanguageSetting, R.drawable.ic_translate_black_24dp)
+        setStartIcon(textFeedback, R.drawable.ic_survey)
+        setStartIcon(textNotifications, R.drawable.ic_notifications_none_black_24dp)
+        setStartIcon(textContactUs, R.drawable.ic_headset_mic_black_24dp)
+        setStartIcon(textErase, R.drawable.ic_eraser)
+        setStartIcon(textTOS, R.drawable.ic_lightbulb_outline_black_24dp)
+        setStartIcon(textAboutUs, R.drawable.ic_info_outline_black_24dp)
+    }
     private fun showConfirmationDialog() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(context!!)
 

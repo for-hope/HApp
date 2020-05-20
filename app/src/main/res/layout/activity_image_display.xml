@@ -16,7 +16,8 @@
         android:background="@color/colorTitle"
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
+        android:theme="?attr/actionBarTheme"
+        app:titleTextAppearance="@style/Toolbar.TitleText" />
 
     <!-- Any valid element will do here -->
 
@@ -41,7 +42,7 @@
             android:padding="20dp"
             android:text="@string/no_sound_selected"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
+            android:textSize="@dimen/_13ssp"
             android:textStyle="bold" />
 
         <TextView
@@ -56,7 +57,7 @@
             android:padding="20dp"
             android:text="@string/no_sound_selected"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
+            android:textSize="@dimen/_13ssp"
             android:textStyle="bold" />
 
 

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hdarha.happ.R
 import com.hdarha.happ.activities.VideoPlayerActivity
 import com.hdarha.happ.other.TAG
+import com.hdarha.happ.other.get24dpDrawable
 import com.hdarha.happ.other.inflate
 import com.yalantis.ucrop.util.FileUtils.getPath
 import java.io.File
@@ -58,14 +59,24 @@ class VideosAdapter(private val videos: ArrayList<HVideo>, private val activity:
         fun bindItem(video: HVideo, activity: Activity) {
             this.video = video
             val inflated = view
-
             val dateTextView = inflated.findViewById<TextView>(R.id.video_date_tv)
             val titleTextView = inflated.findViewById<TextView>(R.id.video_title_tv)
             val timeTextView = inflated.findViewById<TextView>(R.id.video_timestamp)
             val thumbnailImageView = inflated.findViewById<ImageView>(R.id.video_thumbnail)
             val deleteButton = inflated.findViewById<ImageView>(R.id.video_delete)
+            val statusTextView = inflated.findViewById<TextView>(R.id.video_status)
             val sdf = SimpleDateFormat("dd MMM", Locale.getDefault())
             val c = Calendar.getInstance()
+            //
+
+            statusTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                get24dpDrawable(
+                    activity,
+                    R.drawable.ic_check_circle_black_24dp
+                ), null, null, null
+            )
+
+
             c.timeInMillis = video.dateAdded
             var date = sdf.format(c.time)
 
@@ -73,13 +84,28 @@ class VideosAdapter(private val videos: ArrayList<HVideo>, private val activity:
                 date = activity.getString(R.string.today)
             }
             dateTextView.text = date
+            dateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                get24dpDrawable(
+                    activity,
+                    R.drawable.ic_date_range_black_24dp
+                ), null, null, null
+            )
             titleTextView.text = video.name.replace("HApp_Video_", "")
+
 
             val timeInMillis = video.duration
             val mins = TimeUnit.MILLISECONDS.toMinutes(timeInMillis).toInt()
             val secs = TimeUnit.MILLISECONDS.toSeconds(timeInMillis).toInt()
             val dur = "${String.format("%02d", mins)}:${String.format("%02d", secs)}"
             timeTextView.text = dur
+            timeTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                get24dpDrawable(
+                    activity,
+                    R.drawable.ic_video_camera
+                ), null, null, null
+            )
+
+
             try {
                 thumbnailImageView.setImageBitmap(video.thumbnail)
             } catch (e: OutOfMemoryError) {
@@ -88,7 +114,12 @@ class VideosAdapter(private val videos: ArrayList<HVideo>, private val activity:
                     .show()
             }
 
+            //val vectorBin = activity.getDrawable() as VectorDrawable
 
+            // val drawableBin:Drawable = BitmapDrawable(activity.resources, Bitmap.createScaledBitmap(bitmap,50,50,true))
+
+            //val b =vectorBin.toBitmap(dimen, dimen)
+            deleteButton.setImageDrawable(get24dpDrawable(activity, R.drawable.ic_bin))
             deleteButton.setOnClickListener { confirmationDialog(video.uri) }
             thumbnailImageView.setOnClickListener {
                 val intent = Intent(activity, VideoPlayerActivity::class.java)

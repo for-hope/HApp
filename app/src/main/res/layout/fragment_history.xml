@@ -23,7 +23,8 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/white"
                 android:minHeight="?attr/actionBarSize"
-                android:theme="?attr/actionBarTheme" />
+                android:theme="?attr/actionBarTheme"
+                app:titleTextAppearance="@style/Toolbar.TitleText" />
 
             <uz.jamshid.library.IGRefreshLayout
                 android:id="@+id/swipeToRefresh"
@@ -73,7 +74,7 @@
                 android:gravity="center"
                 android:text="@string/empty_history"
                 android:textColor="@android:color/darker_gray"
-                android:textSize="18sp" />
+                android:textSize="@dimen/_13ssp" />
         </LinearLayout>
 
     </FrameLayout>

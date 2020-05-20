@@ -1,12 +1,17 @@
 package com.hdarha.happ.other
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.VectorDrawable
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.LayoutRes
+import androidx.core.graphics.drawable.toBitmap
 import com.google.android.material.snackbar.Snackbar
 import com.hdarha.happ.R
 import com.karumi.dexter.Dexter
@@ -40,6 +45,16 @@ val Any.TAG: String
         }
     }
 
+fun get24dpDrawable(activity: Activity, resId: Int): BitmapDrawable {
+    val dimen = activity.resources.getDimension(R.dimen._18sdp).toInt()
+    val vector = activity.getDrawable(resId) as VectorDrawable
+    return BitmapDrawable(activity.resources, vector.toBitmap(dimen, dimen))
+}
+
+fun convertDpToPixel(dp: Float, context: Context?): Float {
+    return dp * (context!!.resources
+        .displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
+}
 fun permissionCheck(context: Context, view: View, startAction: () -> Unit) {
 
     val snackbarPermissionListener: PermissionListener =

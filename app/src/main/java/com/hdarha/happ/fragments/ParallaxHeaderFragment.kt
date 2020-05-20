@@ -34,15 +34,17 @@ abstract class ParallaxHeaderFragment : Fragment(),
         //super.setContentView(layout);
         val mContext = context
         val rootView = view as ViewGroup
-        headerHeight = convertDpToPixel(
-            250f,
-            mContext
-        ).toInt()
-        minimumHeaderHeight =
-            convertDpToPixel(
-                200f,
-                mContext
-            ).toInt()
+//        headerHeight = convertDpToPixel(
+//            250f,
+//            mContext
+//        ).toInt()
+        headerHeight = resources.getDimension(R.dimen._185sdp).toInt()
+//        minimumHeaderHeight =
+//            convertDpToPixel(
+//                200f,
+//                mContext
+//            ).toInt()
+        minimumHeaderHeight = resources.getDimension(R.dimen._150sdp).toInt()
         val contentViewId = View.generateViewId()
         val contentView = LinearLayout(mContext!!)
         val params = LinearLayout.LayoutParams(
@@ -126,7 +128,8 @@ abstract class ParallaxHeaderFragment : Fragment(),
             updateProfileLayout(-scrollY)
         }
         if (scrollY < 0) {
-            val defMaragin = convertDpToPixel(25f, context).toInt()
+            //val defMaragin = convertDpToPixel(25f, context).toInt()
+            val defMaragin = resources.getDimension(R.dimen._18sdp)
             if (defMaragin - scrollY > 0) {
 
                 val profile = headerView!!.findViewById<LinearLayout>(R.id.profileLinearLayout)

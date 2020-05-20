@@ -10,20 +10,20 @@
         android:id="@+id/mHeaderImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:contentDescription="@string/profile_image"
         android:scaleType="centerCrop"
         android:src="@drawable/profile_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="@string/profile_image" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/profileLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="25dp"
+        android:paddingTop="@dimen/_18sdp"
         android:visibility="visible">
 
         <TextView
@@ -37,16 +37,15 @@
             android:shadowRadius="2"
             android:text="@string/me"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="@dimen/_14ssp"
             android:textStyle="bold" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profileImageView"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="@dimen/_50ssp"
+            android:layout_height="@dimen/_50ssp"
             android:layout_gravity="center"
-            android:layout_marginTop="15dp"
-            android:src="@drawable/profile"
+            android:layout_marginTop="@dimen/_11sdp"
             app:civ_border_color="@android:color/white"
             app:civ_border_width="2dp" />
 
@@ -55,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="@dimen/_4sdp"
             android:drawableStart="@drawable/ic_facebook_brand"
             android:drawablePadding="5dp"
             android:shadowColor="#000000"
@@ -64,13 +63,13 @@
             android:shadowRadius="2"
             android:text="@string/profile_name"
             android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:textSize="@dimen/_14ssp"
             android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/_7sdp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -84,7 +83,7 @@
                     android:id="@+id/textViewCredit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/_5sdp"
                     android:gravity="center"
                     android:shadowColor="#000000"
                     android:shadowDx="1"
@@ -92,7 +91,7 @@
                     android:shadowRadius="2"
                     android:text=""
                     android:textColor="#FFFFFF"
-                    android:textSize="24sp"
+                    android:textSize="@dimen/_13ssp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -106,7 +105,7 @@
                     android:shadowRadius="2"
                     android:text="@string/credits"
                     android:textColor="#FFFFFF"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/_13ssp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -127,7 +126,7 @@
                     android:id="@+id/textViewCreations"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/_5sdp"
                     android:gravity="center"
                     android:shadowColor="#000000"
                     android:shadowDx="1"
@@ -135,7 +134,7 @@
                     android:shadowRadius="2"
                     android:text=""
                     android:textColor="#FFFFFF"
-                    android:textSize="24sp"
+                    android:textSize="@dimen/_13ssp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -149,7 +148,7 @@
                     android:shadowRadius="2"
                     android:text="@string/memes"
                     android:textColor="#FFFFFF"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/_13ssp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>

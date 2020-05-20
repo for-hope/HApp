@@ -21,12 +21,12 @@
         android:gravity="center"
         android:text="@string/saved"
         android:textColor="@android:color/black"
-        android:textSize="18sp" />
+        android:textSize="@dimen/_13ssp" />
 
     <ImageView
         android:id="@+id/shareImageView"
-        android:layout_width="220dp"
-        android:layout_height="220dp"
+        android:layout_width="@dimen/_150sdp"
+        android:layout_height="@dimen/_150sdp"
         android:layout_gravity="center"
         android:layout_marginBottom="5dp"
         android:contentDescription="@string/thumbnail"
@@ -52,7 +52,8 @@
             android:layout_marginStart="3dp"
             android:layout_marginEnd="3dp"
             android:layout_weight="0  "
-            android:text="@string/share" />
+            android:text="@string/share"
+            android:textSize="@dimen/_10ssp" />
 
         <View
             android:id="@+id/divider5"
@@ -72,17 +73,17 @@
             android:id="@+id/button3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="@dimen/_6sdp"
+            android:layout_marginEnd="@dimen/_6sdp"
             android:layout_weight="1"
             android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
             android:text="@string/facebook"
-            android:textAllCaps="false"
-            android:textSize="14sp"
+            android:textAllCaps="true"
+            android:textSize="@dimen/_10ssp"
             app:autoSizeTextType="uniform"
             app:icon="@drawable/ic_facebook"
-            app:iconPadding="4dp"
+            app:iconPadding="@dimen/_3sdp"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle"
             tools:ignore="ButtonStyle" />
 
@@ -90,15 +91,15 @@
             android:id="@+id/button4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="@dimen/_6sdp"
+            android:layout_marginEnd="@dimen/_6sdp"
             android:layout_weight="1"
             android:fontFamily="sans-serif-medium"
             android:text="@string/instagram"
-            android:textAllCaps="false"
-            android:textSize="14sp"
+            android:textAllCaps="true"
+            android:textSize="@dimen/_10ssp"
             app:icon="@drawable/ic_instagram"
-            app:iconPadding="4dp"
+            app:iconPadding="@dimen/_3sdp"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Circle"
             tools:ignore="ButtonStyle" />
     </LinearLayout>

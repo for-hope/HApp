@@ -105,7 +105,7 @@ class MyVideosActivity : AppCompatActivity() {
             val selectionArgs = arrayOf("%HApp_%")
             val sortOrder = "${MediaStore.Video.Media.DISPLAY_NAME} ASC"
 
-
+            Log.d(TAG, "Searching..")
             val query = contentResolver.query(
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                 projection,

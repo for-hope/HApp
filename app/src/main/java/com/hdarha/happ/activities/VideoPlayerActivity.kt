@@ -20,13 +20,17 @@ import android.os.StrictMode
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
-import android.widget.MediaController
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ShareCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.hdarha.happ.R
 import com.hdarha.happ.other.TAG
@@ -42,6 +46,7 @@ class VideoPlayerActivity : AppCompatActivity() {
     private lateinit var videoName: String
     private var share = false
     private lateinit var firebaseAnalytics: FirebaseAnalytics
+    private lateinit var player: SimpleExoPlayer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_player)
@@ -72,31 +77,29 @@ class VideoPlayerActivity : AppCompatActivity() {
             videoUri =
                 FileProvider.getUriForFile(this, "com.hdarha.app.fileprovider", File(videoPath))
         }
-        try {
-            progressLayout.visibility = View.VISIBLE
-            videoView.setVideoURI(videoUri)
-            videoView.requestFocus()
-            videoView.setOnErrorListener { _, i, i2 ->
-                Log.d("VideoPlayerActivity", "OnCreate : $i and $i2")
-                true
-            }
-            val mediaController = MediaController(this)
-            videoView.setMediaController(mediaController)
-            mediaController.setAnchorView(videoView)
-            videoView.setOnPreparedListener {
-                Log.d("Video", "START")
-                videoView.visibility = View.VISIBLE
-                progressLayout.visibility = View.GONE
-                videoView.start()
-            }
-        } catch (e: Exception) {
-            Log.e("Error", e.message.toString())
-            e.printStackTrace()
-            Toast.makeText(this, "Video playback error...", Toast.LENGTH_SHORT).show()
-        }
 
 
 
+
+        player = SimpleExoPlayer.Builder(this).build()
+        exoPlayerView.player = player
+        // Produces DataSource instances through which media data is loaded.
+
+        // Produces DataSource instances through which media data is loaded.
+        val dataSourceFactory = DefaultDataSourceFactory(
+            this,
+            Util.getUserAgent(this, "HApp")
+        )
+
+        // This is the MediaSource representing the media to be played.
+        val videoSource: MediaSource =
+            ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(videoUri)
+
+        // Prepare the player with the source.
+        player.prepare(videoSource)
+        player.playWhenReady
+
+        progressLayout.visibility = View.GONE
 
 
         shareBtn.setOnClickListener {
@@ -108,13 +111,12 @@ class VideoPlayerActivity : AppCompatActivity() {
                     downloadVideo(videoName)
                     share = true
                 } else {
-                    checkDownloadStatus(intent)
+                    checkDownloadStatus()
                 }
 
             }
 
         }
-        //registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
     }
 
 
@@ -131,6 +133,8 @@ class VideoPlayerActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(onDownloadComplete)
+        player.release()
+
     }
 
     private fun shareVideo() {
@@ -223,7 +227,7 @@ class VideoPlayerActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    checkDownloadStatus(intent)
+                    checkDownloadStatus()
                     //Toast.makeText(this, "Video is downloading.", Toast.LENGTH_SHORT).show()
                 }
             } else {
@@ -240,9 +244,10 @@ class VideoPlayerActivity : AppCompatActivity() {
         builder.setTitle("Discard")
         builder.setMessage("Are you sure you want to exit without saving?")
 
-        builder.setPositiveButton("Discard") { _, _ -> // Do nothing but close the dialog
+        builder.setPositiveButton("Discard") { dialog, _ -> // Do nothing but close the dialog
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+            dialog.dismiss()
         }
 
         builder.setNegativeButton("NO") { dialog, _ -> // Do nothing
@@ -267,8 +272,7 @@ class VideoPlayerActivity : AppCompatActivity() {
             request.setDescription("Downloading Video...")
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_MOVIES,
-                "HApp" + File.separator + videoName
+                Environment.DIRECTORY_MOVIES, "HApp" + File.separator + videoName
             )
 
             downloadID = downloadManager.enqueue(request)
@@ -281,16 +285,16 @@ class VideoPlayerActivity : AppCompatActivity() {
 
     private val onDownloadComplete: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
-            checkDownloadStatus(intent)
+            checkDownloadStatus()
         }
 
     }
 
 
-    private fun checkDownloadStatus(intent: Intent) {
+    private fun checkDownloadStatus() {
         val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val query = DownloadManager.Query()
-        val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+        //val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
 
         query.setFilterById(downloadID)
         val cursor: Cursor? = downloadManager.query(query)
@@ -354,7 +358,7 @@ class VideoPlayerActivity : AppCompatActivity() {
                 ).show()
                 DownloadManager.STATUS_SUCCESSFUL -> {
                     downloadSuccessful()
-                    downloadManager.remove(id)
+                    //downloadManager.remove(id)
                 }
             }
 
@@ -383,17 +387,19 @@ class VideoPlayerActivity : AppCompatActivity() {
         isDownloading = false
         isDownloaded = true
         val oldVideoPath = videoPath
-        @Suppress("DEPRECATION")
-        videoPath = File(
+        @Suppress("DEPRECATION") val videoFile = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
-            videoName
-        ).path
+            "HApp" + File.separator + videoName
+        )
 
+
+        videoPath = videoFile.path
         if (!share) {
             showDialog(makeDialog(), oldVideoPath)
         } else {
             shareVideo()
         }
+
 
     }
 

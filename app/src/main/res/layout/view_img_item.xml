@@ -15,7 +15,7 @@
         android:paddingBottom="8dp"
         android:text="@string/today"
         android:textColor="#000000"
-        android:textSize="18sp"
+        android:textSize="@dimen/_14ssp"
         android:textStyle="normal" />
 
     <androidx.recyclerview.widget.RecyclerView

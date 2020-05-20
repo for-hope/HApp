@@ -9,10 +9,10 @@
 
     <ImageView
         android:id="@+id/dialog_img"
-        android:layout_width="300dp"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/dialog_image" />
+        android:layout_width="@dimen/_230sdp"
+        android:layout_height="@dimen/_130sdp"
+        android:contentDescription="@string/dialog_image"
+        android:scaleType="centerCrop" />
 
     <ProgressBar
         android:id="@+id/dialog_pb"
@@ -27,17 +27,19 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:padding="18dp"
-        android:text="@string/processing_video" />
+        android:padding="@dimen/_12sdp"
+        android:text="@string/processing_video"
+        android:textSize="@dimen/_10ssp" />
 
     <TextView
         android:id="@+id/reasonTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="3dp"
+        android:layout_margin="@dimen/_1sdp"
         android:gravity="center"
         android:text=""
         android:textColor="#D32F2F"
+        android:textSize="@dimen/_10ssp"
         android:visibility="gone" />
 
     <Button
@@ -46,7 +48,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:backgroundTint="@color/colorAccent"
-        android:text="@android:string/cancel" />
+        android:text="@android:string/cancel"
+        android:textSize="@dimen/_10ssp" />
 
     <Button
         android:id="@+id/accept_btn_dialog"
@@ -55,5 +58,6 @@
         android:layout_gravity="center"
         android:backgroundTint="@color/colorAccent"
         android:text="@string/got_it"
+        android:textSize="@dimen/_10ssp"
         android:visibility="gone" />
 </LinearLayout>

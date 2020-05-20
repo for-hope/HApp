@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="25dp"
-    android:layout_marginTop="10dp"
-    android:layout_marginEnd="25dp"
-    android:layout_marginBottom="10dp"
+    android:layout_marginStart="@dimen/_18sdp"
+    android:layout_marginTop="@dimen/_7sdp"
+    android:layout_marginEnd="@dimen/_18sdp"
+    android:layout_marginBottom="@dimen/_7sdp"
     android:orientation="vertical">
 
     <TextView
@@ -14,11 +14,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_date_range_black_24dp"
-        android:drawablePadding="5dp"
+        android:drawablePadding="@dimen/_2sdp"
         android:gravity="center_vertical"
-        android:paddingBottom="3dp"
+        android:paddingBottom="@dimen/_2sdp"
         android:text="@string/date"
-        android:textSize="16sp"
+        android:textSize="@dimen/_12ssp"
         app:drawableTint="@android:color/darker_gray" />
 
     <androidx.cardview.widget.CardView
@@ -32,17 +32,15 @@
 
             <ImageView
                 android:id="@+id/video_thumbnail"
-                android:layout_width="115dp"
-                android:layout_height="100dp"
-                android:layout_weight="0"
-                android:scaleType="centerCrop"
-                android:contentDescription="@string/video_thumbnail" />
+                android:layout_width="@dimen/_82sdp"
+                android:layout_height="@dimen/_75sdp"
+                android:contentDescription="@string/video_thumbnail"
+                android:scaleType="centerCrop" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="4dp"
-                android:layout_weight="1"
                 android:orientation="vertical"
                 android:padding="8dp">
 
@@ -53,50 +51,52 @@
                     android:singleLine="true"
                     android:text="@string/title"
                     android:textColor="#000000"
-                    android:textSize="16sp" />
+                    android:textSize="@dimen/_11ssp" />
 
                 <TextView
                     android:id="@+id/video_timestamp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp"
+                    android:layout_weight="1"
                     android:drawableStart="@drawable/ic_video_camera"
                     android:drawablePadding="3dp"
                     android:gravity="center_vertical"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
                     android:singleLine="true"
                     android:text="@string/_00_00"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/_10ssp"
                     app:drawableTint="@android:color/secondary_text_light_nodisable" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_vertical"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
                     android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/video_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0"
                         android:background="#4DF4BDBD"
                         android:drawableStart="@drawable/ic_check_circle_black_24dp"
                         android:drawablePadding="1dp"
-                        android:gravity="center"
+                        android:gravity="center_vertical"
                         android:singleLine="true"
                         android:text="@string/video_downloaded"
                         android:textColor="@color/colorPrimary"
-                        android:textSize="14sp" />
+                        android:textSize="@dimen/_10ssp" />
 
                     <ImageView
                         android:id="@+id/video_delete"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:contentDescription="@string/delete_icon"
                         android:scaleType="fitEnd"
                         android:tint="@android:color/tertiary_text_dark"
-                        app:srcCompat="@drawable/ic_bin"
-                        android:contentDescription="@string/delete_icon" />
+                        app:srcCompat="@drawable/ic_bin" />
 
                 </LinearLayout>
 

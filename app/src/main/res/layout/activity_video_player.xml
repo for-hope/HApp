@@ -15,7 +15,8 @@
         android:background="@color/colorTitle"
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
+        android:theme="?attr/actionBarTheme"
+        app:titleTextAppearance="@style/Toolbar.TitleText" />
 
     <FrameLayout
         android:id="@+id/frameLayout"
@@ -24,11 +25,11 @@
 
         android:layout_weight="1">
 
-        <VideoView
-            android:id="@+id/videoView"
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/exoPlayerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
+            android:layout_height="match_parent" />
+
 
         <LinearLayout
             android:id="@+id/progressLayout"

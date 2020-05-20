@@ -59,7 +59,10 @@ class UploadItemsAdapter(private val uploads: ArrayList<Upload>, private val act
                 upload.imgDrawableList,
                 activity
             )
-            val mNoOfColumns = calculateNoOfColumns(activity.applicationContext, 100f)
+            //val widthInPixel = convertDpToPixel(100f,activity)
+            val dp =
+                (activity.resources.getDimension(R.dimen._75sdp) / activity.resources.displayMetrics.density)
+            val mNoOfColumns = calculateNoOfColumns(activity.applicationContext, dp)
             val gridViewManager = GridLayoutManager(activity, mNoOfColumns)
 
             mRecyclerView.layoutManager = gridViewManager

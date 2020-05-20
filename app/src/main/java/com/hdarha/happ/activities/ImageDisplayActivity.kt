@@ -30,6 +30,7 @@ import com.hdarha.happ.objects.Voice
 import com.hdarha.happ.other.PREF_HISTORY
 import com.hdarha.happ.other.PREF_POINTS
 import com.hdarha.happ.other.RetrofitClientInstance
+import com.hdarha.happ.other.TAG
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.util.FileUtils.getPath
 import id.zelory.compressor.Compressor
@@ -59,7 +60,7 @@ class ImageDisplayActivity : AppCompatActivity(),
     private var mPhotoDraweeView: PhotoDraweeView? = null
     private var imgUri: String? = null
     private var ogImage: String? = null
-    private val cancelRequestSignal = CancellationSignal()
+    private var cancelRequestSignal = CancellationSignal()
     private val bottomSheet = BottomSheet(this)
 
     //private lateinit var firstImage:String
@@ -422,6 +423,7 @@ class ImageDisplayActivity : AppCompatActivity(),
             val uploadBundle: Call<ResponseBody?> = service.uploadImage(part, audioId)!!
 
             cancelRequestSignal.setOnCancelListener {
+                Log.e(TAG, "CancalSginaListener : On")
                 uploadBundle.cancel()
             }
 
@@ -455,8 +457,15 @@ class ImageDisplayActivity : AppCompatActivity(),
                     }
 
                     override fun onFailure(call: Call<ResponseBody?>?, t: Throwable?) {
-                        Log.e("Error", t.toString())
-                        errDialog(dialog, getString(R.string.conn_err_msg))
+
+                        if (call!!.isCanceled) {
+                            Log.e(TAG, "request was cancelled")
+                            isProcessing = false
+                            cancelRequestSignal = CancellationSignal()
+                        } else {
+                            errDialog(dialog, getString(R.string.conn_err_msg))
+                            Log.e(TAG, "other larger issue, i.e. no network connection?")
+                        }
 //                Log.d("RESPONSE", " NOT OK $t")
 
                     }

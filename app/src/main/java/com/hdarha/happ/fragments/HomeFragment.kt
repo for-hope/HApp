@@ -107,7 +107,7 @@ class HomeFragment : Fragment() {
         homeShareBtn.setOnClickListener {
             shareApp()
 //            val intent = Intent(context, VideoPlayerActivity::class.java)
-//            intent.putExtra("url", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4")
+//            intent.putExtra("url", "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_640_3MG.mp4")
 //            startActivity(intent)
         }
 
@@ -133,11 +133,13 @@ class HomeFragment : Fragment() {
             val profileUrl = currentUser.photoUrl
             //val p = Picasso.get()
             Log.d("url", profileUrl.toString())
-            Glide.with(this).load(profileUrl).into(profile_image)
+            Glide.with(this).load(profileUrl).circleCrop().into(profile_image)
             creditNumberTextView.visibility = View.VISIBLE
             creditTextView.visibility = View.VISIBLE
+            //creditTextView.textSize
             creditNumberTextView.text = activity!!.getSharedPreferences(PREF_POINTS,Context.MODE_PRIVATE).getInt("credit",0).toString()
         } else {
+            Glide.with(this).load(R.drawable.profile).circleCrop().into(profile_image)
             signInTextView.visibility = View.VISIBLE
             creditNumberTextView.visibility = View.GONE
             creditTextView.visibility = View.GONE

@@ -61,7 +61,8 @@
                             android:layout_weight="1"
                             android:text="@string/select_sound"
                             android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                            android:textColor="@android:color/white" />
+                            android:textColor="@android:color/white"
+                            android:textSize="@dimen/_14ssp" />
 
                         <ImageButton
                             android:id="@+id/rnd_btn"
@@ -140,7 +141,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/loading_voices"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/_10ssp" />
             </LinearLayout>
         </FrameLayout>
 

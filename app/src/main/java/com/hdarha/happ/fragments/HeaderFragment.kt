@@ -19,6 +19,7 @@ import com.hdarha.happ.other.PREF_POINTS
 import kotlinx.android.synthetic.main.fragment_header.*
 
 private lateinit var auth: FirebaseAuth
+
 class HeaderFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,18 +35,19 @@ class HeaderFragment : Fragment() {
 
         setupProfileInfo(auth.currentUser)
     }
+
     private fun setupProfileInfo(currentUser: FirebaseUser?) {
+        val profileImage = view?.findViewById<ImageView>(R.id.profileImageView)
         if (currentUser != null) {
-            val profileImage = view?.findViewById<ImageView>(R.id.profileImageView)
             val url = currentUser.photoUrl
             if (profileImage != null) {
                 Glide.with(context!!).load(url).into(profileImage)
             } else {
-                Toast.makeText(context!!,"Error loading profile pic",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context!!, "Error loading profile pic", Toast.LENGTH_SHORT).show()
             }
             val mPref = activity!!.getSharedPreferences(PREF_POINTS, Context.MODE_PRIVATE)
-            val credit = mPref.getInt("credit",0)
-            val creation = mPref.getInt("creation",0)
+            val credit = mPref.getInt("credit", 0)
+            val creation = mPref.getInt("creation", 0)
             val creditTextView = view?.findViewById<TextView>(R.id.textViewCredit)
             val creationTextView = view?.findViewById<TextView>(R.id.textViewCreations)
             creditTextView?.text = credit.toString()
@@ -63,8 +65,12 @@ class HeaderFragment : Fragment() {
             if (providerId == "google.com") {
                 img = activity!!.getDrawable(R.drawable.ic_google)
             }
-            displayNameTextView.setCompoundDrawablesWithIntrinsicBounds(img,null,null,null)
+            displayNameTextView.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
             displayNameTextView.text = currentUser.displayName
+        } else {
+            if (profileImage != null) {
+                Glide.with(context!!).load(R.drawable.profile).into(profileImage)
+            }
         }
     }
 
